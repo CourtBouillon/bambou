@@ -1,56 +1,71 @@
+PRAGMA foreign_keys=ON;
+
 CREATE TABLE person (
+  id INTEGER PRIMARY KEY,
   mail TEXT UNIQUE NOT NULL,
   civility TEXT NOT NULL,
-  lastname TEXT NOT NULL,
   firstname TEXT NOT NULL,
+  lastname TEXT NOT NULL,
   password TEXT,
   photo BLOB
 );
 
 CREATE TABLE tutor (
-  person_id INTEGER NOT NULL REFERENCES person(rowid),
+  id INTEGER PRIMARY KEY,
+  person_id INTEGER NOT NULL REFERENCES person(id),
   company TEXT
 );
 
 CREATE TABLE teacher (
-  person_id INTEGER NOT NULL REFERENCES person(rowid)
+  id INTEGER PRIMARY KEY,
+  person_id INTEGER NOT NULL REFERENCES person(id)
 );
 
 CREATE TABLE student (
-  person_id INTEGER NOT NULL REFERENCES person(rowid)
+  id INTEGER PRIMARY KEY,
+  person_id INTEGER NOT NULL REFERENCES person(id)
 );
 
 CREATE TABLE administrator (
-  person_id INTEGER NOT NULL REFERENCES person(rowid)
+  id INTEGER PRIMARY KEY,
+  person_id INTEGER NOT NULL REFERENCES person(id)
 );
 
 CREATE TABLE superadministrator (
-  person_id INTEGER NOT NULL REFERENCES person(rowid)
+  id INTEGER PRIMARY KEY,
+  person_id INTEGER NOT NULL REFERENCES person(id)
 );
 
 CREATE TABLE teaching_period (
+  id INTEGER PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL
 );
 
 CREATE TABLE registration (
-  teaching_period_id INTEGER NOT NULL REFERENCES teaching_period(rowid),
-  student_id INTEGER NOT NULL REFERENCES student(rowid)
+  id INTEGER PRIMARY KEY,
+  teaching_period_id INTEGER NOT NULL REFERENCES teaching_period(id),
+  student_id INTEGER NOT NULL REFERENCES student(id)
 );
 
 CREATE TABLE tutoring (
-  tutor_id INTEGER NOT NULL REFERENCES tutor(rowid),
-  registration_id INTEGER NOT NULL REFERENCES registration(rowid)
+  id INTEGER PRIMARY KEY,
+  tutor_id INTEGER NOT NULL REFERENCES tutor(id),
+  registration_id INTEGER NOT NULL REFERENCES registration(id)
 );
 
 CREATE TABLE semester (
-  teaching_period_id INTEGER NOT NULL REFERENCES teaching_period(rowid),
+  id INTEGER PRIMARY KEY,
+  teaching_period_id INTEGER NOT NULL REFERENCES teaching_period(id),
+  name TEXT NOT NULL,
   start DATE NOT NULL,
   stop DATE NOT NULL
 );
 
 CREATE TABLE tracking (
-  registration_id INTEGER NOT NULL REFERENCES registration(rowid),
-  semester_id INTEGER NOT NULL REFERENCES semester(rowid),
+  id INTEGER PRIMARY KEY,
+  registration_id INTEGER NOT NULL REFERENCES registration(id),
+  semester_id INTEGER NOT NULL REFERENCES semester(id),
   justified_absence_minutes INTEGER NOT NULL,
   unjustified_absence_minutes INTEGER NOT NULL,
   lateness_minutes INTEGER NOT NULL,
@@ -58,18 +73,23 @@ CREATE TABLE tracking (
 );
 
 CREATE TABLE production_action (
-  teacher_id INTEGER NOT NULL REFERENCES teacher(rowid),
+  id INTEGER PRIMARY KEY,
+  teacher_id INTEGER NOT NULL REFERENCES teacher(id),
+  code TEXT NOT NULL,
+  name TEXT NOT NULL,
   last_course_date DATE
 );
 
 CREATE TABLE course (
-  semester_id INTEGER NOT NULL REFERENCES semester(rowid),
-  production_action_id INTEGER NOT NULL REFERENCES production_action(rowid)
+  id INTEGER PRIMARY KEY,
+  semester_id INTEGER NOT NULL REFERENCES semester(id),
+  production_action_id INTEGER NOT NULL REFERENCES production_action(id)
 );
 
 CREATE TABLE assignment (
-  registration_id INTEGER NOT NULL REFERENCES registration(rowid),
-  course_id INTEGER NOT NULL REFERENCES course(rowid),
+  id INTEGER PRIMARY KEY,
+  registration_id INTEGER NOT NULL REFERENCES registration(id),
+  course_id INTEGER NOT NULL REFERENCES course(id),
   mark TEXT,
   comments TEXT
 );

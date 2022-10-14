@@ -1,0 +1,15 @@
+<ul>
+  {% for training_period in training_periods %}
+    <li>{{ training_period.name }}</li>
+  {% endfor %}
+</ul>
+<ul>
+  {% for production_action in production_actions %}
+    <li>{{ production_action.name }}</li>
+  {% endfor %}
+</ul>
+<ul>
+  {% for person in people %}
+    <li>{{ person.person_name }}</li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,23 @@
+<ul>
+{% for mark, marks in marks | selectattr('mark') | groupby(attribute='mark') %}
+  <li>{{ mark }} - {{ marks | length }}</li>
+{% endfor %}
+</ul>
+
+<ul>
+{% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+  <li>{{ marks[0].semester_name }} - {{ marks[0].justified_absence_minutes }}
+    - {{ marks[0].unjustified_absence_minutes }} - {{ marks[0].lateness_minutes }} - {{ marks[0].tracking_comments }}</li>
+{% endfor %}
+</ul>
+
+{% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+  {% if marks[0].production_action_name %}
+    <h1>{{ marks[0].semester_name }}</h1>
+    <ul>
+    {% for mark in marks %}
+      <li>{{ mark.production_action_name }} - {{ mark.mark }} - {{ mark.comments }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endfor %}

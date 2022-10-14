@@ -1,0 +1,6 @@
+{% for teaching_period_id, courses in courses | groupby(attribute='teaching_period_id') %}
+  <h1>{{ courses[0].teaching_period_name }}</h1>
+  {% for course in courses %}
+    <li>{{ course.production_action_name }}
+  {% endfor %}
+{% endfor %}

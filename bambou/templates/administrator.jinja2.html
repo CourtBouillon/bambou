@@ -1,0 +1,8 @@
+{% for teaching_period_id, students in students | groupby(attribute='teaching_period_id') %}
+  <h1>{{ students[0].teaching_period_name }}</h1>
+  <ul>
+    {% for student in students %}
+      <li>{{ student.person_name }}</li>
+    {% endfor %}
+  </ul>
+{% endfor %}

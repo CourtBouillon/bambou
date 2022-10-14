@@ -1,0 +1,13 @@
+<input name="code" value="{{ teaching_period.code }}" />
+<input name="name" value="{{ teaching_period.name }}" />
+
+<ul>
+  {% for production_action in production_actions %}
+    <li>{{ production_action.name }}</li>
+  {% endfor %}
+</ul>
+<ul>
+  {% for student in students %}
+    <li>{{ student.person_name }}</li>
+  {% endfor %}
+</ul>
