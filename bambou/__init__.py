@@ -1,6 +1,8 @@
-import sqlite3
+from flask import (
+    Flask, abort, redirect, render_template, request, session, url_for)
 
-from flask import Flask, redirect, render_template, request, url_for
+from . import user
+from .db import get_connection
 
 app = Flask(__name__)
 app.config.update(
@@ -9,28 +11,53 @@ app.config.update(
 app.config.from_envvar('BAMBOU_CONFIG', silent=True)
 
 
-def get_connection():
-    connection = sqlite3.connect(app.config['DB'])
-    connection.row_factory = sqlite3.Row
-    return connection
-
-
 @app.route('/')
 def index():
-    cursor = get_connection().cursor()
-    cursor.execute('SELECT * FROM person')
-    print(cursor.fetchall())
-    return '<p>Hello, World!</p>'
+    if user.is_tutor():
+        pass
+    elif user.is_teacher():
+        return redirect(url_for('teacher'))
+    elif user.is_student():
+        return redirect(url_for('report'))
+    elif user.is_administrator():
+        return redirect(url_for('administrator'))
+    elif user.is_superadministrator():
+        return redirect(url_for('superadministrator'))
+    return redirect(url_for('login'))
 
 
-@app.route('/login', methods=('get', 'post'))
+@app.route('/login', methods=('GET', 'POST'))
 def login():
-    return render_template('login.html.jinja2')
+    if request.method == 'POST':
+        cursor = get_connection().cursor()
+        cursor.execute(
+            'SELECT id FROM person WHERE mail = (?)',
+            (request.form['login'],))
+        person = cursor.fetchone()
+        if person:
+            session['person_id'] = person['id']
+            return redirect(url_for('index'))
+        else:
+            pass
+    return render_template('login.jinja2.html')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('person_id', None)
+    return redirect(url_for('login'))
 
 
 @app.route('/profile', methods=('GET', 'POST'))
 @app.route('/profile/<int:person_id>', methods=('GET', 'POST'))
+@user.check(user.is_connected)
 def profile(person_id=None):
+    if person_id is None:
+        person_id = session['person_id']
+    else:
+        if not user.is_superadministrator():
+            return abort(403)
+
     connection = get_connection()
     cursor = connection.cursor()
     if request.method == 'POST':
@@ -41,23 +68,21 @@ def profile(person_id=None):
               firstname = (?),
               lastname = (?),
               password = (?)
-            WHERE rowid = (?)
+            WHERE
+              rowid = (?)
         ''', (
             request.form['mail'], request.form['firstname'],
             request.form['lastname'], request.form['password'], person_id))
         connection.commit()
         return redirect(url_for('profile', person_id=person_id))
-    cursor.execute('''
-        SELECT * FROM person
-        WHERE rowid = (?)
-    ''', (person_id,))
+    cursor.execute('SELECT * FROM person WHERE rowid = (?)', (person_id,))
     person = cursor.fetchone()
     return render_template('profile.jinja2.html', person=person)
 
 
 @app.route('/teacher')
+@user.check(user.is_teacher)
 def teacher():
-    person_id = 4
     cursor = get_connection().cursor()
     cursor.execute('''
         SELECT
@@ -73,12 +98,13 @@ def teacher():
           teaching_period ON (teaching_period.id = semester.teaching_period_id)
         WHERE
           teacher.person_id = (?)
-    ''', (person_id,))
+    ''', (session['person_id'],))
     courses = cursor.fetchall()
     return render_template('teacher.jinja2.html', courses=courses)
 
 
 @app.route('/marks/<int:course_id>', methods=('GET', 'POST'))
+@user.check(user.is_teacher, user.is_superadministrator)
 def marks(course_id):
     cursor = get_connection().cursor()
     cursor.execute('''
@@ -101,8 +127,29 @@ def marks(course_id):
 
 @app.route('/report')
 @app.route('/report/<int:registration_id>')
+@user.check(user.is_student, user.is_administrator, user.is_superadministrator)
 def report(registration_id=None):
     cursor = get_connection().cursor()
+    if registration_id is None:
+        cursor.execute('''
+            SELECT
+              registration.id
+            FROM
+              registration
+            JOIN
+              student ON (student.id = registration.student_id)
+            WHERE
+              student.person_id = (?)
+        ''', (session['person_id'],))
+        registration = cursor.fetchone()
+        if registration:
+            registration_id = session['person_id']
+        else:
+            return abort(404)
+    else:
+        if not (user.is_administrator() or user.is_superadministrator()):
+            return abort(403)
+
     cursor.execute('''
         SELECT
           production_action.name AS production_action_name,
@@ -139,6 +186,7 @@ def report(registration_id=None):
 
 
 @app.route('/administrator')
+@user.check(user.is_administrator)
 def administrator():
     cursor = get_connection().cursor()
     cursor.execute('''
@@ -159,6 +207,7 @@ def administrator():
 
 
 @app.route('/superadministrator', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
 def superadministrator():
     cursor = get_connection().cursor()
     cursor.execute('''
@@ -192,6 +241,7 @@ def superadministrator():
 
 @app.route('/teaching-period/<int:teaching_period_id>',
            methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
 def teaching_period(teaching_period_id):
     cursor = get_connection().cursor()
     cursor.execute('''
