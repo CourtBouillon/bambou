@@ -78,29 +78,29 @@ action_teachers = tuple(
 cursor.execute('PRAGMA foreign_keys=ON')
 
 request = 'INSERT INTO production_action (code, name) VALUES '
-request += ', '.join(('((?), (?))',) * len(actions))
+request += ', '.join(('(?, ?)',) * len(actions))
 cursor.execute(request, tuple(chain(*actions.items())))
 
 request = 'INSERT INTO teaching_period (code, name) VALUES '
-request += ', '.join(('((?), (?))',) * len(periods))
+request += ', '.join(('(?, ?)',) * len(periods))
 cursor.execute(request, tuple(chain(*periods.items())))
 
 request = 'INSERT INTO semester (teaching_period_id, name, start, stop) VALUES'
 request += ', '.join(
-    ("((?), 'Semestre 1', '2022/09/01', '2022/02/28')",) * len(periods))
+    ("(?, 'Semestre 1', '2022/09/01', '2022/02/28')",) * len(periods))
 cursor.execute(request, tuple(range(1, len(periods) + 1)))
 
 request = 'INSERT INTO person (lastname, firstname, mail) VALUES '
 request += ', '.join(
-    ('((?), (?), (?))',) * (len(teacher_names) + len(students)))
+    ('(?, ?, ?)',) * (len(teacher_names) + len(students)))
 cursor.execute(request, tuple(chain(*teacher_names, *students.values())))
 
 request = 'INSERT INTO teacher (person_id) VALUES '
-request += ', '.join(('((?))',) * len(teacher_names))
+request += ', '.join(('(?)',) * len(teacher_names))
 cursor.execute(request, tuple(range(1, len(teacher_names) + 1)))
 
 request = 'INSERT INTO student (person_id) VALUES '
-request += ', '.join(('((?))',) * len(students))
+request += ', '.join(('(?)',) * len(students))
 cursor.execute(request, tuple(range(
     len(teacher_names) + 1, len(teacher_names) + len(students) + 1)))
 
@@ -110,7 +110,7 @@ request = '''
     FROM teaching_period, production_action
     JOIN semester ON (semester.teaching_period_id = teaching_period.id)
     WHERE (teaching_period.code, production_action.code) IN ('''
-request += ', '.join(('((?), (?))',) * len(courses)) + ')'
+request += ', '.join(('(?, ?)',) * len(courses)) + ')'
 cursor.execute(request, tuple(chain(*courses)))
 
 request = '''
@@ -119,7 +119,7 @@ request = '''
     FROM teaching_period, student
     JOIN person ON (person.id = student.person_id)
     WHERE (teaching_period.code, person.mail) IN ('''
-request += ', '.join(('((?), (?))',) * len(registrations)) + ')'
+request += ', '.join(('(?, ?)',) * len(registrations)) + ')'
 cursor.execute(request, tuple(chain(*registrations)))
 
 request = '''
@@ -134,7 +134,7 @@ request = '''
     JOIN production_action
       ON (production_action.id = course.production_action_id)
     WHERE (teaching_period.code, production_action.code, person.mail) IN ('''
-request += ', '.join(('((?), (?), (?))',) * len(assignments)) + ')'
+request += ', '.join(('(?, ?, ?)',) * len(assignments)) + ')'
 cursor.execute(request, tuple(chain(*assignments)))
 
 request = '''
@@ -142,7 +142,7 @@ request = '''
     SET teacher_id = teacher.id
     FROM teacher JOIN person ON (teacher.person_id = person.id)
     WHERE (production_action.code, person.mail) IN ('''
-request += ', '.join(('((?), (?))',) * len(action_teachers)) + ')'
+request += ', '.join(('(?, ?)',) * len(action_teachers)) + ')'
 cursor.execute(request, tuple(chain(*action_teachers)))
 
 connection.commit()

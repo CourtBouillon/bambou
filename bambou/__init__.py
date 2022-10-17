@@ -64,18 +64,18 @@ def profile(person_id=None):
         cursor.execute('''
             UPDATE person
             SET
-              mail = (?),
-              firstname = (?),
-              lastname = (?),
-              password = (?)
+              mail = ?,
+              firstname = ?,
+              lastname = ?,
+              password = ?
             WHERE
-              rowid = (?)
+              rowid = ?
         ''', (
             request.form['mail'], request.form['firstname'],
             request.form['lastname'], request.form['password'], person_id))
         connection.commit()
         return redirect(url_for('profile', person_id=person_id))
-    cursor.execute('SELECT * FROM person WHERE rowid = (?)', (person_id,))
+    cursor.execute('SELECT * FROM person WHERE rowid = ?', (person_id,))
     person = cursor.fetchone()
     return render_template('profile.jinja2.html', person=person)
 
@@ -97,7 +97,7 @@ def teacher():
           semester ON (semester.id = course.semester_id),
           teaching_period ON (teaching_period.id = semester.teaching_period_id)
         WHERE
-          teacher.person_id = (?)
+          teacher.person_id = ?
     ''', (session['person_id'],))
     courses = cursor.fetchall()
     return render_template('teacher.jinja2.html', courses=courses)
@@ -119,7 +119,7 @@ def marks(course_id):
           student ON (student.id = registration.student_id),
           person ON (person.id = student.person_id)
         WHERE
-          assignment.course_id = (?)
+          assignment.course_id = ?
     ''', (course_id,))
     assignments = cursor.fetchall()
     return render_template('marks.jinja2.html', assignments=assignments)
@@ -139,7 +139,7 @@ def report(registration_id=None):
             JOIN
               student ON (student.id = registration.student_id)
             WHERE
-              student.person_id = (?)
+              student.person_id = ?
         ''', (session['person_id'],))
         registration = cursor.fetchone()
         if registration:
@@ -181,7 +181,7 @@ def report(registration_id=None):
           production_action ON (
             production_action.id = course.production_action_id)
         WHERE
-          registration.id = (?)
+          registration.id = ?
     ''', (registration_id,))
     marks = cursor.fetchall()
     return render_template('report.jinja2.html', marks=marks)
@@ -253,7 +253,7 @@ def teaching_period(teaching_period_id):
         FROM
           teaching_period
         WHERE
-          teaching_period.id = (?)
+          teaching_period.id = ?
     ''', (teaching_period_id,))
     teaching_period = cursor.fetchone()
     cursor.execute('''
@@ -266,7 +266,7 @@ def teaching_period(teaching_period_id):
           course ON (course.production_action_id = production_action.id),
           semester ON (semester.id = course.semester_id)
         WHERE
-          semester.teaching_period_id = (?)
+          semester.teaching_period_id = ?
     ''', (teaching_period_id,))
     production_actions = cursor.fetchall()
     cursor.execute('''
@@ -279,7 +279,7 @@ def teaching_period(teaching_period_id):
           student ON (student.person_id = person.id),
           registration ON (registration.student_id = student.id)
         WHERE
-          registration.teaching_period_id = (?)
+          registration.teaching_period_id = ?
     ''', (teaching_period_id,))
     students = cursor.fetchall()
     return render_template(
