@@ -3,7 +3,7 @@ PRAGMA foreign_keys=ON;
 CREATE TABLE person (
   id INTEGER PRIMARY KEY,
   mail TEXT UNIQUE NOT NULL,
-  civility TEXT NOT NULL,
+  civility TEXT,
   firstname TEXT NOT NULL,
   lastname TEXT NOT NULL,
   password TEXT,
@@ -74,7 +74,7 @@ CREATE TABLE tracking (
 
 CREATE TABLE production_action (
   id INTEGER PRIMARY KEY,
-  teacher_id INTEGER NOT NULL REFERENCES teacher(id),
+  teacher_id INTEGER REFERENCES teacher(id),
   code TEXT NOT NULL,
   name TEXT NOT NULL,
   last_course_date DATE

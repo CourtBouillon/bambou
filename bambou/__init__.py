@@ -143,7 +143,7 @@ def report(registration_id=None):
         ''', (session['person_id'],))
         registration = cursor.fetchone()
         if registration:
-            registration_id = session['person_id']
+            registration_id = registration['id']
         else:
             return abort(404)
     else:
@@ -165,21 +165,23 @@ def report(registration_id=None):
         FROM
           semester
         JOIN
+          teaching_period ON (teaching_period.id = semester.teaching_period_id)
+        JOIN
+          registration ON (
+            registration.teaching_period_id = teaching_period.id)
+        JOIN
+          assignment ON (assignment.registration_id = registration.id)
+        LEFT JOIN
           tracking ON (tracking.semester_id = semester.id)
-        LEFT JOIN
-          assignment AS registration_assignment ON (
-            registration_assignment.registration_id = tracking.registration_id)
-        LEFT JOIN
+        JOIN
           course ON (
-            course.id = registration_assignment.course_id AND
+            course.id = assignment.course_id AND
             course.semester_id = semester.id)
-        LEFT JOIN
-          assignment ON (assignment.course_id = course.id)
-        LEFT JOIN
+        JOIN
           production_action ON (
             production_action.id = course.production_action_id)
         WHERE
-          registration_assignment.registration_id = (?)
+          registration.id = (?)
     ''', (registration_id,))
     marks = cursor.fetchall()
     return render_template('report.jinja2.html', marks=marks)
