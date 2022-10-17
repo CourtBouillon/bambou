@@ -104,49 +104,45 @@ request += ', '.join(('((?))',) * len(students))
 cursor.execute(request, tuple(range(
     len(teacher_names) + 1, len(teacher_names) + len(students) + 1)))
 
-for period_code, action_code in courses:
-    request = '''
-        INSERT INTO course (semester_id, production_action_id)
-        SELECT semester.id, production_action.id
-        FROM teaching_period, production_action
-        JOIN semester ON (semester.teaching_period_id = teaching_period.id)
-        WHERE production_action.code = (?)
-          AND teaching_period.code = (?)'''
-    cursor.execute(request, (action_code, period_code))
+request = '''
+    INSERT INTO course (semester_id, production_action_id)
+    SELECT semester.id, production_action.id
+    FROM teaching_period, production_action
+    JOIN semester ON (semester.teaching_period_id = teaching_period.id)
+    WHERE (teaching_period.code, production_action.code) IN ('''
+request += ', '.join(('((?), (?))',) * len(courses)) + ')'
+cursor.execute(request, tuple(chain(*courses)))
 
-for period_code, person_mail in registrations:
-    request = '''
-        INSERT INTO registration (teaching_period_id, student_id)
-        SELECT teaching_period.id, student.id
-        FROM teaching_period, student
-        JOIN person ON (person.id = student.person_id)
-        WHERE teaching_period.code = (?)
-        AND person.mail = (?)'''
-    cursor.execute(request, (period_code, person_mail))
+request = '''
+    INSERT INTO registration (teaching_period_id, student_id)
+    SELECT teaching_period.id, student.id
+    FROM teaching_period, student
+    JOIN person ON (person.id = student.person_id)
+    WHERE (teaching_period.code, person.mail) IN ('''
+request += ', '.join(('((?), (?))',) * len(registrations)) + ')'
+cursor.execute(request, tuple(chain(*registrations)))
 
-for period_code, action_code, person_mail in assignments:
-    request = '''
-        INSERT INTO assignment (registration_id, course_id)
-        SELECT registration.id, course.id
-        FROM registration, course
-        JOIN student ON (student.id = registration.student_id)
-        JOIN person ON (person.id = student.person_id)
-        JOIN semester ON (semester.id = course.semester_id)
-        JOIN teaching_period
-          ON (teaching_period.id = semester.teaching_period_id)
-        JOIN production_action
-          ON (production_action.id = course.production_action_id)
-        WHERE teaching_period.code = (?)
-          AND production_action.code = (?)
-          AND person.mail = (?)'''
-    cursor.execute(request, (period_code, action_code, person_mail))
+request = '''
+    INSERT INTO assignment (registration_id, course_id)
+    SELECT registration.id, course.id
+    FROM registration, course
+    JOIN student ON (student.id = registration.student_id)
+    JOIN person ON (person.id = student.person_id)
+    JOIN semester ON (semester.id = course.semester_id)
+    JOIN teaching_period
+      ON (teaching_period.id = semester.teaching_period_id)
+    JOIN production_action
+      ON (production_action.id = course.production_action_id)
+    WHERE (teaching_period.code, production_action.code, person.mail) IN ('''
+request += ', '.join(('((?), (?), (?))',) * len(assignments)) + ')'
+cursor.execute(request, tuple(chain(*assignments)))
 
-for action_code, teacher_mail in action_teachers:
-    request = '''
-        UPDATE production_action
-        SET teacher_id = teacher.id
-        FROM teacher JOIN person ON (teacher.person_id = person.id)
-        WHERE person.mail = (?) and production_action.code = (?)'''
-    cursor.execute(request, (teacher_mail, action_code))
+request = '''
+    UPDATE production_action
+    SET teacher_id = teacher.id
+    FROM teacher JOIN person ON (teacher.person_id = person.id)
+    WHERE (production_action.code, person.mail) IN ('''
+request += ', '.join(('((?), (?))',) * len(action_teachers)) + ')'
+cursor.execute(request, tuple(chain(*action_teachers)))
 
 connection.commit()
