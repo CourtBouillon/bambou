@@ -1,5 +1,6 @@
 from flask import (
-    Flask, abort, redirect, render_template, request, session, url_for)
+    Flask, abort, flash, redirect, render_template, request, session, url_for)
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from . import user
 from .db import get_connection
@@ -31,14 +32,15 @@ def login():
     if request.method == 'POST':
         cursor = get_connection().cursor()
         cursor.execute(
-            'SELECT id FROM person WHERE mail = (?)',
+            'SELECT id, password FROM person WHERE mail = ?',
             (request.form['login'],))
         person = cursor.fetchone()
         if person:
-            session['person_id'] = person['id']
-            return redirect(url_for('index'))
-        else:
-            pass
+            passwords = request.form['password'], person['password']
+            if check_password_hash(*passwords) or app.config['DEBUG']:
+                session['person_id'] = person['id']
+                return redirect(url_for('index'))
+        flash('L’identifiant ou le mot de passe est incorrect')
     return render_template('login.jinja2.html')
 
 
@@ -52,28 +54,33 @@ def logout():
 @app.route('/profile/<int:person_id>', methods=('GET', 'POST'))
 @user.check(user.is_connected)
 def profile(person_id=None):
-    if person_id is None:
+    if person_id == session['person_id']:
+        return redirect(url_for('profile'))
+    elif person_id is None:
         person_id = session['person_id']
-    else:
-        if not user.is_superadministrator():
-            return abort(403)
+    elif not user.is_superadministrator():
+        return abort(403)
 
     connection = get_connection()
     cursor = connection.cursor()
     if request.method == 'POST':
+        if request.form['password'] != request.form['confirm_password']:
+            flash('Les deux mots de passe doivent être les mêmes')
+            return redirect(url_for('profile', person_id=person_id))
+        parameters = (
+            request.form['mail'], request.form['firstname'],
+            request.form['lastname'], person_id)
         cursor.execute('''
             UPDATE person
-            SET
-              mail = ?,
-              firstname = ?,
-              lastname = ?,
-              password = ?
-            WHERE
-              rowid = ?
-        ''', (
-            request.form['mail'], request.form['firstname'],
-            request.form['lastname'], request.form['password'], person_id))
+            SET mail = ?, firstname = ?, lastname = ?
+            WHERE rowid = ?
+        ''', parameters)
+        if request.form['password']:
+            cursor.execute(
+                'UPDATE person SET password = ? WHERE rowid = ?',
+                (generate_password_hash(request.form['password']), person_id))
         connection.commit()
+        flash('Les informations ont été sauvegardées')
         return redirect(url_for('profile', person_id=person_id))
     cursor.execute('SELECT * FROM person WHERE rowid = ?', (person_id,))
     person = cursor.fetchone()
