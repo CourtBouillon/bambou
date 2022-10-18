@@ -1,6 +1,20 @@
+{% set title = 'TODO Formateur - Nom Prénom' %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+
+<h2>Mes Formation</h2>
+
 {% for teaching_period_id, courses in courses | groupby(attribute='teaching_period_id') %}
-  <h1>{{ courses[0].teaching_period_name }}</h1>
-  {% for course in courses %}
-    <li>{{ course.production_action_name }}
-  {% endfor %}
+<section>
+  <h3>{{ courses[0].teaching_period_name }}</h3>
+  <ul>
+    {% for course in courses %}
+    <li><a href="">{{ course.production_action_name }}</a></li>
+    {% endfor %}
+  </ul>
+</section>
 {% endfor %}
+
+{% endblock %}

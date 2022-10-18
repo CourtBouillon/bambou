@@ -1,3 +1,25 @@
+{% set title = 'TODO Formateur - Nom Prénom' %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+
+<h2>TODO Nom promotion</h2>
+<h3>TODO Nom cours</h3>
+
+<form>
 {% for assignment in assignments %}
-  <li>{{ assignment.person_name }} - {{ assignment.mark }} - {{ assignment.comments }}
+<section>
+  <h4>{{ assignment.person_name }} TODO selected</h4>
+  <select>
+    <option value="Expertise − A">{{ assignment.mark }}</option>
+    <option value="Maîtrisé − B">Maîtrisé − B</option>
+    <option value="Acquis − C">Acquis − C</option>
+    <option value="En cours d’acquisition − D">En cours d’acquisition − D</option>
+    <option value="Non acquis − E">Non acquis − E</option>
+    <option value="Non évalué − NE">Non évalué − NE</option>
+  <textarea>{{ assignment.comments }}<textarea/>
+</section>
 {% endfor %}
+<input type="submit" value="Sauvegarder"/>
+</form>

@@ -1,3 +1,11 @@
+{% set title = 'TODO Super Administrateur - Nom Prénom' %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+
+<h2>Mes Formation</h2>
+
 <ul>
   {% for training_period in training_periods %}
     <li>{{ training_period.name }}</li>

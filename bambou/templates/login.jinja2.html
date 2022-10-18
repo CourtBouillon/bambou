@@ -1,5 +1,19 @@
+{% set title = 'Connexion' %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+
+<h1>Gestion de notes</h1>
+
 <form method="post">
+  <label for="login">Email</label>
   <input name="login" />
+  <label for="password">Mot de passe</label>
   <input name="password" type="password" />
-  <input type="submit" />
+  <input type="submit" value="Se connecter"/>
 </form>
+
+<a href="">Mot de passe perdu</a>
+
+{% endblock %}

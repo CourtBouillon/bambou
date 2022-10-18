@@ -1,8 +1,16 @@
+{% set title = 'TODO Mon Profil − Nom Prénom' %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+
+<h2>Mon Profil</h2>
+
 <form method="post">
-  <input name="mail" type="email" value="{{ person.mail }}" />
-  <input name="firstname" value="{{ person.firstname }}" />
-  <input name="lastname" value="{{ person.lastname }}" />
+  <input name="firstname" value="{{ person.firstname }}" value="TODO que pour superadmin l’édition"/>
+  <input name="lastname" value="{{ person.lastname }}" value="TODO que pour superadmin l’édition"/>
+  <input name="mail" type="email" value="{{ person.mail }}" value="TODO les valeurs actuelles"/>
   <input name="password" type="password" />
   <input name="confirm_password" type="password" />
-  <input type="submit" />
+  <input type="submit" value="Mettre à jour"/>
 </form>

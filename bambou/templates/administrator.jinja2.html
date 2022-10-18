@@ -1,8 +1,24 @@
+{% set title = 'TODO Formateur - Nom Prénom' %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+
+<h2>Périodes de formation</h2>
+
+<form>
+  <input type="text"/>
+  <input type="submit" value="Rechercher"/>
+</form>
+  
+
 {% for teaching_period_id, students in students | groupby(attribute='teaching_period_id') %}
-  <h1>{{ students[0].teaching_period_name }}</h1>
+<section>
+  <h3>{{ students[0].teaching_period_name }}</h3>
   <ul>
     {% for student in students %}
-      <li>{{ student.person_name }}</li>
+      <li><a href="">{{ student.person_name }}</a></li>
     {% endfor %}
   </ul>
+</section>
 {% endfor %}

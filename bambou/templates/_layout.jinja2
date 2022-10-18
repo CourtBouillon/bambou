@@ -1,0 +1,24 @@
+<html lang="fr">
+  <head>
+    <title>Bambou{% if title %} − {{ title }}{% endif %}</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="Gestion de notes de l’IPI">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body id="page-{{ request.endpoint }}">
+    <header>
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_ipi.png') }}"></a></li>
+          <li><a href="">Mon profil</a></li>
+          <li><a href="">Déconnexion</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      {% block content %}{% endblock content %}
+    </main>
+
+  </body>
+</html>
