@@ -143,7 +143,7 @@ def marks(production_action_id):
     course = cursor.fetchone()
     cursor.execute('''
         SELECT
-          person.lastname || ' ' || person.firstname as person_name,
+          person.lastname || ' ' || person.firstname AS person_name,
           assignment.id,
           assignment.mark,
           assignment.comments
@@ -240,9 +240,28 @@ def report(registration_id=None):
             production_action.id = course.production_action_id)
         WHERE
           registration.id = ?
+        ORDER BY
+          semester.start,
+          production_action.last_course_date,
+          production_action.name
     ''', (registration_id,))
     marks = cursor.fetchall()
-    return render_template('report.jinja2.html', marks=marks)
+    cursor.execute('''
+        SELECT
+          person.firstname || ' ' || person.lastname AS name,
+          teaching_period.name AS teaching_period_name
+        FROM
+          person
+        JOIN
+          student ON (person.id = student.person_id),
+          registration ON (registration.student_id = student.id),
+          teaching_period ON (
+            teaching_period.id = registration.teaching_period_id)
+        WHERE
+          registration.id = ?
+    ''', (registration_id,))
+    person = cursor.fetchone()
+    return render_template('report.jinja2.html', marks=marks, person=person)
 
 
 @app.route('/administrator')
@@ -251,7 +270,7 @@ def administrator():
     cursor = get_connection().cursor()
     cursor.execute('''
         SELECT
-          person.firstname || ' ' || person.lastname as person_name,
+          person.firstname || ' ' || person.lastname AS person_name,
           teaching_period.id AS teaching_period_id,
           teaching_period.name AS teaching_period_name
         FROM
@@ -343,6 +362,14 @@ def teaching_period(teaching_period_id):
     return render_template(
         'teaching_period.jinja2.html', teaching_period=teaching_period,
         production_actions=production_actions, students=students)
+
+
+@app.template_filter()
+def hours(minutes):
+    minutes = minutes or 0
+    return (
+        f'{minutes} min' if minutes < 60 else
+        f'{minutes//60} h {minutes%60:02}')
 
 
 @app.context_processor

@@ -1,129 +1,135 @@
-{% set title = 'TODO Notes Nom Prénom' %}
+{% set title = 'Notes − ' + person.name %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
+  <h2>Notes − {{ person.name }}</h2>
 
-<h2>TODO Mes Notes / Nom Prénom</h2>
-<h3>Nom promotion</h3>
+  <h3>{{ person.teaching_period_name }}</h3>
 
-<section>
-  <table>
-    <thead>
-      <th>
-        <td>Niveaux d’acquisition</td>
-        <td>75%</td>
-      </th>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Expertise − A</td>
-        <td>14</td>
-      </tr>
-      <tr>
-        <td>Maîtrise − B</td>
-        <td>14</td>
-      </tr>
-      <tr>
-        <td>Acquis − C</td>
-        <td>14</td>
-      </tr>
-      <tr>
-        <td>En cours d’acquisition − D</td>
-        <td>14</td>
-      </tr>
-      <tr>
-        <td>Non acquis − E</td>
-        <td>14</td>
-      </tr>
-      <tr>
-        <td>Non évalué − NE</td>
-        <td>14</td>
-      </tr>
-    </tbody>
-  </table>
-<!--
-<ul>
-{% for mark, marks in marks | selectattr('mark') | groupby(attribute='mark') %}
-  <li>{{ mark }} - {{ marks | length }}</li>
-{% endfor %}
-</ul>
--->
-</section>
-
-<section>
-  <table>
-    <thead>
-      <th>
-        <td>Absences</td>
-        <td>TODO Semestre 1</td>
-        <td>Semestre 2</td>
-      </th>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Justifiées</td>
-        <td>10h00</td>
-        <td>00h50</td>
-      </tr>
-      <tr>
-        <td>Injustifiées</td>
-        <td>10h00</td>
-        <td>00h50</td>
-      </tr>
-      <tr>
-        <td>Retards</td>
-        <td>10h00</td>
-        <td>00h50</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <a href="">TODO Ajouter/Modifier des absences</a>
-<!--
-<ul>
-{% for semester_id, marks in marks | groupby(attribute='semester_id') %}
-  <li>{{ marks[0].semester_name }} - {{ marks[0].justified_absence_minutes }}
-    - {{ marks[0].unjustified_absence_minutes }} - {{ marks[0].lateness_minutes }} - {{ marks[0].tracking_comments }}</li>
-{% endfor %}
-</ul>
--->
-</section>
-
-<section>
-  {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
-  {% if marks[0].production_action_name %}
-  <article>
-    <h4>{{ marks[0].semester_name }}</h4>
+  <section>
     <table>
       <thead>
-        <th>
-          <td>Module</td>
-          <td>Niveau d’acquisition</td>
-          <td>Commentaires</td>
-          <td>TODO SA Modifier</td>
-        </th>
+        <tr>
+          <th>Niveaux d’acquisition</th>
+          <td>{{ ((marks | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count) / (marks | count) * 100) | int }} %</td>
+        </tr>
       </thead>
       <tbody>
-        {% for mark in marks %}
         <tr>
-          <td>{{ mark.production_action_name }}</td>
-          <td>{{ mark.mark }}</td>
-          <td>{{ mark.comments }}</td>
-          <td><a href="">Modifier</a>
+          <th>Expertise − A</th>
+          <td>{{ marks | selectattr('mark', 'eq', 'A') | list | count }}</td>
         </tr>
-        {% endfor %}
+        <tr>
+          <th>Maîtrise − B</th>
+          <td>{{ marks | selectattr('mark', 'eq', 'B') | list | count }}</td>
+        </tr>
+        <tr>
+          <th>Acquis − C</th>
+          <td>{{ marks | selectattr('mark', 'eq', 'C') | list | count }}</td>
+        </tr>
+        <tr>
+          <th>En cours d’acquisition − D</th>
+          <td>{{ marks | selectattr('mark', 'eq', 'D') | list | count }}</td>
+        </tr>
+        <tr>
+          <th>Non acquis − E</th>
+          <td>{{ marks | selectattr('mark', 'eq', 'E') | list | count }}</td>
+        </tr>
+        <tr>
+          <th>Non évalué − NE</th>
+          <td>{{ marks | selectattr('mark', 'eq', 'NE') | list | count }}</td>
+        </tr>
+        <tr>
+          <th>Non noté</th>
+          <td>{{ marks | rejectattr('mark') | list | count }}</td>
+        </tr>
       </tbody>
     </table>
-    <a href="">TODO Ajouter/Modifier un commentaire de semestre</a>
-  </article>
-  {% endif %}
-  {% endfor %}
-  <dl>
-    <dt>TODO Note examen spécial</dt>
-    <dd>Note</dd>
-  </dl>
-  <a href="">Ajouter/Modifier une note d’examen spécial</a>
-</section>
-    
+  </section>
+
+  <section>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+            {% set semester = marks[0] %}
+            <th>{{ semester.semester_name }}</td>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>Justifiées</th>
+          {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+            {% set semester = marks[0] %}
+            <td>{{ semester.justified_absence_minutes | hours }}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <th>Injustifiées</th>
+          {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+            {% set semester = marks[0] %}
+            <td>{{ semester.unjustified_absence_minutes | hours }}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <th>Retards</th>
+          {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+            {% set semester = marks[0] %}
+            <td>{{ semester.lateness_minutes | hours }}</td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+
+    {% if user.is_superadministrator() %}
+      <a href="">TODO Modifier les absences</a>
+    {% endif %}
+  </section>
+
+  <section>
+    {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+      {% set semester = marks[0] %}
+      {% if semester.production_action_name %}
+        <article>
+          <h4>{{ semester.semester_name }}</h4>
+          <p>
+            {{ semester.tracking_comments or '(Pas de commentaire)' }}
+          </p>
+          {% if user.is_superadministrator() %}
+            <a href="">TODO Modifier le commentaire du semestre</a>
+          {% endif %}
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Niveau d’acquisition</th>
+                <th>Commentaires</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for mark in marks %}
+                <tr>
+                  <td>{{ mark.production_action_name }}</td>
+                  <td>{{ mark.mark or '' }}</td>
+                  <td>{{ mark.comments or '' }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% if user.is_superadministrator() %}
+            <a href="">Modifier les notes</a>
+          {% endif %}
+        </article>
+      {% endif %}
+    {% endfor %}
+
+    <dl>
+      <dt>TODO Note examen spécial</dt>
+      <dd>Note</dd>
+    </dl>
+    <a href="">Ajouter/Modifier une note d’examen spécial</a>
+  </section>
 {% endblock %}
