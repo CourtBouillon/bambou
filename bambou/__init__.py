@@ -100,6 +100,7 @@ def teacher():
         SELECT
           teaching_period.id AS teaching_period_id,
           teaching_period.name AS teaching_period_name,
+          production_action.id AS production_action_id,
           production_action.name AS production_action_name
         FROM
           teacher
@@ -115,26 +116,71 @@ def teacher():
     return render_template('teacher.jinja2.html', courses=courses)
 
 
-@app.route('/marks/<int:course_id>', methods=('GET', 'POST'))
+@app.route('/marks/<int:production_action_id>', methods=('GET', 'POST'))
 @user.check(user.is_teacher, user.is_superadministrator)
-def marks(course_id):
-    cursor = get_connection().cursor()
+def marks(production_action_id):
+    connection = get_connection()
+    cursor = connection.cursor()
     cursor.execute('''
         SELECT
-          person.firstname || ' ' || person.lastname as person_name,
+          production_action.name AS production_action_name,
+          group_concat(teaching_period.name, ', ') AS teaching_period_names
+        FROM
+          course
+        JOIN
+          semester ON (semester.id = course.semester_id),
+          teaching_period ON (
+            teaching_period.id = semester.teaching_period_id),
+          production_action ON (
+            production_action.id = course.production_action_id)
+        WHERE
+          course.production_action_id = ?
+        GROUP BY
+          teaching_period.name
+        ORDER BY
+          teaching_period.name
+    ''', (production_action_id,))
+    course = cursor.fetchone()
+    cursor.execute('''
+        SELECT
+          person.lastname || ' ' || person.firstname as person_name,
+          assignment.id,
           assignment.mark,
           assignment.comments
         FROM
-          assignment
+          course
         JOIN
+          assignment ON (assignment.course_id = course.id),
           registration ON (registration.id = assignment.registration_id),
           student ON (student.id = registration.student_id),
           person ON (person.id = student.person_id)
         WHERE
-          assignment.course_id = ?
-    ''', (course_id,))
+          course.production_action_id = ?
+        ORDER BY
+          person.lastname
+    ''', (production_action_id,))
     assignments = cursor.fetchall()
-    return render_template('marks.jinja2.html', assignments=assignments)
+    if request.method == 'POST':
+        for assignment in assignments:
+            values = (
+                request.form[f'{assignment["id"]}-mark'] or None,
+                request.form[f'{assignment["id"]}-comments'] or None,
+                assignment['id'])
+            cursor.execute('''
+                UPDATE
+                  assignment
+                SET
+                  mark = ?,
+                  comments = ?
+                WHERE
+                  assignment.id = ?
+            ''', values)
+        connection.commit()
+        flash('Les notes ont été enregistrées')
+        return redirect(url_for(
+            'marks', production_action_id=production_action_id))
+    return render_template(
+        'marks.jinja2.html', assignments=assignments, course=course)
 
 
 @app.route('/report')

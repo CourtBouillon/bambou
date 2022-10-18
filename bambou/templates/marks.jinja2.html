@@ -1,25 +1,26 @@
-{% set title = 'TODO Formateur - Nom Prénom' %}
+{% set title = 'Notes - ' + course.production_action_name + ' (' + course.teaching_period_names + ')' %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
+  <h2>{{ course.production_action_name + ' (' + course.teaching_period_names + ')' }}</h2>
 
-<h2>TODO Nom promotion</h2>
-<h3>TODO Nom cours</h3>
-
-<form>
-{% for assignment in assignments %}
-<section>
-  <h4>{{ assignment.person_name }} TODO selected</h4>
-  <select>
-    <option value="Expertise − A">{{ assignment.mark }}</option>
-    <option value="Maîtrisé − B">Maîtrisé − B</option>
-    <option value="Acquis − C">Acquis − C</option>
-    <option value="En cours d’acquisition − D">En cours d’acquisition − D</option>
-    <option value="Non acquis − E">Non acquis − E</option>
-    <option value="Non évalué − NE">Non évalué − NE</option>
-  <textarea>{{ assignment.comments }}<textarea/>
-</section>
-{% endfor %}
-<input type="submit" value="Sauvegarder"/>
-</form>
+  <form method="post">
+    {% for assignment in assignments %}
+      <section>
+        <h3>{{ assignment.person_name }}</h3>
+        <select name="{{ assignment.id }}-mark">
+          <option value="" {{ 'selected' if not assignment.mark }}></option>
+          <option value="A" {{ 'selected' if assignment.mark == 'A' }}>Expertise - A</option>
+          <option value="B" {{ 'selected' if assignment.mark == 'B' }}>Maîtrisé − B</option>
+          <option value="C" {{ 'selected' if assignment.mark == 'C' }}>Acquis − C</option>
+          <option value="D" {{ 'selected' if assignment.mark == 'D' }}>En cours d’acquisition − D</option>
+          <option value="E" {{ 'selected' if assignment.mark == 'E' }}>Non acquis − E</option>
+          <option value="NE" {{ 'selected' if assignment.mark == 'NE' }}>Non évalué − NE</option>
+        </select>
+        <textarea name="{{ assignment.id }}-comments">{{ assignment.comments or '' }}</textarea>
+      </section>
+    {% endfor %}
+    <input type="submit" value="Sauvegarder"/>
+  </form>
+{% endblock %}
