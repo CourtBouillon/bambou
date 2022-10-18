@@ -1,13 +1,26 @@
-<input name="code" value="{{ teaching_period.code }}" />
-<input name="name" value="{{ teaching_period.name }}" />
+{% set title = 'Période de formation - ' + teaching_period.name %}
 
-<ul>
-  {% for production_action in production_actions %}
-    <li>{{ production_action.name }}</li>
-  {% endfor %}
-</ul>
-<ul>
-  {% for student in students %}
-    <li>{{ student.person_name }}</li>
-  {% endfor %}
-</ul>
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+  <h2>Période de formation</h2>
+  <form method="post">
+    <input name="code" value="{{ teaching_period.code }}" />
+    <input name="name" value="{{ teaching_period.name }}" />
+    <input type="submit" value="Sauvegarder"/>
+  </form>
+
+  <h3>Actions de production (TODO ajouter & enlever)</h3>
+  <ul>
+    {% for production_action in production_actions %}
+      <li>{{ production_action.name }}</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Étudiants (TODO ajouter & enlever)</h3>
+  <ul>
+    {% for student in students %}
+      <li>{{ student.person_name }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

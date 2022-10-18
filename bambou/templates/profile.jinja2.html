@@ -15,4 +15,8 @@
     <input name="confirm_password" type="password" />
     <input type="submit" value="Mettre à jour"/>
   </form>
+
+  {% if user.is_superadministrator() %}
+    TODO Contenu spécial pour le superadministrateur selon le type de personne
+  {% endif %}
 {% endblock %}

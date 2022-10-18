@@ -1,0 +1,19 @@
+{% set title = 'Action de production - ' + production_action.name %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+  <h2>Action de production</h2>
+  <form method="post">
+    <input name="code" value="{{ production_action.code }}" />
+    <input name="name" value="{{ production_action.name }}" />
+    <select>
+      <option value="" {{ 'selected' if production_action.teacher_id == None }}></option>
+      {% for teacher in teachers %}
+        <option value="{{ teacher.id }}" {{ 'selected' if production_action.teacher_id == teacher.id }}>{{ teacher.name }}</option>
+      {% endfor %}
+    </select>
+    <input name="last_course_date" type="date" value="{{ production_action.last_course_date }}" />
+    <input type="submit" value="Sauvegarder"/>
+  </form>
+{% endblock %}

@@ -295,26 +295,41 @@ def superadministrator():
           teaching_period.name
         FROM
           teaching_period
+        ORDER BY
+          teaching_period.name
     ''')
-    training_periods = cursor.fetchall()
+    teaching_periods = cursor.fetchall()
     cursor.execute('''
         SELECT
           production_action.id,
-          production_action.name
+          production_action.name,
+          group_concat(teaching_period.name, ', ') as teaching_period_names
         FROM
           production_action
+        LEFT JOIN
+          course ON (course.production_action_id = production_action.id)
+        LEFT JOIN
+          semester ON (semester.id = course.semester_id)
+        LEFT JOIN
+          teaching_period on (teaching_period.id = semester.teaching_period_id)
+        GROUP BY
+          production_action.id, teaching_period.name
+        ORDER BY
+          production_action.name
     ''')
     production_actions = cursor.fetchall()
     cursor.execute('''
         SELECT
           person.id,
-          person.firstname || ' ' || person.lastname as person_name
+          person.lastname || ' ' || person.firstname as person_name
         FROM
           person
+        ORDER BY
+          person.lastname
     ''')
     people = cursor.fetchall()
     return render_template(
-        'superadministrator.jinja2.html', training_periods=training_periods,
+        'superadministrator.jinja2.html', teaching_periods=teaching_periods,
         production_actions=production_actions, people=people)
 
 
@@ -322,7 +337,22 @@ def superadministrator():
            methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
 def teaching_period(teaching_period_id):
-    cursor = get_connection().cursor()
+    connection = get_connection()
+    cursor = connection.cursor()
+    if request.method == 'POST':
+        cursor.execute('''
+            UPDATE
+              teaching_period
+            SET
+              code = ?,
+              name = ?
+            WHERE
+              teaching_period.id = ?
+        ''', (request.form['code'], request.form['name'], teaching_period_id))
+        connection.commit()
+        flash('La période de formation a été modifiée')
+        return redirect(url_for(
+            'teaching_period', teaching_period_id=teaching_period_id))
     cursor.execute('''
         SELECT
           teaching_period.code,
@@ -344,12 +374,14 @@ def teaching_period(teaching_period_id):
           semester ON (semester.id = course.semester_id)
         WHERE
           semester.teaching_period_id = ?
+        ORDER BY
+          production_action.name
     ''', (teaching_period_id,))
     production_actions = cursor.fetchall()
     cursor.execute('''
         SELECT
           person.id,
-          person.firstname || ' ' || person.lastname as person_name
+          person.lastname || ' ' || person.firstname as person_name
         FROM
           person
         JOIN
@@ -357,11 +389,70 @@ def teaching_period(teaching_period_id):
           registration ON (registration.student_id = student.id)
         WHERE
           registration.teaching_period_id = ?
+        ORDER BY
+          person.lastname
     ''', (teaching_period_id,))
     students = cursor.fetchall()
     return render_template(
         'teaching_period.jinja2.html', teaching_period=teaching_period,
         production_actions=production_actions, students=students)
+
+
+@app.route('/production-action/<int:production_action_id>',
+           methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def production_action(production_action_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    if request.method == 'POST':
+        values = (
+            request.form['code'],
+            request.form['name'],
+            request.form['teacher_id'],
+            request.form['last_course_date'],
+            production_action_id)
+        cursor.execute('''
+            UPDATE
+              production_action
+            SET
+              code = ?,
+              name = ?,
+              teacher_id = ?,
+              last_course_date = ?
+            WHERE
+              production_action.id = ?
+        ''', values)
+        connection.commit()
+        flash('L’action de production a été modifiée')
+        return redirect(url_for(
+            'production_action', production_action_id=production_action_id))
+    cursor.execute('''
+        SELECT
+          production_action.code,
+          production_action.name,
+          production_action.teacher_id,
+          production_action.last_course_date
+        FROM
+          production_action
+        WHERE
+          production_action.id = ?
+    ''', (production_action_id,))
+    production_action = cursor.fetchone()
+    cursor.execute('''
+        SELECT
+          teacher.id,
+          person.lastname || ' ' || person.firstname AS name
+        FROM
+          teacher
+        JOIN
+          person ON (person.id = teacher.person_id)
+        ORDER BY
+          person.lastname
+    ''')
+    teachers = cursor.fetchall()
+    return render_template(
+        'production_action.jinja2.html', production_action=production_action,
+        teachers=teachers)
 
 
 @app.template_filter()

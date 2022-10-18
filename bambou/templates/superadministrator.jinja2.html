@@ -1,23 +1,29 @@
-{% set title = 'TODO Super Administrateur - Nom Prénom' %}
+{% set title = 'Super administrateur - ' + g.person.name %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
+  <h2>Périodes de formation</h2>
+  <a href="">TODO Ajouter une période de formation</a>
+  <ul>
+    {% for teaching_period in teaching_periods %}
+      <li><a href="{{ url_for('teaching_period', teaching_period_id=teaching_period.id) }}">{{ teaching_period.name }}</a></li>
+    {% endfor %}
+  </ul>
 
-<h2>Mes Formation</h2>
+  <h2>Actions de production</h2>
+  <a href="">TODO Ajouter une action de production</a>
+  <ul>
+    {% for production_action in production_actions %}
+      <li><a href="{{ url_for('production_action', production_action_id=production_action.id) }}">{{ production_action.name }} ({{ production_action.teaching_period_names or 'Non affecté' }})</a></li>
+    {% endfor %}
+  </ul>
 
-<ul>
-  {% for training_period in training_periods %}
-    <li>{{ training_period.name }}</li>
-  {% endfor %}
-</ul>
-<ul>
-  {% for production_action in production_actions %}
-    <li>{{ production_action.name }}</li>
-  {% endfor %}
-</ul>
-<ul>
-  {% for person in people %}
-    <li>{{ person.person_name }}</li>
-  {% endfor %}
-</ul>
+  <h2>Personnes</h2>
+  <a href="">TODO Ajouter une personne</a>
+  <ul>
+    {% for person in people %}
+      <li><a href="{{ url_for('profile', person_id=person.id) }}">{{ person.person_name }}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}
