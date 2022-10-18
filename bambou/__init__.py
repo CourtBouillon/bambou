@@ -67,14 +67,19 @@ def profile(person_id=None):
         if request.form['password'] != request.form['confirm_password']:
             flash('Les deux mots de passe doivent être les mêmes')
             return redirect(url_for('profile', person_id=person_id))
-        parameters = (
-            request.form['mail'], request.form['firstname'],
-            request.form['lastname'], person_id)
-        cursor.execute('''
-            UPDATE person
-            SET mail = ?, firstname = ?, lastname = ?
-            WHERE rowid = ?
-        ''', parameters)
+        if user.is_superadministrator():
+            parameters = (
+                request.form['mail'], request.form['firstname'],
+                request.form['lastname'], person_id)
+            cursor.execute('''
+                UPDATE person
+                SET mail = ?, firstname = ?, lastname = ?
+                WHERE rowid = ?
+            ''', parameters)
+        else:
+            cursor.execute(
+                'UPDATE person SET mail = ? WHERE rowid = ?',
+                (request.form['mail'], person_id))
         if request.form['password']:
             cursor.execute(
                 'UPDATE person SET password = ? WHERE rowid = ?',
@@ -292,3 +297,8 @@ def teaching_period(teaching_period_id):
     return render_template(
         'teaching_period.jinja2.html', teaching_period=teaching_period,
         production_actions=production_actions, students=students)
+
+
+@app.context_processor
+def inject_variables():
+    return {'user': user}

@@ -1,16 +1,18 @@
-{% set title = 'TODO Mon Profil − Nom Prénom' %}
+{% set title = 'Mon Profil − ' + g.person.name %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
+  <h2>Mon profil</h2>
 
-<h2>Mon Profil</h2>
-
-<form method="post">
-  <input name="firstname" value="{{ person.firstname }}" value="TODO que pour superadmin l’édition"/>
-  <input name="lastname" value="{{ person.lastname }}" value="TODO que pour superadmin l’édition"/>
-  <input name="mail" type="email" value="{{ person.mail }}" value="TODO les valeurs actuelles"/>
-  <input name="password" type="password" />
-  <input name="confirm_password" type="password" />
-  <input type="submit" value="Mettre à jour"/>
-</form>
+  <form method="post">
+    {% if user.is_superadministrator() %}
+      <input name="firstname" value="{{ person.firstname }}" />
+      <input name="lastname" value="{{ person.lastname }}" />
+    {% endif %}
+    <input name="mail" type="email" value="{{ person.mail }}" />
+    <input name="password" type="password" />
+    <input name="confirm_password" type="password" />
+    <input type="submit" value="Mettre à jour"/>
+  </form>
+{% endblock %}

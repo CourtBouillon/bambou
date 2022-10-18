@@ -11,7 +11,8 @@ def get():
     if not hasattr(g, 'person'):
         cursor = get_connection().cursor()
         cursor.execute(
-            'SELECT * FROM person WHERE id = (?)',
+            'SELECT *, person.firstname || " " || person.lastname AS name '
+            'FROM person WHERE id = (?)',
             (session['person_id'],))
         g.person = cursor.fetchone()
     return g.person
