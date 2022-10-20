@@ -1,4 +1,4 @@
-{% set title = 'TODO Formateur - Nom Prénom' %}
+{% set title = 'TODO Administrateur - Nom Prénom' %}
 
 {% extends '_layout.jinja2' %}
 
@@ -8,7 +8,7 @@
 
 <form>
   <input type="text"/>
-  <input type="submit" value="Rechercher"/>
+  <input type="submit" value="TODO Rechercher un apprenant"/>
 </form>
   
 
@@ -17,7 +17,7 @@
   <h3>{{ students[0].teaching_period_name }}</h3>
   <ul>
     {% for student in students %}
-      <li><a href="">{{ student.person_name }}</a></li>
+      <li><a href="TODO">{{ student.person_name }}</a></li>
     {% endfor %}
   </ul>
 </section>

@@ -4,7 +4,6 @@
 
 {% block content %}
   <h2>Notes − {{ person.name }}</h2>
-
   <h3>{{ person.teaching_period_name }}</h3>
 
   <section>
@@ -41,7 +40,7 @@
           <td>{{ marks | selectattr('mark', 'eq', 'NE') | list | count }}</td>
         </tr>
         <tr>
-          <th>Non noté</th>
+          <th>TODO Reste à valider 60%</th>
           <td>{{ marks | rejectattr('mark') | list | count }}</td>
         </tr>
       </tbody>
@@ -85,7 +84,7 @@
     </table>
 
     {% if user.is_superadministrator() %}
-      <a href="">TODO Modifier les absences</a>
+      <a href="TODO">TODO Modifier les absences</a>
     {% endif %}
   </section>
 
@@ -99,7 +98,7 @@
             {{ semester.tracking_comments or '(Pas de commentaire)' }}
           </p>
           {% if user.is_superadministrator() %}
-            <a href="">TODO Modifier le commentaire du semestre</a>
+            <a href="TODO">TODO Modifier le commentaire du semestre</a>
           {% endif %}
           <table>
             <thead>
@@ -107,6 +106,9 @@
                 <th></th>
                 <th>Niveau d’acquisition</th>
                 <th>Commentaires</th>
+                {% if user.is_superadministrator() %}
+                <th>Modifier</th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
@@ -115,21 +117,34 @@
                   <td>{{ mark.production_action_name }}</td>
                   <td>{{ mark.mark or '' }}</td>
                   <td>{{ mark.comments or '' }}</td>
+                  {% if user.is_superadministrator() %}
+                  <td><a href="TODO">TODO Modifier la note</a></td>
+                  {% endif %}
                 </tr>
               {% endfor %}
             </tbody>
           </table>
-          {% if user.is_superadministrator() %}
-            <a href="">Modifier les notes</a>
-          {% endif %}
         </article>
       {% endif %}
     {% endfor %}
 
-    <dl>
-      <dt>TODO Note examen spécial</dt>
-      <dd>Note</dd>
-    </dl>
-    <a href="">Ajouter/Modifier une note d’examen spécial</a>
+    <table>
+      <tbody>
+        <tr>
+          <td>TODO note examen spécial</td>
+          <td>TODO commentaire note examen spécial</td>
+          <td><a href="TODO">Modifier</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <a href="TODO">TODO Ajouter une note d’examen spécial</a>
+
+    <!-- si l’étudiant n’est pas inscrit à tous les cours de sa pf -->
+    <form>
+      <select>
+        <option>TODO, liste des cours de la PF où l’étudiant n’est pas inscrit</option>
+      </select>
+      <input type="submit" value="TODO Associer" />
+    </form>
   </section>
 {% endblock %}

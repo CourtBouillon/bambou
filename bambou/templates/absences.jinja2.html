@@ -1,0 +1,48 @@
+{% set title = 'Absences − ' + person.name %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+  <h2>Absences − {{ person.name }}</h2>
+  <h3>{{ person.teaching_period_name }}</h3>
+
+  <form>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+            {% set semester = marks[0] %}
+            <th>{{ semester.semester_name }}</td>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>Justifiées</th>
+          {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+            {% set semester = marks[0] %}
+            <td><input name="{{ semester_id }}.justified_absence_minutes" value="{{ semester.justified_absence_minutes }}"/></td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <th>Injustifiées</th>
+          {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+            {% set semester = marks[0] %}
+            <td><input name="{{ semester_id }}.unjustified_absence_minutes" value="{{ semester.unjustified_absence_minutes }}"/></td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <th>Retards</th>
+          {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
+            {% set semester = marks[0] %}
+            <td><input name="{{ semester_id }}.lateness_minutes" value="{{ semester.lateness_minutes }}"/></td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+
+    <input type="submit" value="TODO Modifier les absences" />
+  </form>
+
+{% endblock %}

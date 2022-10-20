@@ -4,23 +4,72 @@
 
 {% block content %}
   <h2>Période de formation</h2>
+  <h3>{{ teaching_period.name }}</h3>
+
   <form method="post">
     <input name="code" value="{{ teaching_period.code }}" />
     <input name="name" value="{{ teaching_period.name }}" />
     <input type="submit" value="Sauvegarder"/>
   </form>
 
-  <h3>Actions de production (TODO ajouter & enlever)</h3>
-  <ul>
-    {% for production_action in production_actions %}
-      <li>{{ production_action.name }}</li>
-    {% endfor %}
-  </ul>
+  <h4>Semestres</h4>
+  <table>
+    <tbody>
+      <tr>
+        <td>Nom semestre</td>
+        <td>Début</td>
+        <td>Fin</td>
+        <td><a href="TODO">TODO Modifier</a></td>
+        <td><a href="TODO">TODO Supprimer</a></td>
+      </tr>
+    </body>
+  </table>
+  <form>
+    <input name="name"/>
+    <input name="start"/>
+    <input name="stop"/>
+    <input type="submit" value="TODO Ajouter un semestre"/>
+  </form>
 
-  <h3>Étudiants (TODO ajouter & enlever)</h3>
-  <ul>
-    {% for student in students %}
-      <li>{{ student.person_name }}</li>
+  <h4>Actions de production (TODO ajouter & enlever)</h4>
+  <table>
+    <tbody>
+    {% for production_action in production_actions %}
+      <tr>
+        <td>{{ production_action.name }}</td>
+        <td><a href="TODO édition action">Modifier</a></td>
+        <td><a href="TODO">TODO Déassocier</a></td>
+      </tr>
     {% endfor %}
-  </ul>
+    </tbody>
+  </table>
+  <form>
+    <select>
+      <option>TODO Liste des actions de production</option>
+      <option value="action id">Action 1</option>
+      <option value="action id">Action 2</option>
+    </select>
+    <input type="submit" value="TODO Associer"/>
+  </form>
+
+  <h4>Étudiants (TODO ajouter & enlever)</h4>
+  <table>
+    <tbody>
+    {% for student in students %}
+      <tr>
+        <td>{{ student.person_name }} (TODO id de l’étudiant)</td>
+        <td><a href="TODO">TODO Voir les notes</a></td>
+        <td><a href="TODO">TODO Déassocier</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <form>
+    <select>
+      <option>TODO Liste des étudiants</option>
+      <option value="action id">Nom prénom</option>
+      <option value="action id">Nom prénom</option>
+    </select>
+    <input type="submit" value="TODO Associer"/>
+  </form>
 {% endblock %}

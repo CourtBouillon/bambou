@@ -4,16 +4,60 @@
 
 {% block content %}
   <h2>Action de production</h2>
+  <h3>{{ production_action.name }}</h3>
+
   <form method="post">
-    <input name="code" value="{{ production_action.code }}" />
-    <input name="name" value="{{ production_action.name }}" />
+    <input name="code" value="{{ teaching_period.code }}" />
+    <input name="name" value="{{ teaching_period.name }}" />
+    <input name="start" value="TODO" />
+    <input name="stop" value="TODO" />
+    <input name="last_course_date" type="date" value="{{ production_action.last_course_date }}" />
     <select>
       <option value="" {{ 'selected' if production_action.teacher_id == None }}></option>
       {% for teacher in teachers %}
         <option value="{{ teacher.id }}" {{ 'selected' if production_action.teacher_id == teacher.id }}>{{ teacher.name }}</option>
       {% endfor %}
     </select>
-    <input name="last_course_date" type="date" value="{{ production_action.last_course_date }}" />
     <input type="submit" value="Sauvegarder"/>
   </form>
+
+  <h4>Périodes de formations</h4>
+  <table>
+    <tbody>
+      <tr>
+        <td>TODO liste Nom PF</td>
+        <td>Semestre 1</td>
+        <td><a href="TODO">TODO Désassocier</a></td>
+      </tr>
+    </tbody>
+  </table>
+  <form>
+    <select>
+      <option>TODO Liste PF - Semestre</option>
+      <option>PF - Semestre 1</option>
+      <option>PF - Semestre 2</option>
+    </select>
+    <input type="submit" value="TODO Associer" />
+  </form>
+
+  <h4>Apprenants</h4>
+  <table>
+    <tbody>
+      <tr>
+        <td>Id étudiant</td>
+        <td>Nom Prénom</td>
+        <td><a href="TODO">Voir les notes</a></td>
+        <td><a href="TODO">Désassocier</a></td>
+      </tr>
+    </tbody>
+  </table>
+  <form>
+    <select>
+      <option>TODO Liste des étudiants inscrits aux pfs associées et qui ne sont pas déjà dans l’ap</option>
+      <option value="action id">Nom prénom (id de l’étudiant)</option>
+    </select>
+    <input type="submit" value="TODO Associer"/>
+  </form>
+
+  <a href="TODO">Supprimer l’action</a>
 {% endblock %}

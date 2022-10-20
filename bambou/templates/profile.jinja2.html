@@ -1,14 +1,26 @@
-{% set title = 'Mon Profil − ' + g.person.name %}
+{% set title = 'Profil − ' + g.person.name %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-  <h2>Mon profil</h2>
+  <h2>Profil</h2>
+  <h3>{{ g.person.name }}</h3>
 
   <form method="post">
     {% if user.is_superadministrator() %}
       <input name="firstname" value="{{ person.firstname }}" />
       <input name="lastname" value="{{ person.lastname }}" />
+      <input name="code" value="TODO id étudiant si étudiant" />
+      <label for="student">Apprenant</label>
+      <input type=checkbox" id="student" />
+      <label for="tutor">Tuteur</label>
+      <input type=checkbox" id="tutor" />
+      <label for="teacher">Formateur</label>
+      <input type=checkbox" id="teacher" />
+      <label for="administrator">Administrateur</label>
+      <input type=checkbox" id="administrator" />
+      <label for="super_administrator">Super Administrateur</label>
+      <input type=checkbox" id="super_administrator" />
     {% endif %}
     <input name="mail" type="email" value="{{ person.mail }}" />
     <input name="password" type="password" />
@@ -17,6 +29,62 @@
   </form>
 
   {% if user.is_superadministrator() %}
-    TODO Contenu spécial pour le superadministrateur selon le type de personne
+  TODO Contenu spécial pour le superadministrateur selon le type de personne
+  <section>
+    <h4>Étudiant</h4>
+    <table>
+      <tbody>
+        <tr>
+          <td>TODO liste, Nom période de formation</td>
+          <td><a href="TODO">Désassocier</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <form>
+      <select>
+        <option>TODO liste des pfs</option>
+      </select>
+      <input type="submit" value="Associer">
+    </form>
+  </section>
+
+  <section>
+    <h4>Tuteur</h4>
+    <table>
+      <tbody>
+        <tr>
+          <td>TODO liste, Nom prénom id étudiant</td>
+          <td><a href="TODO">Désassocier</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <form>
+      <select>
+        <option>TODO liste des étudiants, nom prénom id</option>
+      </select>
+      <input type="submit" value="Associer">
+    </form>
+  </section>
+
+  <section>
+    <h4>Formateur</h4>
+    <table>
+      <tbody>
+        <tr>
+          <td>TODO liste, Nom Période de formation</td>
+          <td>nom action de production</td>
+          <td><a href="TODO">Désassocier</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <form>
+      <select>
+        <option>TODO liste, période de formation / action de production</option>
+      </select>
+      <input type="submit" value="Associer">
+    </form>
+  </section>
+
+  <a href="TODO">Supprimer cette personne</a>
   {% endif %}
 {% endblock %}

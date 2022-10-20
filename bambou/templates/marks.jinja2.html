@@ -3,12 +3,13 @@
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-  <h2>{{ course.production_action_name + ' (' + course.teaching_period_names + ')' }}</h2>
+  <h2>{{ course.production_action_name }}</h2>
+  <h3>{{ course.teaching_period_names }}</h3>
 
   <form method="post">
     {% for assignment in assignments %}
       <section>
-        <h3>{{ assignment.person_name }}</h3>
+        <h4>{{ assignment.person_name }}</h4>
         <select name="{{ assignment.id }}-mark">
           <option value="" {{ 'selected' if not assignment.mark }}></option>
           <option value="A" {{ 'selected' if assignment.mark == 'A' }}>Expertise - A</option>

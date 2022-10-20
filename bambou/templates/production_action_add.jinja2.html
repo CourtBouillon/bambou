@@ -1,0 +1,17 @@
+{% set title = 'Action de production - Ajout' %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+  <h2>Ajout d’une action de production</h2>
+
+  <form method="post">
+    <input name="code"/>
+    <input name="name"/>
+    <input name="start" type="date"/>
+    <input name="stop" type="date"/>
+    <input name="last_course_date" type="date"/>
+    <input type="submit" value="TODO Ajouter"/>
+  </form>
+
+{% endblock %}

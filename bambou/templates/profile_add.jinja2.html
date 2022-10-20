@@ -1,0 +1,27 @@
+{% set title = 'Profil − Ajout' %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+  <h2>Ajout d’une personne</h2>
+
+  <form method="post">
+    <input name="firstname"/>
+    <input name="lastname"/>
+    <label for="student">Apprenant</label>
+    <input type=checkbox" id="student" />
+    <label for="tutor">Tuteur</label>
+    <input type=checkbox" id="tutor" />
+    <label for="teacher">Formateur</label>
+    <input type=checkbox" id="teacher" />
+    <label for="administrator">Administrateur</label>
+    <input type=checkbox" id="administrator" />
+    <label for="super_administrator">Super Administrateur</label>
+    <input type=checkbox" id="super_administrator" />
+    <input name="code" /><!-- TODO si étudiant -->
+    <input name="mail" type="email"/>
+    <input name="password" type="password" />
+    <input type="submit" value="Ajouter"/>
+  </form>
+
+{% endblock %}
