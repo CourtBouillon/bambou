@@ -4,18 +4,21 @@
 
 {% block content %}
 
-<img src="{{ url_for('static', filename='logo_ipi.png') }}">
+<div>
+  <img src="{{ url_for('static', filename='logo_ipi.png') }}">
+</div>
 
-<h1>Gestion de notes</h1>
+<section>
+  <h1>Gestion de notes</h1>
 
-<form method="post">
-  <label for="login">Email</label>
-  <input name="login" />
-  <label for="password">Mot de passe</label>
-  <input name="password" type="password" />
-  <input type="submit" value="Se connecter"/>
-</form>
+  <form method="post">
+    <label for="login">Email</label>
+    <input name="login" />
+    <label for="password">Mot de passe</label>
+    <input name="password" type="password" />
+    <input class="button" type="submit" value="Se connecter"/>
+  </form>
 
-<a href="TODO">Mot de passe perdu</a>
-
+  <a href="TODO">Mot de passe perdu</a>
+</section>
 {% endblock %}

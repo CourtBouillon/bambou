@@ -22,10 +22,13 @@
       <label for="super_administrator">Super Administrateur</label>
       <input type=checkbox" id="super_administrator" />
     {% endif %}
+    <label for="mail">Email</label>
     <input name="mail" type="email" value="{{ person.mail }}" />
+    <label for="password">Mot de passe</label>
     <input name="password" type="password" />
+    <label for="confirm_password">Confirmez le mot de passe</label>
     <input name="confirm_password" type="password" />
-    <input type="submit" value="Mettre à jour"/>
+    <input type="submit" class="button" value="Mettre à jour"/>
   </form>
 
   {% if user.is_superadministrator() %}
