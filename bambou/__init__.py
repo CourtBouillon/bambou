@@ -50,6 +50,12 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/tutor')
+def tutor():
+    # TODO
+    pass
+
+
 @app.route('/profile', methods=('GET', 'POST'))
 @app.route('/profile/<int:person_id>', methods=('GET', 'POST'))
 @user.check(user.is_connected)
