@@ -1,0 +1,379 @@
+/* Fonts */
+
+@font-face {
+  font-family: ClarityCity;
+  font-weight: 400;
+  src: local("ClarityCity Regular"), local("ClarityCity-Regular"), url(/static/fonts/ClarityCity-Regular.woff2);
+}
+
+@font-face {
+  font-family: ClarityCity;
+  font-weight: 700;
+  src: local("ClarityCity Bold"), local("ClarityCity-Bold"), url(/static/fonts/ClarityCity-Bold.woff2);
+}
+
+@font-face {
+  font-family: ForkAwesome;
+  src: local("ForkAwesome"), url(/static/fonts/forkawesome-webfont.woff2);
+}
+
+
+/* Variables */
+
+:root {
+  --black: #333;
+  --blue: #428bca;
+  --blue-opacity: #428bca77;
+  --grey: #f1f2f2;
+  --grey-opacity: #f1f2f277;
+  --red: #dd1d2a;
+  --red-opacity: #dd1d2a77;
+  --white: #fff;
+
+  --mark-validated: #78e47877;
+  --mark-acquiring: #e4d17877;
+  --mark-non-validated: #e4788477;
+}
+
+
+/* Common */
+
+html {
+  background: var(--white);
+  color: var(--black);
+  font-family: ClarityCity, sans-serif;
+  font-size: 14pt;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+::before {
+  font-family: ForkAwesome;
+  line-height: 1.5;
+  padding-right: 0.5em;
+}
+
+a {
+  color: var(--blue);
+  text-decoration: inherit;
+  transition: 0.2s;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+form * {
+  display: block;
+}
+
+h1 {
+  font-size: 48pt;
+  margin: 0.3em 0;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: 36pt;
+  margin: 0.5em 0;
+  text-transform: uppercase;
+}
+
+h3 {
+  font-size: 24pt;
+  margin: 0.3em 0;
+}
+
+input,
+select,
+textarea {
+  background: var(--grey-opacity);
+  border: 1px solid var(--blue-opacity);
+  border-radius: 5px;
+  height: 3em;
+  margin: 0.5em 0 1.5em 0;
+  transition: 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  background: var(--grey);
+}
+
+textarea:focus {
+  height: 6em;
+}
+
+li {
+  list-style: none;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 0 15em;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+tr:not(:last-of-type) {
+  border-bottom: 1px solid var(--grey);
+}
+
+.button {
+  background: var(--red-opacity);
+  border: 1px solid var(--red-opacity);
+  border-radius: 5px;
+  color: var(--white);
+  padding: 0.5em;
+  text-align: center;
+  transition: 0.2s;
+}
+.button:hover {
+  background: var(--red);
+  cursor: pointer;
+}
+
+.link {
+  display: flex;
+  width: 50%;
+}
+.link input {
+  margin-left: 2em;
+}
+
+
+/* Nav */
+
+#page-login nav {
+  display: none;
+}
+
+nav  {
+  background: var(--grey);
+  border-bottom: 1px solid var(--red);
+  display: flex;
+  height: 10vh;
+  padding: 0 5em;
+  text-transform: uppercase;
+}
+
+nav a {
+  color: var(--black);
+  text-decoration: inherit;
+}
+
+nav img {
+  display: inline-block;
+  max-height: 90%;
+}
+
+nav ul {
+  display: flex;
+  margin-left: auto;
+}
+
+nav li {
+  margin: auto 0;
+  padding: 0 0 0 2em;
+}
+
+nav li:first-of-type a::before {
+  content: "\f2c0";
+  
+}
+
+nav li:last-of-type a::before {
+  content: "\f08b";
+}
+
+
+/* Login */
+
+#page-login {
+  display: flex;
+}
+
+#page-login main {
+  align-items: center;
+  flex-direction: row;
+  padding: 0;
+}
+
+#page-login div {
+  width: 50%;
+}
+
+#page-login img {
+  display: block;
+  margin: auto;
+  width: 50%;
+}
+
+#page-login section {
+  width: 50%;
+}
+
+#page-login input {
+  width: 50%;
+}
+
+#page-login .button {
+  float: right;
+  height: initial;
+  margin-right: 50%;
+  margin-top: 0;
+  width: 25%;
+}
+
+#page-login a {
+  padding: 1em 0 0 0;
+}
+
+
+/* Teacher & Administrator */
+
+#page-teacher section a,
+#page-administrator section a {
+  color: var(--black);
+}
+
+#page-teacher section a::before,
+#page-administrator section a::before {
+  content: "\f061";
+}
+#page-teacher section a:hover::before,
+#page-administrator section a:hover::before {
+  color: var(--red);
+}
+
+
+/* Teacher Marks */
+
+#page-marks section {
+  border-bottom: 1px solid var(--grey);
+  display: flex;
+  justify-content: space-between;
+}
+
+#page-marks section:last-of-type {
+  border-bottom: none;
+}
+
+#page-marks section > * {
+  margin: 1em 0;
+  width: 30%;
+}
+
+#page-marks .button {
+  position: fixed;
+  right: 4em;
+  bottom: 10%;
+  width: 10%;
+}
+
+
+/* Administrator */
+
+#page-administrator form {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#page-administrator input:first-of-type {
+  width: 80%;
+}
+
+
+/* Profile */
+
+#page-profile input {
+  width: 50%;
+}
+
+#page-profile .button {
+  float: right;
+  height: initial;
+  margin-right: 50%;
+  margin-top: 0;
+  width: 25%;
+}
+
+
+/* Report */
+
+#page-report h4 {
+  font-size: 18pt;
+  margin: 1em 0 0.5em 0;
+}
+
+#summaries {
+  display: flex;
+  margin: 1em 0;
+}
+
+#marks-summary {
+  margin-right: 5em;
+  width: 25%;
+}
+
+#marks-summary td,
+#absences-summary td,
+.semester-marks th,
+.semester-marks td,
+.semester-comment tr td:not(:first-of-type),
+#special-mark tr td:not(:first-of-type) {
+  padding: 0.5em;
+  text-align: right;
+}
+
+#marks-summary th,
+#absences-summary th,
+.semester-marks tr td:first-of-type,
+.semester-comment tr td:first-of-type,
+#special-mark tr td:first-of-type {
+  padding: 0.5em;
+  text-align: left;
+}
+#absences-summary tbody tr:nth-child(odd),
+.semester-marks tbody tr:nth-child(odd) {
+  background: var(--grey-opacity);
+}
+
+.validated {
+  background: var(--mark-validated);
+}
+#acquiring {
+  background: var(--mark-acquiring);
+}
+.non-validated {
+  background: var(--mark-non-validated);
+}
+
+#absences-summary table {
+  margin-bottom: 1em;
+}
+
+.semester-marks table {
+  width: 100%;
+}
+
+.semester-marks tbody td:first-of-type,
+.semester-comment tr td:first-of-type,
+#special-mark tr td:first-of-type {
+  font-weight: bold;
+}
+
+.semester-comment,
+#special-mark {
+  margin: 1.5em 0;
+  width: 100%;
+}
