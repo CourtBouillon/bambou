@@ -8,13 +8,11 @@
   <body id="page-{{ request.endpoint }}">
     <header>
       <nav>
+        <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_ipi.png') }}"></a>
         <ul>
-          <li><a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_ipi.png') }}"></a></li>
           {% if g.person %}
             <li><a href="{{ url_for('profile') }}">Mon profil</a></li>
             <li><a href="{{ url_for('logout') }}">Déconnexion</a></li>
-          {% else %}
-            <li><a href="{{ url_for('login') }}">Connexion</a></li>
           {% endif %}
         </ul>
       </nav>
