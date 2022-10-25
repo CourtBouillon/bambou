@@ -48,14 +48,14 @@
       </table>
     </section>
 
-    <section id="absences-summary">
+    <section class="absences-summary">
       <table>
         <thead>
           <tr>
             <th>Absences</th>
             {% for semester_id, marks in marks | groupby(attribute='semester_id') %}
             {% set semester = marks[0] %}
-            <th>{{ semester.semester_name }}</td>
+            <th>{{ semester.semester_name }}</th>
               {% endfor %}
           </tr>
         </thead>
@@ -85,7 +85,7 @@
       </table>
 
       {% if user.is_superadministrator() %}
-      <a href="TODO">TODO Modifier les absences</a>
+      <a href="{{ url_for('absences') }}">TODO Modifier les absences</a>
       {% endif %}
     </section>
   </article>
@@ -114,7 +114,7 @@
                   <td>{{ mark.mark or '' }}</td>
                   <td>{{ mark.comments or '' }}</td>
                   {% if user.is_superadministrator() %}
-                  <td><a href="TODO">TODO Modifier la note</a></td>
+                  <td><a href="{{ url_for('mark') }}">TODO Modifier la note</a></td>
                   {% endif %}
                 </tr>
               {% endfor %}
@@ -128,7 +128,7 @@
             <td>Appréciation du semestre</td>
             <td>{{ semester.tracking_comments or '(Pas de commentaire)' }}</td>
             {% if user.is_superadministrator() %}
-            <td><a href="TODO">TODO Modifier le commentaire du semestre</a></td>
+            <td><a href="{{ url_for('semester_comment') }}">TODO Modifier le commentaire du semestre</a></td>
             {% endif %}
           </tr>
         </tbody>
@@ -144,13 +144,13 @@
           <td>TODO note examen spécial</td>
           <td>TODO commentaire note examen spécial</td>
           {% if user.is_superadministrator() %}
-            <td><a href="TODO">Modifier la noteTODO</a></td>
+            <td><a href="{{ url_for('mark_special') }}">Modifier la noteTODO</a></td>
           {% endif %}
         </tr>
       </tbody>
     </table>
     {% if user.is_superadministrator() %}
-      <a href="TODO">TODO Ajouter une note d’examen spécial</a>
+      <a href="{{ url_for('mark_special') }}">TODO Ajouter une note d’examen spécial</a>
 
       <h4>Ajouter des cours à l’apprenant</h4>
       <!-- si l’étudiant n’est pas inscrit à tous les cours de sa pf -->

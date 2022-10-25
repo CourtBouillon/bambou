@@ -6,22 +6,39 @@
   <h2>Ajout d’une personne</h2>
 
   <form method="post">
-    <input name="firstname"/>
-    <input name="lastname"/>
-    <label for="student">Apprenant</label>
-    <input type=checkbox" id="student" />
-    <label for="tutor">Tuteur</label>
-    <input type=checkbox" id="tutor" />
-    <label for="teacher">Formateur</label>
-    <input type=checkbox" id="teacher" />
-    <label for="administrator">Administrateur</label>
-    <input type=checkbox" id="administrator" />
-    <label for="super_administrator">Super Administrateur</label>
-    <input type=checkbox" id="super_administrator" />
-    <input name="code" /><!-- TODO si étudiant -->
-    <input name="mail" type="email"/>
-    <input name="password" type="password" />
-    <input type="submit" value="Ajouter"/>
+    <label for="firstname">Prénom</label>
+    <input name="firstname" placeholder="Prénom"/>
+    <label for="lastname">Nom</label>
+    <input name="lastname" placeholder="Nom"/>
+    <label for="mail">Email</label>
+    <input name="mail" type="email" placeholder="Email"/>
+    <label for="password">Mot de passe</label>
+    <input name="password" type="password" placeholder="Mot de pase" />
+    <label for="code">Identifiant apprenant</label>
+    <input name="code" placeholder="Identifiant apprenant"/>
+    <fieldset>
+      <div>
+        <label for="student">Apprenant</label>
+        <input type="checkbox" id="student" />
+      </div>
+      <div>
+        <label for="tutor">Tuteur</label>
+        <input type="checkbox" id="tutor" />
+      </div>
+      <div>
+        <label for="teacher">Formateur</label>
+        <input type="checkbox" id="teacher" />
+      </div>
+      <div>
+        <label for="administrator">Administrateur</label>
+        <input type="checkbox" id="administrator" />
+      </div>
+      <div>
+        <label for="super_administrator">Super Administrateur</label>
+        <input type="checkbox" id="super_administrator" />
+      </div>
+    </fieldset>
+    <input type="submit" class="button" value="Ajouter"/>
   </form>
 
 {% endblock %}

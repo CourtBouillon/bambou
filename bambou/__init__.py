@@ -98,6 +98,12 @@ def profile(person_id=None):
     return render_template('profile.jinja2.html', person=person)
 
 
+@app.route('/profile/add>', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def profile_add():
+    return render_template('profile_add.jinja2.html')
+
+
 @app.route('/teacher')
 @user.check(user.is_teacher)
 def teacher():
@@ -404,6 +410,12 @@ def teaching_period(teaching_period_id):
         production_actions=production_actions, students=students)
 
 
+@app.route('/teaching-period/add>', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def teaching_period_add():
+    return render_template('teaching_period_add.jinja2.html')
+
+
 @app.route('/production-action/<int:production_action_id>',
            methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
@@ -459,6 +471,42 @@ def production_action(production_action_id):
     return render_template(
         'production_action.jinja2.html', production_action=production_action,
         teachers=teachers)
+
+
+@app.route('/production_action/add>', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def production_action_add():
+    return render_template('production_action_add.jinja2.html')
+
+
+@app.route('/semester/add>', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def semester():
+    return render_template('semester.jinja2.html')
+
+
+@app.route('/mark', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def mark():
+    return render_template('mark.jinja2.html')
+
+
+@app.route('/mark_special', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def mark_special():
+    return render_template('mark_special.jinja2.html')
+
+
+@app.route('/semester_comment', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def semester_comment():
+    return render_template('semester_comment.jinja2.html')
+
+
+@app.route('/absences', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def absences():
+    return render_template('absences.jinja2.html')
 
 
 @app.template_filter()

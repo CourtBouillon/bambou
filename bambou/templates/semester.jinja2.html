@@ -3,13 +3,16 @@
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-  <h2>TODO nom semestre si semestre, "Semestre" sinon</h2>
+  <h2>TODO nom semestre</h2>
   <h3>TODO Nom période de formation</h3>
 
   <form>
-    <input value="TODO nom semestre"/>
-    <input type="date" value="TODO start"/>
-    <input type="date" value="TODO stop"/>
-    <input type="submit" value="TODO Modifier le semestre"/>
+    <label for="name">Nom du semestre</label>
+    <input id="name" value="TODO nom semestre" placeholder="Nom du semestre"/>
+    <label for="start">Début du semestre</label>
+    <input type="date" id="start" value="TODO start"/>
+    <label for="stop">Fin du semestre</label>
+    <input type="date" id="stop" value="TODO stop"/>
+    <input type="submit" class="button" value="TODO Modifier le semestre"/>
   </form>
 {% endblock %}

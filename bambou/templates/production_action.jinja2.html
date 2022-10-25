@@ -7,10 +7,10 @@
   <h3>{{ production_action.name }}</h3>
 
   <form method="post">
-    <input name="code" value="{{ teaching_period.code }}" />
-    <input name="name" value="{{ teaching_period.name }}" />
-    <input name="start" value="TODO" />
-    <input name="stop" value="TODO" />
+    <input name="code" value="TODO" />
+    <input name="name" value="TODO" />
+    <input name="start" type="date" value="TODO" />
+    <input name="stop" type="date" value="TODO" />
     <input name="last_course_date" type="date" value="{{ production_action.last_course_date }}" />
     <select>
       <option value="" {{ 'selected' if production_action.teacher_id == None }}></option>
@@ -18,7 +18,7 @@
         <option value="{{ teacher.id }}" {{ 'selected' if production_action.teacher_id == teacher.id }}>{{ teacher.name }}</option>
       {% endfor %}
     </select>
-    <input type="submit" value="Sauvegarder"/>
+    <input type="submit" class="button" value="Sauvegarder"/>
   </form>
 
   <h4>Périodes de formations</h4>
@@ -31,13 +31,13 @@
       </tr>
     </tbody>
   </table>
-  <form>
+  <form class="link">
     <select>
       <option>TODO Liste PF - Semestre</option>
       <option>PF - Semestre 1</option>
       <option>PF - Semestre 2</option>
     </select>
-    <input type="submit" value="TODO Associer" />
+    <input type="submit" class="button"  value="TODO Associer" />
   </form>
 
   <h4>Apprenants</h4>
@@ -51,13 +51,14 @@
       </tr>
     </tbody>
   </table>
-  <form>
+  <form class="link">
     <select>
       <option>TODO Liste des étudiants inscrits aux pfs associées et qui ne sont pas déjà dans l’ap</option>
       <option value="action id">Nom prénom (id de l’étudiant)</option>
     </select>
-    <input type="submit" value="TODO Associer"/>
+    <input type="submit" class="button" value="TODO Associer"/>
   </form>
 
-  <a href="TODO">Supprimer l’action</a>
+  <h4>Zone de danger</h4>
+  <a href="TODO" class="button" >Supprimer l’action</a>
 {% endblock %}

@@ -1,15 +1,15 @@
-{% set title = 'Note Examen Spécial − ' + person.name %}
+{% set title = 'Note Examen Spécial − TODO nom prénom apprenant' %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
   <h2>Note Examen Spécial</h2>
-  <h3>{{ person.name }} - {{ person.teaching_period_name }}</h3>
+  <h3>TODO nom prénom apprenant</h3>
 
   <form>
     <input value="TODO note ou rien si ajout" />
     <input value="TODO commentaire ou rien si ajout"/>
-    <input type="submit" value="TODO Modifier/Ajouter la note"/>
+    <input type="submit" class="button" value="TODO Modifier/Ajouter la note"/>
   </form>
 
 {% endblock %}

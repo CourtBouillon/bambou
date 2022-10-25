@@ -9,7 +9,7 @@
   <form method="post">
     <input name="code" value="{{ teaching_period.code }}" />
     <input name="name" value="{{ teaching_period.name }}" />
-    <input type="submit" value="Sauvegarder"/>
+    <input type="submit" class="button" value="Sauvegarder"/>
   </form>
 
   <h4>Semestres</h4>
@@ -19,16 +19,16 @@
         <td>Nom semestre</td>
         <td>Début</td>
         <td>Fin</td>
-        <td><a href="TODO">TODO Modifier</a></td>
+        <td><a href="{{ url_for('semester') }}">TODO Modifier</a></td>
         <td><a href="TODO">TODO Supprimer</a></td>
       </tr>
     </body>
   </table>
-  <form>
-    <input name="name"/>
-    <input name="start"/>
-    <input name="stop"/>
-    <input type="submit" value="TODO Ajouter un semestre"/>
+  <form id="add-semester">
+    <input name="name" placeholder="Nom du semestre"/>
+    <input name="start" type="date"/>
+    <input name="stop" type="date"/>
+    <input type="submit" class="button" value="TODO Ajouter un semestre"/>
   </form>
 
   <h4>Actions de production (TODO ajouter & enlever)</h4>
@@ -37,19 +37,19 @@
     {% for production_action in production_actions %}
       <tr>
         <td>{{ production_action.name }}</td>
-        <td><a href="TODO édition action">Modifier</a></td>
+        <td><a href="TODO">TODO Modifier</a></td>
         <td><a href="TODO">TODO Déassocier</a></td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
-  <form>
+  <form class="link">
     <select>
       <option>TODO Liste des actions de production</option>
       <option value="action id">Action 1</option>
       <option value="action id">Action 2</option>
     </select>
-    <input type="submit" value="TODO Associer"/>
+    <input type="submit" class="button" value="TODO Associer"/>
   </form>
 
   <h4>Étudiants (TODO ajouter & enlever)</h4>
@@ -64,12 +64,12 @@
     {% endfor %}
     </tbody>
   </table>
-  <form>
+  <form class="link">
     <select>
       <option>TODO Liste des étudiants</option>
       <option value="action id">Nom prénom</option>
       <option value="action id">Nom prénom</option>
     </select>
-    <input type="submit" value="TODO Associer"/>
+    <input type="submit" class="button" value="TODO Associer"/>
   </form>
 {% endblock %}

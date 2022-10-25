@@ -6,12 +6,17 @@
   <h2>Ajout d’une action de production</h2>
 
   <form method="post">
-    <input name="code"/>
-    <input name="name"/>
+    <label for="code">Code</label>
+    <input name="code" placeholder="Code"/>
+    <label for="name">Nom de l’action</label>
+    <input name="name" placeholder="Nom de l’action"/>
+    <label for="start">Date de début</label>
     <input name="start" type="date"/>
+    <label for="stop">Date de fin</label>
     <input name="stop" type="date"/>
+    <label for="last_course_date">Date du dernier cours</label>
     <input name="last_course_date" type="date"/>
-    <input type="submit" value="TODO Ajouter"/>
+    <input type="submit" class="button" value="TODO Ajouter"/>
   </form>
 
 {% endblock %}

@@ -6,9 +6,11 @@
   <h2>Ajout d’une période de formation</h2>
 
   <form method="post">
-    <input name="code"/>
-    <input name="name"/>
-    <input type="submit" value="Ajouter"/>
+    <label for="code">Code</label>
+    <input name="code" placeholder="Code"/>
+    <label for="name">Nom de la période</label>
+    <input name="name" placeholder="Nom de la période"/>
+    <input type="submit" class="button" value="Ajouter"/>
   </form>
 
 {% endblock %}
