@@ -146,6 +146,10 @@ tr:not(:last-of-type) {
   border-bottom: 1px solid var(--grey);
 }
 
+td {
+  padding: 1em 0;
+}
+
 #page-profile form:first-of-type input:not(input[type="checkbox"]):not(.button),
 #page-teaching_period form:first-of-type input,
 #page-teaching_period_add form input,
