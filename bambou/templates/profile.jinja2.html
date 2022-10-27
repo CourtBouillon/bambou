@@ -37,15 +37,14 @@
     <label for="mail">Email</label>
     <input name="mail" type="email" value="{{ person.mail }}" />
     <label for="password">Mot de passe</label>
-    <input name="password" type="password" />
+    <input name="password" type="password" placeholder="Mot de passe"/>
     <label for="confirm_password">Confirmez le mot de passe</label>
-    <input name="confirm_password" type="password" />
+    <input name="confirm_password" type="password" placeholder="Mot de passe"/>
     <input type="submit" class="button" value="Mettre à jour"/>
   </form>
 
   {% if user.is_superadministrator() %}
-  TODO si c’est le profil d’une autre personne
-  <h4>Étudiant</h4>
+  <h4>Étudiant − Périodes de formation</h4>
   <table>
     <tbody>
       <tr>
@@ -61,7 +60,7 @@
     <input type="submit" class="button" value="Associer">
   </form>
 
-  <h4>Tuteur</h4>
+  <h4>Tuteur − Apprenants</h4>
   <table>
     <tbody>
       <tr>
@@ -77,7 +76,7 @@
     <input type="submit" class="button" value="Associer">
   </form>
 
-  <h4>Formateur</h4>
+  <h4>Formateur − Actions de production</h4>
   <table>
     <tbody>
       <tr>

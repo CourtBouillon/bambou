@@ -509,6 +509,16 @@ def absences():
     return render_template('absences.jinja2.html')
 
 
+@app.route('/lost_password', methods=('GET', 'POST'))
+def lost_password():
+    return render_template('lost_password.jinja2.html')
+
+
+@app.route('/reset_password', methods=('GET', 'POST'))
+def reset_password():
+    return render_template('reset_password.jinja2.html')
+
+
 @app.template_filter()
 def hours(minutes):
     minutes = minutes or 0

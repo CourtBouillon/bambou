@@ -13,6 +13,8 @@
           {% if g.person %}
             <li><a href="{{ url_for('profile') }}">Mon profil</a></li>
             <li><a href="{{ url_for('logout') }}">Déconnexion</a></li>
+          {% else %}
+            <li><a href="{{ url_for('login') }}">Connexion</a></li>
           {% endif %}
         </ul>
       </nav>

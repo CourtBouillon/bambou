@@ -153,7 +153,14 @@ tr:not(:last-of-type) {
 #page-production_action form:first-of-type select,
 #page-production_action_add form input,
 #page-profile_add form input:not(input[type="checkbox"]):not(.button),
-#page-semester form input {
+#page-semester form input,
+#page-lost_password input,
+#page-reset_password input,
+#page-mark input,
+#page-mark select,
+#page-mark textarea,
+#page-semester_comment input,
+#page-mark_special input {
   width: 50%;
 }
 
@@ -163,7 +170,12 @@ tr:not(:last-of-type) {
 #page-production_action form:first-of-type .button,
 #page-production_action_add form .button,
 #page-profile_add form .button,
-#page-semester form .button {
+#page-semester form .button,
+#page-lost_password .button,
+#page-reset_password .button,
+#page-mark .button,
+#page-semester_comment .button,
+#page-mark_special .button {
   float: right;
   height: initial;
   margin-right: 50%;
@@ -239,6 +251,10 @@ nav li:last-of-type a::before {
   content: "\f08b";
 }
 
+#page-lost_password nav li a::before,
+#page-reset_password nav li a::before {
+  content: "\f090";
+}
 
 /* Login */
 
@@ -477,22 +493,8 @@ nav li:last-of-type a::before {
   text-align: right;
 }
 
-#page-mark form,
-#page-semester_comment form,
-#page-mark_special form {
-  display: flex;
-  justify-content: space-between;
-  width: 80%;
-}
-
-#page-mark form input:not(.button),
-#page-mark form select,
-#page-mark_special input:not(.button) {
-  width: 40%;
-}
-
-#page-semester_comment input:not(.button) {
-  width: 70%;
+#page-absences form {
+  width: max-content;
 }
 
 #page-absences .button {
@@ -501,5 +503,27 @@ nav li:last-of-type a::before {
 }
 
 #page-absences .absences-summary {
-  max-width: 80%;
+  display: table;
+  width: max-content;
+}
+
+#page-absences .absences-summary thead {
+  display: table-header-group;
+}
+
+#page-absences .absences-summary tbody {
+  display: table-row-group;
+}
+
+#page-absences .absences-summary tr {
+  display: table-row;
+}
+
+#page-absences .absences-summary th,
+#page-absences .absences-summary td {
+  display: table-cell;
+}
+
+#page-absences .absences-summary input {
+  text-align: right;
 }

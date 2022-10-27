@@ -13,12 +13,12 @@
 
   <form method="post">
     <label for="login">Email</label>
-    <input name="login" />
+    <input name="login" placeholder="Email"/>
     <label for="password">Mot de passe</label>
-    <input name="password" type="password" />
+    <input name="password" type="password" placeholder="Mot de passe"/>
     <input class="button" type="submit" value="Se connecter"/>
   </form>
 
-  <a href="TODO">Mot de passe perdu</a>
+  <a href="{{ url_for('lost_password') }}">Mot de passe perdu</a>
 </section>
 {% endblock %}
