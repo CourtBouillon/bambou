@@ -383,25 +383,24 @@ def administrator():
     return render_template('administrator.jinja2.html', students=students)
 
 
-@app.route('/superadministrator', methods=('GET', 'POST'))
+@app.route('/superadministrator')
 @user.check(user.is_superadministrator)
 def superadministrator():
+    query_search = request.args.to_dict().get('search')
+    sql_search = f'%{query_search or ""}%'
     cursor = get_connection().cursor()
     cursor.execute('''
-        SELECT
-          teaching_period.id,
-          teaching_period.name
-        FROM
-          teaching_period
-        ORDER BY
-          teaching_period.name
-    ''')
+        SELECT id, name
+        FROM teaching_period
+        WHERE name LIKE ?
+        ORDER BY teaching_period.name
+    ''', (sql_search,))
     teaching_periods = cursor.fetchall()
     cursor.execute('''
         SELECT
           production_action.id,
           production_action.name,
-          group_concat(teaching_period.name, ', ') as teaching_period_names
+          group_concat(teaching_period.name, ', ') AS teaching_period_names
         FROM
           production_action
         LEFT JOIN
@@ -410,25 +409,25 @@ def superadministrator():
           semester ON (semester.id = course.semester_id)
         LEFT JOIN
           teaching_period on (teaching_period.id = semester.teaching_period_id)
+        WHERE
+          production_action.name LIKE ?
         GROUP BY
           production_action.id, teaching_period.name
         ORDER BY
           production_action.name
-    ''')
+    ''', (sql_search,))
     production_actions = cursor.fetchall()
     cursor.execute('''
-        SELECT
-          person.id,
-          person.lastname || ' ' || person.firstname as person_name
-        FROM
-          person
-        ORDER BY
-          person.lastname
-    ''')
+        SELECT id, person.lastname || ' ' || person.firstname as person_name
+        FROM person
+        WHERE firstname LIKE ? OR lastname LIKE ?
+        ORDER BY person.lastname
+    ''', (sql_search, sql_search))
     people = cursor.fetchall()
     return render_template(
         'superadministrator.jinja2.html', teaching_periods=teaching_periods,
-        production_actions=production_actions, people=people)
+        production_actions=production_actions, people=people,
+        search=query_search)
 
 
 @app.route('/teaching-period/<int:teaching_period_id>',
