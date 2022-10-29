@@ -15,7 +15,7 @@ app.config.from_envvar('BAMBOU_CONFIG', silent=True)
 @app.route('/')
 def index():
     if user.is_tutor():
-        pass
+        return redirect(url_for('tutor'))
     elif user.is_teacher():
         return redirect(url_for('teacher'))
     elif user.is_student():
@@ -51,9 +51,28 @@ def logout():
 
 
 @app.route('/tutor')
+@user.check(user.is_tutor)
 def tutor():
-    # TODO
-    pass
+    cursor = get_connection().cursor()
+    cursor.execute('''
+        SELECT
+          person.lastname || ' ' || person.firstname AS person_name,
+          registration.id AS registration_id
+        FROM
+          tutor
+        JOIN
+          tutoring ON (tutoring.tutor_id = tutor.id),
+          registration ON (registration.id = tutoring.registration_id),
+          student ON (student.id = registration.student_id),
+          person ON (person.id = student.person_id)
+        WHERE
+          tutor.person_id = ?
+    ''', (session['person_id'],))
+    students = cursor.fetchall()
+    if len(students) == 1:
+        return redirect(url_for(
+            'report', registration_id=students[0]['registration_id']))
+    return render_template('tutor.jinja2.html', students=students)
 
 
 @app.route('/profile', methods=('GET', 'POST'))
@@ -197,7 +216,9 @@ def marks(production_action_id):
 
 @app.route('/report')
 @app.route('/report/<int:registration_id>')
-@user.check(user.is_student, user.is_administrator, user.is_superadministrator)
+@user.check(
+    user.is_student, user.is_tutor, user.is_administrator,
+    user.is_superadministrator)
 def report(registration_id=None):
     cursor = get_connection().cursor()
     if registration_id is None:
@@ -217,7 +238,22 @@ def report(registration_id=None):
         else:
             return abort(404)
     else:
-        if not (user.is_administrator() or user.is_superadministrator()):
+        if user.is_tutor():
+            cursor.execute('''
+                SELECT
+                  registration.id
+                FROM
+                  registration
+                JOIN
+                  tutoring ON (tutoring.registration_id = registration.id),
+                  tutor ON (tutor.id = tutoring.tutor_id)
+                WHERE
+                  tutor.person_id = ? AND
+                  registration.id = ?
+            ''', (session['person_id'], registration_id))
+            if not cursor.fetchone():
+                return abort(403)
+        elif not (user.is_administrator() or user.is_superadministrator()):
             return abort(403)
 
     cursor.execute('''
