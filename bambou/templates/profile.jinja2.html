@@ -8,92 +8,91 @@
 
   <form method="post">
     {% if user.is_superadministrator() %}
-      <input name="firstname" value="{{ person.firstname }}" />
-      <input name="lastname" value="{{ person.lastname }}" />
-      <input name="code" value="TODO id étudiant si étudiant" />
-      <fieldset>
-        <div>
-          <label for="student">Apprenant</label>
-          <input type="checkbox" id="student" />
-        </div>
-        <div>
-          <label for="tutor">Tuteur</label>
-          <input type="checkbox" id="tutor" />
-        </div>
-        <div>
-          <label for="teacher">Formateur</label>
-          <input type="checkbox" id="teacher" />
-        </div>
-        <div>
-          <label for="administrator">Administrateur</label>
-          <input type="checkbox" id="administrator" />
-        </div>
-        <div>
-          <label for="super_administrator">Super Administrateur</label>
-          <input type="checkbox" id="super_administrator" />
-        </div>
-      </fieldset>
+      <label for="firstname">Prénom</label>
+      <input id="firstname" name="firstname" value="{{ person.firstname }}" />
+      <label for="lastname">Nom</label>
+      <input id="lastname" name="lastname" value="{{ person.lastname }}" />
+      {% if roles.student %}
+        <label for="code">Code</label>
+        <input id="code" name="code" value="TODO id étudiant si étudiant" />
+      {% endif %}
+      <label for="student">Apprenant</label>
+      <input type="checkbox" id="student" name="student" {{ 'checked' if roles.student }} />
+      <label for="tutor">Tuteur</label>
+      <input type="checkbox" id="tutor" name="tutor" {{ 'checked' if roles.tutor }} />
+      <label for="teacher">Formateur</label>
+      <input type="checkbox" id="teacher" name="teacher" {{ 'checked' if roles.teacher }} />
+      <label for="administrator">Administrateur</label>
+      <input type="checkbox" id="administrator" name="administrator" {{ 'checked' if roles.administrator }} />
+      <label for="super_administrator">Super Administrateur</label>
+      <input type="checkbox" id="superadministrator" name="superadministrator" {{ 'checked' if roles.superadministrator }} />
     {% endif %}
     <label for="mail">Email</label>
-    <input name="mail" type="email" value="{{ person.mail }}" />
+    <input id="mail" name="mail" type="email" value="{{ person.mail }}" />
     <label for="password">Mot de passe</label>
-    <input name="password" type="password" placeholder="Mot de passe"/>
+    <input id="password" name="password" type="password" placeholder="Mot de passe"/>
     <label for="confirm_password">Confirmez le mot de passe</label>
-    <input name="confirm_password" type="password" placeholder="Mot de passe"/>
+    <input id="confirm_password" name="confirm_password" type="password" placeholder="Mot de passe"/>
     <input type="submit" class="button" value="Mettre à jour"/>
   </form>
 
   {% if user.is_superadministrator() %}
-  <h4>Étudiant − Périodes de formation</h4>
-  <table>
-    <tbody>
-      <tr>
-        <td>TODO liste, Nom période de formation</td>
-        <td><a href="TODO">Désassocier</a></td>
-      </tr>
-    </tbody>
-  </table>
-  <form class="link">
-    <select>
-      <option>TODO liste des pfs</option>
-    </select>
-    <input type="submit" class="button" value="Associer">
-  </form>
+    {% if roles.student %}
+      <h4>Étudiant − Périodes de formation</h4>
+      <table>
+        <tbody>
+          <tr>
+            <td>TODO liste, Nom période de formation</td>
+            <td><a href="TODO">Désassocier</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <form class="link">
+        <select>
+          <option>TODO liste des pfs</option>
+        </select>
+        <input type="submit" class="button" value="Associer">
+      </form>
+    {% endif %}
 
-  <h4>Tuteur − Apprenants</h4>
-  <table>
-    <tbody>
-      <tr>
-        <td>TODO liste, Nom prénom id étudiant</td>
-        <td><a href="TODO">Désassocier</a></td>
-      </tr>
-    </tbody>
-  </table>
-  <form class="link">
-    <select>
-      <option>TODO liste des étudiants, nom prénom id</option>
-    </select>
-    <input type="submit" class="button" value="Associer">
-  </form>
+    {% if roles.tutor %}
+      <h4>Tuteur − Apprenants</h4>
+      <table>
+        <tbody>
+          <tr>
+            <td>TODO liste, Nom prénom id étudiant</td>
+            <td><a href="TODO">Désassocier</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <form class="link">
+        <select>
+          <option>TODO liste des étudiants, nom prénom id</option>
+        </select>
+        <input type="submit" class="button" value="Associer">
+      </form>
+    {% endif %}
 
-  <h4>Formateur − Actions de production</h4>
-  <table>
-    <tbody>
-      <tr>
-        <td>TODO liste, Nom Période de formation</td>
-        <td>nom action de production</td>
-        <td><a href="TODO">Désassocier</a></td>
-      </tr>
-    </tbody>
-  </table>
-  <form class="link">
-    <select>
-      <option>TODO liste, période de formation / action de production</option>
-    </select>
-    <input type="submit" class="button" value="Associer">
-  </form>
+    {% if roles.teacher %}
+      <h4>Formateur − Actions de production</h4>
+      <table>
+        <tbody>
+          <tr>
+            <td>TODO liste, Nom Période de formation</td>
+            <td>nom action de production</td>
+            <td><a href="TODO">Désassocier</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <form class="link">
+        <select>
+          <option>TODO liste, période de formation / action de production</option>
+        </select>
+        <input type="submit" class="button" value="Associer">
+      </form>
+    {% endif %}
 
-  <h4>Zone de danger</h4>
-  <a href="TODO" class="button" >Supprimer cette personne</a>
+    <h4>Zone de danger</h4>
+    <a href="TODO" class="button" >Supprimer cette personne</a>
   {% endif %}
 {% endblock %}

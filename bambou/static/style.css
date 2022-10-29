@@ -67,18 +67,6 @@ a:hover {
   text-decoration: underline;
 }
 
-fieldset {
-  border: none;
-  margin: 0;
-  padding: 0;
-  width: 50%;
-}
-
-fieldset div {
-  align-items: center;
-  display: flex;
-}
-
 form * {
   display: block;
 }

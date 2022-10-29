@@ -99,22 +99,48 @@ def profile(person_id=None):
             cursor.execute('''
                 UPDATE person
                 SET mail = ?, firstname = ?, lastname = ?
-                WHERE rowid = ?
+                WHERE id = ?
             ''', parameters)
+            if 'code' in request.form:
+                cursor.execute(
+                    'UPDATE student SET code = ? WHERE person_id = ?',
+                    (request.form['code'], person_id))
+            # TODO: handle roles
         else:
             cursor.execute(
-                'UPDATE person SET mail = ? WHERE rowid = ?',
+                'UPDATE person SET mail = ? WHERE id = ?',
                 (request.form['mail'], person_id))
         if request.form['password']:
             cursor.execute(
-                'UPDATE person SET password = ? WHERE rowid = ?',
+                'UPDATE person SET password = ? WHERE id = ?',
                 (generate_password_hash(request.form['password']), person_id))
         connection.commit()
         flash('Les informations ont été sauvegardées')
         return redirect(url_for('profile', person_id=person_id))
-    cursor.execute('SELECT * FROM person WHERE rowid = ?', (person_id,))
+    cursor.execute('SELECT * FROM person WHERE id = ?', (person_id,))
     person = cursor.fetchone()
-    return render_template('profile.jinja2.html', person=person)
+    cursor.execute('''
+        SELECT
+          student.id AS student,
+          tutor.id AS tutor,
+          teacher.id AS teacher,
+          administrator.id AS administrator,
+          superadministrator.id AS superadministrator
+        FROM
+          person
+        LEFT JOIN
+          student ON (student.person_id = ?)
+        LEFT JOIN
+          tutor ON (tutor.person_id = ?)
+        LEFT JOIN
+          teacher ON (teacher.person_id = ?)
+        LEFT JOIN
+          administrator ON (administrator.person_id = ?)
+        LEFT JOIN
+          superadministrator ON (superadministrator.person_id = ?)
+    ''', (person_id,) * 5)
+    roles = cursor.fetchone()
+    return render_template('profile.jinja2.html', person=person, roles=roles)
 
 
 @app.route('/profile/add>', methods=('GET', 'POST'))
