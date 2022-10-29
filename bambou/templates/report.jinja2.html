@@ -6,13 +6,16 @@
   <h2>Notes − {{ person.name }}</h2>
   <h3>{{ person.teaching_period_name }}</h3>
 
+  {% set validated_modules = marks | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count %}
+  {% set missing_modules = (marks | count * 0.6) | round(method='ceil') | int - validated_modules %}
+
   <article id="summaries">
     <section id="marks-summary">
       <table>
         <thead>
           <tr>
             <th>Niveaux d’acquisition</th>
-            <td>{{ ((marks | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count) / (marks | count) * 100) | int }} %</td>
+            <td>{{ 0 if not marks else (validated_modules / (marks | count) * 100) | int }} %</td>
           </tr>
         </thead>
         <tbody>
@@ -40,10 +43,12 @@
             <th>Non évalué − NE</th>
             <td>{{ marks | selectattr('mark', 'eq', 'NE') | list | count }}</td>
           </tr>
-          <tr>
-            <th>TODO Reste à valider 60%</th>
-            <td>{{ marks | rejectattr('mark') | list | count }}</td>
-          </tr>
+          {% if missing_modules > 0 %}
+            <tr>
+              <th>Reste à valider 60%</th>
+              <td>{{ missing_modules }}</td>
+            </tr>
+          {% endif %}
         </tbody>
       </table>
     </section>
