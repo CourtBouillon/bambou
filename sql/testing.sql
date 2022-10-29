@@ -59,3 +59,11 @@ VALUES
 INSERT INTO assignment (registration_id, course_id, mark, comments)
 VALUES
   (1, 1, 'A', 'Très bien !');
+
+INSERT INTO examination (teaching_period_id, name)
+VALUES
+  (1, 'Examen 1');
+
+INSERT INTO examination_mark (examination_id, registration_id, mark, comment)
+VALUES
+  (1, 1, 17.5, 'Très bon travail');

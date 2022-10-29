@@ -260,6 +260,28 @@ def report(registration_id=None):
     marks = cursor.fetchall()
     cursor.execute('''
         SELECT
+          examination.name,
+          mark,
+          comment
+        FROM
+          examination
+        JOIN
+          teaching_period ON (
+            teaching_period.id = examination.teaching_period_id),
+          registration ON (
+            registration.teaching_period_id = teaching_period.id)
+        LEFT JOIN
+          examination_mark ON (
+            examination_mark.examination_id = examination.id AND
+            examination_mark.registration_id = ?)
+        WHERE
+          registration.id = ?
+        ORDER BY
+          examination.name
+    ''', (registration_id, registration_id))
+    examinations = cursor.fetchall()
+    cursor.execute('''
+        SELECT
           person.firstname || ' ' || person.lastname AS name,
           teaching_period.name AS teaching_period_name
         FROM
@@ -273,7 +295,9 @@ def report(registration_id=None):
           registration.id = ?
     ''', (registration_id,))
     person = cursor.fetchone()
-    return render_template('report.jinja2.html', marks=marks, person=person)
+    return render_template(
+        'report.jinja2.html', marks=marks, person=person,
+        examinations=examinations)
 
 
 @app.route('/administrator')

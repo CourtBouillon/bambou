@@ -93,3 +93,17 @@ CREATE TABLE assignment (
   mark TEXT,
   comments TEXT
 );
+
+CREATE TABLE examination (
+  id INTEGER PRIMARY KEY,
+  teaching_period_id INTEGER NOT NULL REFERENCES teaching_period(id),
+  name TEXT
+);
+
+CREATE TABLE examination_mark (
+  id INTEGER PRIMARY KEY,
+  examination_id INTEGER NOT NULL REFERENCES examination(id),
+  registration_id INTEGER NOT NULL REFERENCES registration(id),
+  mark FLOAT,
+  comment TEXT
+);

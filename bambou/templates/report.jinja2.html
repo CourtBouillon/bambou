@@ -106,7 +106,7 @@
               <tr>
                 <th></th>
                 <th>Niveau d’acquisition</th>
-                <th>Commentaires</th>
+                <th>Commentaire</th>
                 {% if user.is_superadministrator() %}
                 <th>Modifier</th>
                 {% endif %}
@@ -131,7 +131,7 @@
         <tbody>
           <tr>
             <td>Appréciation du semestre</td>
-            <td>{{ semester.tracking_comments or '(Pas de commentaire)' }}</td>
+            <td>{{ semester.tracking_comments or '(Pas d’appréciation)' }}</td>
             {% if user.is_superadministrator() %}
             <td><a href="{{ url_for('semester_comment') }}">TODO Modifier le commentaire du semestre</a></td>
             {% endif %}
@@ -140,20 +140,24 @@
       </table>
     {% endfor %}
 
+    {% if examinations %}
+      <h4>Examens spéciaux</h4>
+      <table id="special-mark">
+        <tbody>
+          {% for examination in examinations %}
+            <tr>
+              <td>{{ examination.name }}</td>
+              <td>{{ examination.mark or '' }}</td>
+              <td>{{ examination.comment or '' }}</td>
+              {% if user.is_superadministrator() %}
+                <td><a href="{{ url_for('mark_special') }}">Modifier la noteTODO</a></td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
 
-    <h4>Examens spéciaux</h4>
-    <table id="special-mark">
-      <tbody>
-        <tr>
-          <td>TODO Nom examen spécial</td>
-          <td>TODO note examen spécial</td>
-          <td>TODO commentaire note examen spécial</td>
-          {% if user.is_superadministrator() %}
-            <td><a href="{{ url_for('mark_special') }}">Modifier la noteTODO</a></td>
-          {% endif %}
-        </tr>
-      </tbody>
-    </table>
     {% if user.is_superadministrator() %}
       <a href="{{ url_for('mark_special') }}">TODO Ajouter une note d’examen spécial</a>
 
