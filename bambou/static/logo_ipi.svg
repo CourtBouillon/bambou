@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="240" height="160">
+  <rect stroke="black" stroke-width="0.5" fill="none" x="8" y="5" width="224" height="130" />
+
+  <rect fill="#dd1d2a" x="77" y="15" width="20" height="20" />
+  <rect fill="#dd1d2a" x="158" y="17" width="20" height="19" />
+  <rect fill="#dd1d2a" x="62" y="44" width="20" height="39" />
+  <rect fill="#dd1d2a" x="158" y="44" width="20" height="39" />
+  <polyline fill="#dd1d2a" points="91,44 110,44 110,63 131,63 131,44 110,44 110,25 149,25 149,82 110,82 110,101, 91,101 91,63" />
+
+  <rect fill="#dd1d2a" x="15" y="100" width="67" height="2" />
+  <rect fill="#dd1d2a" x="120" y="100" width="104" height="2" />
+  <text x="120" y="123" font-size="14" letter-spacing="0.4" font-family="Roboto" text-anchor="middle">INFORMATIQUE ET NUMÉRIQUE</text>
+
+  <text x="120" y="155" font-size="15" font-family="Roboto" font-weight="bold" text-anchor="middle">UNE ÉCOLE DU GROUPE IGS</text>
+</svg>
