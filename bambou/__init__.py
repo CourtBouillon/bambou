@@ -143,9 +143,27 @@ def profile(person_id=None):
     return render_template('profile.jinja2.html', person=person, roles=roles)
 
 
-@app.route('/profile/add>', methods=('GET', 'POST'))
+@app.route('/profile/add', methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
 def profile_add():
+    if request.method == 'POST':
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute('''
+            INSERT INTO person (mail, firstname, lastname)
+            VALUES (:mail, :firstname, :lastname)
+            RETURNING id
+        ''', request.form)
+        person_id = cursor.fetchone()['id']
+        for role in user.ROLES:
+            if role in request.form:
+                cursor.execute(f'''
+                    INSERT INTO {role} (person_id)
+                    VALUES (:mail)
+                ''', (person_id,))
+        connection.commit()
+        flash('La période de formation a été ajoutée')
+        return redirect(url_for('index'))
     return render_template('profile_add.jinja2.html')
 
 
@@ -438,26 +456,18 @@ def teaching_period(teaching_period_id):
     cursor = connection.cursor()
     if request.method == 'POST':
         cursor.execute('''
-            UPDATE
-              teaching_period
-            SET
-              code = ?,
-              name = ?
-            WHERE
-              teaching_period.id = ?
+            UPDATE teaching_period
+            SET code = ?, name = ?
+            WHERE teaching_period.id = ?
         ''', (request.form['code'], request.form['name'], teaching_period_id))
         connection.commit()
         flash('La période de formation a été modifiée')
         return redirect(url_for(
             'teaching_period', teaching_period_id=teaching_period_id))
     cursor.execute('''
-        SELECT
-          teaching_period.code,
-          teaching_period.name
-        FROM
-          teaching_period
-        WHERE
-          teaching_period.id = ?
+        SELECT code, name
+        FROM teaching_period
+        WHERE teaching_period.id = ?
     ''', (teaching_period_id,))
     teaching_period = cursor.fetchone()
     cursor.execute('''
@@ -495,9 +505,19 @@ def teaching_period(teaching_period_id):
         production_actions=production_actions, students=students)
 
 
-@app.route('/teaching-period/add>', methods=('GET', 'POST'))
+@app.route('/teaching-period/add', methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
 def teaching_period_add():
+    if request.method == 'POST':
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute('''
+            INSERT INTO teaching_period (code, name)
+            VALUES (:code, :name)
+        ''', request.form)
+        connection.commit()
+        flash('La période de formation a été ajoutée')
+        return redirect(url_for('index'))
     return render_template('teaching_period_add.jinja2.html')
 
 
@@ -558,10 +578,35 @@ def production_action(production_action_id):
         teachers=teachers)
 
 
-@app.route('/production_action/add>', methods=('GET', 'POST'))
+@app.route('/production_action/add', methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
 def production_action_add():
-    return render_template('production_action_add.jinja2.html')
+    connection = get_connection()
+    cursor = connection.cursor()
+    if request.method == 'POST':
+        cursor.execute('''
+            INSERT INTO
+              production_action (teacher_id, code, name, last_course_date)
+            VALUES
+              (:teacher, :code, :name, :last_course_date)
+        ''', request.form)
+        connection.commit()
+        flash('L’action de production a été ajoutée')
+        return redirect(url_for('index'))
+    cursor.execute('''
+        SELECT
+          teacher.id,
+          person.lastname || ' ' || person.firstname AS name
+        FROM
+          teacher
+        JOIN
+          person ON (person.id = teacher.person_id)
+        ORDER BY
+          person.lastname
+    ''')
+    teachers = cursor.fetchall()
+    return render_template(
+        'production_action_add.jinja2.html', teachers=teachers)
 
 
 @app.route('/semester/add>', methods=('GET', 'POST'))

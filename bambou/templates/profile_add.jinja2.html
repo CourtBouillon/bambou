@@ -7,26 +7,21 @@
 
   <form method="post">
     <label for="firstname">Prénom</label>
-    <input name="firstname" placeholder="Prénom"/>
+    <input id="firstname" name="firstname" placeholder="Prénom"/>
     <label for="lastname">Nom</label>
-    <input name="lastname" placeholder="Nom"/>
+    <input id="lastname" name="lastname" placeholder="Nom"/>
     <label for="mail">Email</label>
-    <input name="mail" type="email" placeholder="Email"/>
-    <label for="password">Mot de passe</label>
-    <input name="password" type="password" placeholder="Mot de pase" />
-    <label for="code">Identifiant apprenant</label>
-    <input name="code" placeholder="Identifiant apprenant"/>
+    <input id="mail" name="mail" type="email" placeholder="Email"/>
     <label for="student">Apprenant</label>
-    <input type="checkbox" id="student" />
+    <input type="checkbox" id="student" name="student" />
     <label for="tutor">Tuteur</label>
-    <input type="checkbox" id="tutor" />
+    <input type="checkbox" id="tutor" name="tutor" />
     <label for="teacher">Formateur</label>
-    <input type="checkbox" id="teacher" />
+    <input type="checkbox" id="teacher" name="teacher" />
     <label for="administrator">Administrateur</label>
-    <input type="checkbox" id="administrator" />
+    <input type="checkbox" id="administrator" name="administrator" />
     <label for="super_administrator">Super Administrateur</label>
-    <input type="checkbox" id="super_administrator" />
+    <input type="checkbox" id="superadministrator=" name="superadministrator" />
     <input type="submit" class="button" value="Ajouter"/>
   </form>
-
 {% endblock %}

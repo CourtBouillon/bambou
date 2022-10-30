@@ -4,6 +4,8 @@ from flask import abort, g, session
 
 from .db import get_connection
 
+ROLES = ('student', 'tutor', 'teacher', 'administrator', 'superadministrator')
+
 
 def get():
     if 'person_id' not in session:

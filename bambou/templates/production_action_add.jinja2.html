@@ -7,16 +7,18 @@
 
   <form method="post">
     <label for="code">Code</label>
-    <input name="code" placeholder="Code"/>
+    <input id="code" name="code" placeholder="Code"/>
+    <label for="teacher">Enseignant</label>
+    <select id="teacher" name="teacher">
+      <option value=""></option>
+      {% for teacher in teachers %}
+        <option value="{{ teacher.id }}">{{ teacher.name }}</option>
+      {% endfor %}
+    </select>
     <label for="name">Nom de l’action</label>
-    <input name="name" placeholder="Nom de l’action"/>
-    <label for="start">Date de début</label>
-    <input name="start" type="date"/>
-    <label for="stop">Date de fin</label>
-    <input name="stop" type="date"/>
+    <input id="name" name="name" placeholder="Nom de l’action"/>
     <label for="last_course_date">Date du dernier cours</label>
-    <input name="last_course_date" type="date"/>
-    <input type="submit" class="button" value="TODO Ajouter"/>
+    <input id="last_course_date" name="last_course_date" type="date"/>
+    <input type="submit" class="button" value="Ajouter"/>
   </form>
-
 {% endblock %}
