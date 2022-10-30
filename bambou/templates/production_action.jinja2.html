@@ -3,17 +3,18 @@
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-  <h2>Action de production</h2>
-  <h3>{{ production_action.name }}</h3>
+  <h2>{{ production_action.name }}</h2>
 
   <form method="post">
-    <input name="code" value="TODO" />
-    <input name="name" value="TODO" />
-    <input name="start" type="date" value="TODO" />
-    <input name="stop" type="date" value="TODO" />
-    <input name="last_course_date" type="date" value="{{ production_action.last_course_date }}" />
-    <select>
-      <option value="" {{ 'selected' if production_action.teacher_id == None }}></option>
+    <label for="name">Nom</label>
+    <input id="name" name="name" value="{{ production_action.name }}"/>
+    <label for="code">Code</label>
+    <input id="code" name="code" value="{{ production_action.code }}"/>
+    <label for="last_course_date">Date de dernier cours</label>
+    <input id="last_course_date" name="last_course_date" type="date" value="{{ production_action.last_course_date }}"/>
+    <label for="teacher_id">Enseignant</label>
+    <select id="teacher_id" name="teacher_id">
+      <option value=""></option>
       {% for teacher in teachers %}
         <option value="{{ teacher.id }}" {{ 'selected' if production_action.teacher_id == teacher.id }}>{{ teacher.name }}</option>
       {% endfor %}
@@ -21,44 +22,60 @@
     <input type="submit" class="button" value="Sauvegarder"/>
   </form>
 
-  <h4>Périodes de formations</h4>
-  <table>
-    <tbody>
-      <tr>
-        <td>TODO liste Nom PF</td>
-        <td>Semestre 1</td>
-        <td><a href="TODO">TODO Désassocier</a></td>
-      </tr>
-    </tbody>
-  </table>
-  <form class="link">
-    <select>
-      <option>TODO Liste PF - Semestre</option>
-      <option>PF - Semestre 1</option>
-      <option>PF - Semestre 2</option>
+  <h3>Périodes de formations</h3>
+  {% set selected_students = students | map(attribute='id') | list %}
+  {% for semester_id, students in students | groupby('semester_id') %}
+    {% set semester = students[0] %}
+    <h4>{{ semester.teaching_period_name }} ({{ semester.semester_name }})</h4>
+    {% if semester.name %}
+      <table>
+        <tbody>
+          {% for student in students %}
+            <tr>
+              <td>{{ student.name }}</td>
+              <td>{{ student.mail }}</td>
+              <td><a href="{{ url_for('report', registration_id=student.registration_id) }}">Voir les notes</a></td>
+              <td>
+                <form method="post" action="{{ url_for('course_unlink', assignment_id=student.assignment_id) }}">
+                  <input type="submit" class="button" value="Dissocier"/>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <form method="post" action="{{ url_for('production_action_unlink', course_id=semester.course_id) }}">
+        <input type="submit" class="button" value="Dissocier"/>
+      </form>
+    {% endif %}
+    <form class="link" method="post" action="{{ url_for('course_link', course_id=semester.course_id) }}">
+      <select id="registration_id" name="registration_id">
+        {% for student in all_students %}
+          {% if student.id not in selected_students %}
+            <option value="{{ student.registration_id }}">{{ student.name }} ({{ student.mail }})</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <input type="submit" class="button" value="Inscrire à {{ semester.teaching_period_name }}"/>
+    </form>
+  {% endfor %}
+  <form class="link" method="post" action="{{ url_for('production_action_link', production_action_id=production_action.id) }}">
+    <select name="semester_id">
+      {% set selected_semesters = students | map(attribute='semester_id') | list %}
+      {% for semester in semesters %}
+        {% if semester.id not in selected_semesters %}
+          <option value="{{ semester.id }}">{{ semester.teaching_period_name }} ({{ semester.name }})</option>
+        {% endif %}
+      {% endfor %}
     </select>
-    <input type="submit" class="button"  value="TODO Associer" />
+    <input type="submit" class="button"  value="Associer"/>
   </form>
 
-  <h4>Apprenants</h4>
-  <table>
-    <tbody>
-      <tr>
-        <td>Id étudiant</td>
-        <td>Nom Prénom</td>
-        <td><a href="TODO">Voir les notes</a></td>
-        <td><a href="TODO">Désassocier</a></td>
-      </tr>
-    </tbody>
-  </table>
-  <form class="link">
-    <select>
-      <option>TODO Liste des étudiants inscrits aux pfs associées et qui ne sont pas déjà dans l’ap</option>
-      <option value="action id">Nom prénom (id de l’étudiant)</option>
-    </select>
-    <input type="submit" class="button" value="TODO Associer"/>
-  </form>
-
-  <h4>Zone de danger</h4>
-  <a href="TODO" class="button" >Supprimer l’action</a>
+  {% if not (students | selectattr('course_id') | list) %}
+    <h3>Zone de danger</h3>
+    <form method="post" action="{{ url_for('production_action_delete', production_action_id=production_action.id) }}">
+      <input type="submit" class="button" value="Supprimer l’action"/>
+    </form>
+  {% endif %}
 {% endblock %}

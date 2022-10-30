@@ -3,73 +3,95 @@
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-  <h2>Période de formation</h2>
-  <h3>{{ teaching_period.name }}</h3>
+  <h2>{{ teaching_period.name }}</h2>
 
   <form method="post">
-    <input name="code" value="{{ teaching_period.code }}" />
-    <input name="name" value="{{ teaching_period.name }}" />
+    <label for="name">Nom</label>
+    <input id="name" name="name" value="{{ teaching_period.name }}" />
+    <label for="code">Code</label>
+    <input id="code" name="code" value="{{ teaching_period.code }}" />
     <input type="submit" class="button" value="Sauvegarder"/>
   </form>
 
-  <h4>Semestres</h4>
-  <table>
-    <tbody>
-      <tr>
-        <td>Nom semestre</td>
-        <td>Début</td>
-        <td>Fin</td>
-        <td><a href="{{ url_for('semester') }}">TODO Modifier</a></td>
-        <td><a href="TODO">TODO Supprimer</a></td>
-      </tr>
-    </body>
-  </table>
-  <form id="add-semester">
+  <h3>Actions de production</h3>
+  {% for semester_id, production_actions in production_actions | groupby('semester_id') %}
+    {% set semester = production_actions[0] %}
+    <h4>{{ semester.semester_name }}</h4>
+    {% if semester.id %}
+      <table>
+        <tbody>
+          {% for production_action in production_actions %}
+            <tr>
+              <td>{{ production_action.name }}</td>
+              <td><a href="{{ url_for('production_action', production_action_id=production_action.id) }}">Modifier</a></td>
+              <td>
+                <form method="post" action="{{ url_for('production_action_unlink', course_id=production_action.course_id) }}">
+                  <input type="submit" class="button" value="Dissocier"/>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <form method="post" action="{{ url_for('semester_delete', semester_id=semester_id) }}">
+        <input type="submit" class="button" value="Supprimer"/>
+      </form>
+    {% endif %}
+    <form class="link" method="post" action="{{ url_for('production_action_link', semester_id=semester_id) }}">
+      <select name="production_action_id">
+        {% set selected_production_action_ids = production_actions | map(attribute='id') | list %}
+        {% for production_action in all_production_actions %}
+          {% if production_action.id not in selected_production_action_ids %}
+            <option value="{{ production_action.id }}">{{ production_action.name }} ({{ production_action.code }})</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <input type="submit" class="button" value="Associer à {{ semester.semester_name }}"/>
+    </form>
+  {% endfor %}
+  <form id="add-semester" method="post" action="{{ url_for('semester_add', teaching_period_id=teaching_period.id) }}">
     <input name="name" placeholder="Nom du semestre"/>
     <input name="start" type="date"/>
     <input name="stop" type="date"/>
-    <input type="submit" class="button" value="TODO Ajouter un semestre"/>
+    <input type="submit" class="button" value="Ajouter un semestre"/>
   </form>
 
-  <h4>Actions de production (TODO ajouter & enlever)</h4>
-  <table>
-    <tbody>
-    {% for production_action in production_actions %}
-      <tr>
-        <td>{{ production_action.name }}</td>
-        <td><a href="TODO">TODO Modifier</a></td>
-        <td><a href="TODO">TODO Déassocier</a></td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-  <form class="link">
-    <select>
-      <option>TODO Liste des actions de production</option>
-      <option value="action id">Action 1</option>
-      <option value="action id">Action 2</option>
-    </select>
-    <input type="submit" class="button" value="TODO Associer"/>
-  </form>
-
-  <h4>Étudiants (TODO ajouter & enlever)</h4>
+  <h3>Étudiants</h3>
   <table>
     <tbody>
     {% for student in students %}
       <tr>
-        <td>{{ student.person_name }} (TODO id de l’étudiant)</td>
-        <td><a href="TODO">TODO Voir les notes</a></td>
-        <td><a href="TODO">TODO Déassocier</a></td>
+        <td>{{ student.name }}</td>
+        <td>{{ student.mail }}</td>
+        <td><a href="{{ url_for('report', registration_id=student.registration_id) }}">Voir les notes</a></td>
+        {% if student.registration_id not in registrations_with_data %}
+          <td>
+            <form method="post" action="{{ url_for('registration_delete', registration_id=student.registration_id) }}">
+              <input type="submit" class="button" value="Désinscrire"/>
+            </form>
+          </td>
+        {% endif %}
       </tr>
     {% endfor %}
     </tbody>
   </table>
-  <form class="link">
-    <select>
-      <option>TODO Liste des étudiants</option>
-      <option value="action id">Nom prénom</option>
-      <option value="action id">Nom prénom</option>
+  {% set selected_students = students | map(attribute='id') | list %}
+  <form class="link" method="post" action="{{ url_for('registration_add', teaching_period_id=teaching_period.id) }}">
+    <select name="student_id">
+      {% for student in all_students %}
+        {% if student.id not in selected_students %}
+          <option value="{{ student.id }}">{{ student.name }} ({{ student.mail }})</option>
+        {% endif %}
+      {% endfor %}
     </select>
-    <input type="submit" class="button" value="TODO Associer"/>
+    <input type="submit" class="button" value="Inscrire"/>
   </form>
+
+  {% if not production_actions and not students %}
+    <h3>Zone de danger</h3>
+    <form method="post" action="{{ url_for('teaching_period_delete', teaching_period_id=teaching_period.id) }}">
+      <input type="submit" class="button" value="Supprimer la période"/>
+    </form>
+  {% endif %}
 {% endblock %}

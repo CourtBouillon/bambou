@@ -465,30 +465,40 @@ def teaching_period(teaching_period_id):
         return redirect(url_for(
             'teaching_period', teaching_period_id=teaching_period_id))
     cursor.execute('''
-        SELECT code, name
+        SELECT id, code, name
         FROM teaching_period
-        WHERE teaching_period.id = ?
+        WHERE id = ?
     ''', (teaching_period_id,))
     teaching_period = cursor.fetchone()
     cursor.execute('''
         SELECT
           production_action.id,
-          production_action.name
+          production_action.name,
+          course.id AS course_id,
+          semester.id AS semester_id,
+          semester.name AS semester_name
         FROM
-          production_action
-        JOIN
-          course ON (course.production_action_id = production_action.id),
-          semester ON (semester.id = course.semester_id)
+          semester
+        LEFT JOIN
+          course ON (course.semester_id = semester.id)
+        LEFT JOIN
+          production_action ON (
+            production_action.id = course.production_action_id)
         WHERE
           semester.teaching_period_id = ?
         ORDER BY
           production_action.name
     ''', (teaching_period_id,))
     production_actions = cursor.fetchall()
+    cursor.execute(
+        'SELECT id, name, code FROM production_action ORDER BY name')
+    all_production_actions = cursor.fetchall()
     cursor.execute('''
         SELECT
-          person.id,
-          person.lastname || ' ' || person.firstname as person_name
+          student.id,
+          person.lastname || ' ' || person.firstname as name,
+          person.mail,
+          registration.id AS registration_id
         FROM
           person
         JOIN
@@ -500,9 +510,32 @@ def teaching_period(teaching_period_id):
           person.lastname
     ''', (teaching_period_id,))
     students = cursor.fetchall()
+    cursor.execute('''
+        SELECT
+          student.id,
+          person.lastname || ' ' || person.firstname as name,
+          person.mail
+        FROM
+          person
+        JOIN
+          student ON (student.person_id = person.id)
+        ORDER BY
+          person.lastname
+    ''')
+    all_students = cursor.fetchall()
+    cursor.execute('''
+        SELECT DISTINCT registration_id FROM tutoring UNION
+        SELECT DISTINCT registration_id FROM tracking UNION
+        SELECT DISTINCT registration_id FROM assignment UNION
+        SELECT DISTINCT registration_id FROM examination_mark
+    ''')
+    registrations_with_data = tuple(
+        registration['registration_id'] for registration in cursor.fetchall())
     return render_template(
         'teaching_period.jinja2.html', teaching_period=teaching_period,
-        production_actions=production_actions, students=students)
+        production_actions=production_actions, all_students=all_students,
+        all_production_actions=all_production_actions, students=students,
+        registrations_with_data=registrations_with_data)
 
 
 @app.route('/teaching-period/add', methods=('GET', 'POST'))
@@ -521,6 +554,49 @@ def teaching_period_add():
     return render_template('teaching_period_add.jinja2.html')
 
 
+@app.route(
+    '/teaching-period/delete/<int:teaching_period_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def teaching_period_delete(teaching_period_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        DELETE FROM teaching_period
+        WHERE id = ?
+    ''', (teaching_period_id,))
+    connection.commit()
+    flash('La période de formation a été supprimée')
+    return redirect(url_for('index'))
+
+
+@app.route('/registration/add/<int:teaching_period_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def registration_add(teaching_period_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        INSERT INTO registration (teaching_period_id, student_id)
+        VALUES (?, ?)
+    ''', (teaching_period_id, request.form['student_id']))
+    connection.commit()
+    flash('L’apprenant a été inscrit')
+    return redirect(request.referrer)
+
+
+@app.route('/registration/delete/<int:registration_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def registration_delete(registration_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        DELETE FROM registration
+        WHERE id = ?
+    ''', (registration_id,))
+    connection.commit()
+    flash('L’apprenant a été désinscrit')
+    return redirect(request.referrer)
+
+
 @app.route('/production-action/<int:production_action_id>',
            methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
@@ -535,30 +611,18 @@ def production_action(production_action_id):
             request.form['last_course_date'],
             production_action_id)
         cursor.execute('''
-            UPDATE
-              production_action
-            SET
-              code = ?,
-              name = ?,
-              teacher_id = ?,
-              last_course_date = ?
-            WHERE
-              production_action.id = ?
+            UPDATE production_action
+            SET code = ?, name = ?, teacher_id = ?, last_course_date = ?
+            WHERE production_action.id = ?
         ''', values)
         connection.commit()
         flash('L’action de production a été modifiée')
         return redirect(url_for(
             'production_action', production_action_id=production_action_id))
     cursor.execute('''
-        SELECT
-          production_action.code,
-          production_action.name,
-          production_action.teacher_id,
-          production_action.last_course_date
-        FROM
-          production_action
-        WHERE
-          production_action.id = ?
+        SELECT id, code, name, teacher_id, last_course_date
+        FROM production_action
+        WHERE production_action.id = ?
     ''', (production_action_id,))
     production_action = cursor.fetchone()
     cursor.execute('''
@@ -573,12 +637,79 @@ def production_action(production_action_id):
           person.lastname
     ''')
     teachers = cursor.fetchall()
+    cursor.execute('''
+        SELECT
+          semester.id AS semester_id,
+          semester.name AS semester_name,
+          course.id AS course_id,
+          teaching_period.name AS teaching_period_name,
+          assignment.id AS assignment_id,
+          registration.id AS registration_id,
+          person.lastname || ' ' || person.firstname AS name,
+          person.mail,
+          student.id
+        FROM
+          course
+        JOIN
+          semester ON (semester.id = course.semester_id),
+          teaching_period ON (teaching_period.id = semester.teaching_period_id)
+        LEFT JOIN
+          assignment ON (assignment.course_id = course.id)
+        LEFT JOIN
+          registration ON (registration.id = assignment.registration_id)
+        LEFT JOIN
+          student ON (student.id = registration.student_id)
+        LEFT JOIN
+          person ON (person.id = student.person_id)
+        WHERE
+          course.production_action_id = ?
+        ORDER BY
+          teaching_period.name,
+          semester.name,
+          person.lastname
+    ''', (production_action_id,))
+    students = cursor.fetchall()
+    cursor.execute('''
+        SELECT
+          student.id,
+          person.lastname || ' ' || person.firstname AS name,
+          person.mail,
+          registration.id AS registration_id
+        FROM
+          course
+        JOIN
+          semester ON (semester.id = course.semester_id),
+          registration ON (
+            semester.teaching_period_id = registration.teaching_period_id),
+          student ON (student.id = registration.student_id),
+          person ON (person.id = student.person_id)
+        WHERE
+          course.production_action_id = ?
+        ORDER BY
+          person.lastname
+    ''', (production_action_id,))
+    all_students = cursor.fetchall()
+    cursor.execute('''
+        SELECT
+          semester.id,
+          semester.name,
+          teaching_period.name AS teaching_period_name
+        FROM
+          semester
+        JOIN
+          teaching_period ON (teaching_period.id = semester.teaching_period_id)
+        ORDER BY
+          teaching_period.name,
+          semester.name
+    ''')
+    semesters = cursor.fetchall()
     return render_template(
         'production_action.jinja2.html', production_action=production_action,
-        teachers=teachers)
+        teachers=teachers, students=students, all_students=all_students,
+        semesters=semesters)
 
 
-@app.route('/production_action/add', methods=('GET', 'POST'))
+@app.route('/production-action/add', methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
 def production_action_add():
     connection = get_connection()
@@ -609,10 +740,113 @@ def production_action_add():
         'production_action_add.jinja2.html', teachers=teachers)
 
 
-@app.route('/semester/add>', methods=('GET', 'POST'))
+@app.route(
+    '/production-action/delete/<int:production_action_id>', methods=('POST',))
 @user.check(user.is_superadministrator)
-def semester():
-    return render_template('semester.jinja2.html')
+def production_action_delete(production_action_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        DELETE FROM production_action
+        WHERE id = ?
+    ''', (production_action_id,))
+    connection.commit()
+    flash('L’action de production a été supprimée')
+    return redirect(url_for('index'))
+
+
+@app.route(
+    '/production-action/link-semester/<int:semester_id>', methods=('POST',))
+@app.route(
+    '/production-action/link/<int:production_action_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def production_action_link(semester_id=None, production_action_id=None):
+    connection = get_connection()
+    cursor = connection.cursor()
+    if semester_id is None:
+        semester_id = request.form['semester_id']
+    elif production_action_id is None:
+        production_action_id = request.form['production_action_id']
+    cursor.execute('''
+        INSERT INTO course (semester_id, production_action_id)
+        VALUES (?, ?)
+    ''', (semester_id, production_action_id))
+    connection.commit()
+    flash('L’action de production a été associée')
+    return redirect(request.referrer)
+
+
+@app.route('/production-action/unlink/<int:course_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def production_action_unlink(course_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        DELETE FROM course
+        WHERE id = ?
+    ''', (course_id,))
+    connection.commit()
+    flash('L’action de production a été dissociée')
+    return redirect(request.referrer)
+
+
+@app.route('/course/link/<int:course_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def course_link(course_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        INSERT INTO assignment (registration_id, course_id)
+        VALUES (?, ?)
+    ''', (request.form['registration_id'], course_id))
+    connection.commit()
+    flash('L’apprenant a été inscrit')
+    return redirect(request.referrer)
+
+
+@app.route('/course/unlink/<int:assignment_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def course_unlink(assignment_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('DELETE FROM assignment WHERE id = ?', (assignment_id,))
+    connection.commit()
+    flash('L’apprenant a été désinscrit')
+    return redirect(request.referrer)
+
+
+@app.route('/semester/add/<int:teaching_period_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def semester_add(teaching_period_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    form = dict(request.form)
+    form['teaching_period_id'] = teaching_period_id
+    cursor.execute('''
+        INSERT INTO semester (teaching_period_id, name, start, stop)
+        VALUES (:teaching_period_id, :name, :start, :stop)
+    ''', form)
+    connection.commit()
+    flash('Le semestre a été ajouté')
+    return redirect(url_for(
+        'teaching_period', teaching_period_id=teaching_period_id))
+
+
+@app.route('/semester/delete/<int:semester_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def semester_delete(semester_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        DELETE FROM semester
+        WHERE id = ?
+        RETURNING teaching_period_id
+    ''', (semester_id,))
+    teaching_period_id = cursor.fetchone()['teaching_period_id']
+    connection.commit()
+    flash('Le semestre a été supprimé')
+    return redirect(url_for(
+        'teaching_period', teaching_period_id=teaching_period_id))
 
 
 @app.route('/mark', methods=('GET', 'POST'))
