@@ -1,0 +1,15 @@
+{% set title = examination_mark.name + ' − ' + examination_mark.person_name %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+  <h2>{{ examination_mark.name }} − {{ examination_mark.person_name }}</h2>
+
+  <form method="post">
+    <label for="mark">Note</label>
+    <input id="mark" name="mark" value="{{ examination_mark.mark or '' }}" />
+    <label for="comments">Commentaire</label>
+    <input id="comments" name="comments" value="{{ examination_mark.comments or '' }}"/>
+    <input type="submit" class="button" value="Modifier la note"/>
+  </form>
+{% endblock %}

@@ -267,14 +267,10 @@ def report(registration_id=None):
     cursor = get_connection().cursor()
     if registration_id is None:
         cursor.execute('''
-            SELECT
-              registration.id
-            FROM
-              registration
-            JOIN
-              student ON (student.id = registration.student_id)
-            WHERE
-              student.person_id = ?
+            SELECT registration.id
+            FROM registration
+            JOIN student ON (student.id = registration.student_id)
+            WHERE student.person_id = ?
         ''', (session['person_id'],))
         registration = cursor.fetchone()
         if registration:
@@ -284,16 +280,11 @@ def report(registration_id=None):
     else:
         if user.is_tutor():
             cursor.execute('''
-                SELECT
-                  registration.id
-                FROM
-                  registration
-                JOIN
-                  tutoring ON (tutoring.registration_id = registration.id),
-                  tutor ON (tutor.id = tutoring.tutor_id)
-                WHERE
-                  tutor.person_id = ? AND
-                  registration.id = ?
+                SELECT registration.id
+                FROM registration
+                JOIN tutoring ON (tutoring.registration_id = registration.id)
+                JOIN tutor ON (tutor.id = tutoring.tutor_id)
+                WHERE tutor.person_id = ? AND registration.id = ?
             ''', (session['person_id'], registration_id))
             if not cursor.fetchone():
                 return abort(403)
@@ -309,6 +300,8 @@ def report(registration_id=None):
           tracking.unjustified_absence_minutes,
           tracking.lateness_minutes,
           tracking.comments AS tracking_comments,
+          registration.id AS registration_id,
+          assignment.id,
           assignment.course_id,
           assignment.mark,
           assignment.comments
@@ -337,12 +330,13 @@ def report(registration_id=None):
           production_action.last_course_date,
           production_action.name
     ''', (registration_id,))
-    marks = cursor.fetchall()
+    assignments = cursor.fetchall()
     cursor.execute('''
         SELECT
+          examination.id,
           examination.name,
-          mark,
-          comment
+          examination_mark.mark,
+          examination_mark.comments
         FROM
           examination
         JOIN
@@ -362,8 +356,10 @@ def report(registration_id=None):
     examinations = cursor.fetchall()
     cursor.execute('''
         SELECT
+          student.id,
           person.firstname || ' ' || person.lastname AS name,
-          teaching_period.name AS teaching_period_name
+          teaching_period.name AS teaching_period_name,
+          registration.id AS registration_id
         FROM
           person
         JOIN
@@ -374,9 +370,9 @@ def report(registration_id=None):
         WHERE
           registration.id = ?
     ''', (registration_id,))
-    person = cursor.fetchone()
+    student = cursor.fetchone()
     return render_template(
-        'report.jinja2.html', marks=marks, person=person,
+        'report.jinja2.html', assignments=assignments, student=student,
         examinations=examinations)
 
 
@@ -476,6 +472,8 @@ def teaching_period(teaching_period_id):
           production_action.name,
           course.id AS course_id,
           semester.id AS semester_id,
+          semester.start AS semester_start,
+          semester.stop AS semester_stop,
           semester.name AS semester_name
         FROM
           semester
@@ -849,28 +847,188 @@ def semester_delete(semester_id):
         'teaching_period', teaching_period_id=teaching_period_id))
 
 
-@app.route('/mark', methods=('GET', 'POST'))
+@app.route('/mark/<int:assignment_id>', methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
-def mark():
-    return render_template('mark.jinja2.html')
+def mark(assignment_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    if request.method == 'POST':
+        cursor.execute('''
+            UPDATE assignment
+            SET mark = ?, comments = ?
+            WHERE id = ?
+            RETURNING registration_id
+        ''', (request.form['mark'], request.form['comments'], assignment_id))
+        registration_id = cursor.fetchone()['registration_id']
+        connection.commit()
+        flash('La note a été modifiée')
+        return redirect(url_for('report', registration_id=registration_id))
+    cursor.execute('''
+        SELECT
+          assignment.mark,
+          assignment.comments,
+          teaching_period.name AS teaching_period_name,
+          person.firstname || ' ' || person.lastname AS person_name
+        FROM
+          assignment
+        JOIN
+          registration ON (registration.id = assignment.registration_id),
+          student ON (student.id = registration.student_id),
+          person ON (person.id = student.person_id),
+          teaching_period ON (
+            teaching_period.id = registration.teaching_period_id)
+        WHERE
+          assignment.id = ?
+    ''', (assignment_id,))
+    assignment = cursor.fetchone()
+    return render_template('mark.jinja2.html', assignment=assignment)
 
 
-@app.route('/mark_special', methods=('GET', 'POST'))
+@app.route(
+    '/examination-mark/<int:examination_id>/<int:registration_id>',
+    methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
-def mark_special():
-    return render_template('mark_special.jinja2.html')
+def examination_mark(examination_id, registration_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    if request.method == 'POST':
+        cursor.execute('''
+            INSERT INTO examination_mark (
+              examination_id, registration_id, mark, comments)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            examination_id, registration_id,
+            request.form['mark'], request.form['comments']))
+        connection.commit()
+        flash('La note a été modifiée')
+        return redirect(url_for('report', registration_id=registration_id))
+    cursor.execute('''
+        SELECT
+          mark,
+          comments,
+          examination.name,
+          person.firstname || ' ' || person.lastname AS person_name
+        FROM
+          examination
+        JOIN
+          registration,
+          student ON (student.id = registration.student_id),
+          person ON (person.id = student.person_id)
+        LEFT JOIN
+          examination_mark ON (
+            examination_mark.examination_id = examination.id AND
+            examination_mark.registration_id = registration.id)
+        WHERE
+          examination.id = ? AND
+          registration.id = ?
+    ''', (examination_id, registration_id))
+    examination_mark = cursor.fetchone()
+    return render_template(
+        'examination_mark.jinja2.html', examination_mark=examination_mark)
 
 
-@app.route('/semester_comment', methods=('GET', 'POST'))
+@app.route(
+    '/semester-comment/<int:semester_id>/<int:registration_id>',
+    methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
-def semester_comment():
-    return render_template('semester_comment.jinja2.html')
+def semester_comment(semester_id, registration_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    if request.method == 'POST':
+        cursor.execute('''
+            INSERT INTO tracking (semester_id, registration_id, comments)
+            VALUES (?, ?, ?)
+        ''', (semester_id, registration_id, request.form['comments']))
+        connection.commit()
+        flash('Le commentaire a été modifié')
+        return redirect(url_for('report', registration_id=registration_id))
+    cursor.execute('''
+        SELECT
+          semester.name,
+          tracking.comments,
+          person.firstname || ' ' || person.lastname AS person_name
+        FROM
+          semester
+        JOIN
+          registration,
+          student ON (student.id = registration.student_id),
+          person ON (person.id = student.person_id)
+        LEFT JOIN
+          tracking ON (
+            tracking.semester_id = semester.id AND
+            tracking.registration_id = registration.id)
+        WHERE
+          semester.id = ? AND
+          registration.id = ?
+    ''', (semester_id, registration_id))
+    semester = cursor.fetchone()
+    return render_template('semester_comment.jinja2.html', semester=semester)
 
 
-@app.route('/absences', methods=('GET', 'POST'))
+@app.route('/absences/<int:registration_id>', methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
-def absences():
-    return render_template('absences.jinja2.html')
+def absences(registration_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        SELECT
+          student.id,
+          person.firstname || ' ' || person.lastname AS name,
+          teaching_period.name AS teaching_period_name
+        FROM
+          person
+        JOIN
+          student ON (person.id = student.person_id),
+          registration ON (registration.student_id = student.id),
+          teaching_period ON (
+            teaching_period.id = registration.teaching_period_id)
+        WHERE
+          registration.id = ?
+    ''', (registration_id,))
+    student = cursor.fetchone()
+    cursor.execute('''
+        SELECT
+          semester.id AS semester_id,
+          semester.name AS semester_name,
+          tracking.justified_absence_minutes,
+          tracking.unjustified_absence_minutes,
+          tracking.lateness_minutes,
+          tracking.comments AS tracking_comments
+        FROM
+          semester
+        JOIN
+          teaching_period ON (teaching_period.id = semester.teaching_period_id)
+        JOIN
+          registration ON (
+            registration.teaching_period_id = teaching_period.id)
+        LEFT JOIN
+          tracking ON (tracking.semester_id = semester.id)
+        WHERE
+          registration.id = ?
+        ORDER BY
+          semester.start
+    ''', (registration_id,))
+    trackings = cursor.fetchall()
+    if request.method == 'POST':
+        for tracking in trackings:
+            semester_id = tracking['semester_id']
+            cursor.execute('''
+                INSERT INTO tracking (
+                  registration_id, semester_id, justified_absence_minutes,
+                  unjustified_absence_minutes, lateness_minutes)
+                VALUES
+                  (?, ?, ?, ?, ?)
+            ''', (
+                registration_id, semester_id,
+                request.form[f'justified_absence_minutes_{semester_id}'],
+                request.form[f'unjustified_absence_minutes_{semester_id}'],
+                request.form[f'lateness_minutes_{semester_id}'],
+            ))
+        connection.commit()
+        flash('Les absences ont été modifiées')
+        return redirect(url_for('report', registration_id=registration_id))
+    return render_template(
+        'absences.jinja2.html', student=student, trackings=trackings)
 
 
 @app.route('/lost_password', methods=('GET', 'POST'))

@@ -17,6 +17,8 @@
   {% for semester_id, production_actions in production_actions | groupby('semester_id') %}
     {% set semester = production_actions[0] %}
     <h4>{{ semester.semester_name }}</h4>
+    Du {{ semester.semester_start }} au {{ semester.semester_stop }}
+    <a href="TODO">Modifier le semestre</a>
     {% if semester.id %}
       <table>
         <tbody>

@@ -1,25 +1,23 @@
-{% set title = 'Note − TODO nom prénom apprenant' %}
+{% set title = 'Note − ' + assignment.person_name %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-  <h2>Note − TODO nom module</h2>
-  <h3>TODO prénom nom apprenant</h3>
+  <h2>Note − {{ assignment.person_name }} − {{ assignment.teaching_period_name }}</h2>
 
-  TODO les valeurs
-  <form>
+  <form method="post">
     <label for="mark">Note</label>
-    <select id="mark">
-      <option value="A" >Expertise - A</option>
-      <option value="B" >Maîtrisé − B</option>
-      <option value="C" >Acquis − C</option>
-      <option value="D" >En cours d’acquisition − D</option>
-      <option value="E" >Non acquis − E</option>
-      <option value="NE" >Non évalué − NE</option>
+    <select id="mark" name="mark">
+      <option></option>
+      <option value="A" {{ 'selected' if assignment.mark == 'A' }}>Expertise - A</option>
+      <option value="B" {{ 'selected' if assignment.mark == 'B' }}>Maîtrisé − B</option>
+      <option value="C" {{ 'selected' if assignment.mark == 'C' }}>Acquis − C</option>
+      <option value="D" {{ 'selected' if assignment.mark == 'D' }}>En cours d’acquisition − D</option>
+      <option value="E" {{ 'selected' if assignment.mark == 'E' }}>Non acquis − E</option>
+      <option value="NE" {{ 'selected' if assignment.mark == 'NE' }}>Non évalué − NE</option>
     </select>
-    <label for="comment">Commentaire</label>
-    <textarea name="comment">TODO commentaire du module</textarea>
-    <input type="submit" class="button" value="TODO Modifier la note"/>
+    <label for="comments">Commentaires</label>
+    <textarea id="comments" name="comments">{{ assignment.comments or '' }}</textarea>
+    <input type="submit" class="button" value="Modifier la note"/>
   </form>
-
 {% endblock %}

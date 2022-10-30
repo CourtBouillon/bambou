@@ -1,14 +1,13 @@
-{% set title = 'Commentaire de semestre − TODO nom prénom apprenant' %}
+{% set title = 'Commentaire − ' + semester.person_name + ' − ' + semester.name %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-  <h2>Commentaire de semestre − TODO nom semestre</h2>
-  <h3>TODO nom prénom apprenant</h3>
+  <h2>{{ semester.person_name }} − {{ semester.name }}</h2>
 
-  <form>
-    <input value="TODO commentaire du semestre"/>
-    <input type="submit" class="button" value="TODO Modifier le commentaire"/>
+  <form method="post">
+    <label for="comments">Commentaires</label>
+    <input id="comments" name="comments" value="{{ semester.comments or '' }}"/>
+    <input type="submit" class="button" value="Modifier le commentaire"/>
   </form>
-
 {% endblock %}

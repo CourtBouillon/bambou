@@ -66,10 +66,11 @@ CREATE TABLE tracking (
   id INTEGER PRIMARY KEY,
   registration_id INTEGER NOT NULL REFERENCES registration(id),
   semester_id INTEGER NOT NULL REFERENCES semester(id),
-  justified_absence_minutes INTEGER NOT NULL,
-  unjustified_absence_minutes INTEGER NOT NULL,
-  lateness_minutes INTEGER NOT NULL,
-  comments TEXT
+  justified_absence_minutes INTEGER,
+  unjustified_absence_minutes INTEGER,
+  lateness_minutes INTEGER,
+  comments TEXT,
+  CONSTRAINT tracking_unique UNIQUE (registration_id, semester_id) ON CONFLICT REPLACE
 );
 
 CREATE TABLE production_action (
@@ -105,5 +106,6 @@ CREATE TABLE examination_mark (
   examination_id INTEGER NOT NULL REFERENCES examination(id),
   registration_id INTEGER NOT NULL REFERENCES registration(id),
   mark FLOAT,
-  comment TEXT
+  comments TEXT,
+  CONSTRAINT examination_mark_unique UNIQUE (examination_id, registration_id) ON CONFLICT REPLACE
 );
