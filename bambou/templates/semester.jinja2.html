@@ -1,18 +1,17 @@
-{% set title = 'Semestre ' %}
+{% set title = semester.teaching_period_name + ' − ' + semester.name %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-  <h2>TODO nom semestre</h2>
-  <h3>TODO Nom période de formation</h3>
+  <h2>{{ semester.teaching_period_name }} − {{ semester.name }}</h2>
 
-  <form>
+  <form method="post">
     <label for="name">Nom du semestre</label>
-    <input id="name" value="TODO nom semestre" placeholder="Nom du semestre"/>
+    <input id="name" name="name" value="{{ semester.name }}" placeholder="Nom du semestre"/>
     <label for="start">Début du semestre</label>
-    <input type="date" id="start" value="TODO start"/>
+    <input type="date" id="start" name="start" value="{{ semester.start }}"/>
     <label for="stop">Fin du semestre</label>
-    <input type="date" id="stop" value="TODO stop"/>
-    <input type="submit" class="button" value="TODO Modifier le semestre"/>
+    <input type="date" id="stop" name="stop" value="{{ semester.stop }}"/>
+    <input type="submit" class="button" value="Modifier le semestre"/>
   </form>
 {% endblock %}

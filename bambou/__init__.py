@@ -840,6 +840,42 @@ def course_unlink(assignment_id):
     return redirect(request.referrer)
 
 
+@app.route('/semester/<int:semester_id>', methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def semester(semester_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    if request.method == 'POST':
+        cursor.execute('''
+            UPDATE semester
+            SET name = ?, start = ?, stop = ?
+            WHERE id = ?
+            RETURNING teaching_period_id
+        ''', (
+            request.form['name'], request.form['start'], request.form['stop'],
+            semester_id))
+        teaching_period_id = cursor.fetchone()['teaching_period_id']
+        connection.commit()
+        flash('Les informations du semestre ont été mises à jour')
+        return redirect(url_for(
+            'teaching_period', teaching_period_id=teaching_period_id))
+    cursor.execute('''
+        SELECT
+          semester.name,
+          semester.start,
+          semester.stop,
+          teaching_period.name AS teaching_period_name
+        FROM
+          semester
+        JOIN
+          teaching_period ON (teaching_period.id = semester.teaching_period_id)
+        WHERE
+          semester.id = ?
+    ''', (semester_id,))
+    semester = cursor.fetchone()
+    return render_template('semester.jinja2.html', semester=semester)
+
+
 @app.route('/semester/add/<int:teaching_period_id>', methods=('POST',))
 @user.check(user.is_superadministrator)
 def semester_add(teaching_period_id):
@@ -1079,6 +1115,11 @@ def hours(minutes):
 @app.template_filter()
 def float(number):
     return str(number).replace('.', ',')
+
+
+@app.template_filter()
+def date(iso_date):
+    return '/'.join(iso_date.split('-')[::-1])
 
 
 @app.context_processor
