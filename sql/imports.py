@@ -87,7 +87,7 @@ cursor.execute(request, tuple(chain(*periods.items())))
 
 request = 'INSERT INTO semester (teaching_period_id, name, start, stop) VALUES'
 request += ', '.join(
-    ("(?, 'Semestre 1', '2022/09/01', '2022/02/28')",) * len(periods))
+    ("(?, 'Semestre 1', '2022-09-01', '2023-02-28')",) * len(periods))
 cursor.execute(request, tuple(range(1, len(periods) + 1)))
 
 request = 'INSERT INTO person (lastname, firstname, mail) VALUES '
