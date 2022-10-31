@@ -158,7 +158,7 @@ def profile_add():
                     VALUES (:mail)
                 ''', (person_id,))
         connection.commit()
-        flash('La période de formation a été ajoutée')
+        flash('Le compte de la personne a été créé')
         return redirect(url_for('index'))
     return render_template('profile_add.jinja2.html')
 
@@ -392,12 +392,15 @@ def report(registration_id=None):
 @app.route('/administrator')
 @user.check(user.is_administrator)
 def administrator():
+    query_search = request.args.to_dict().get('search')
+    sql_search = f'%{query_search or ""}%'
     cursor = get_connection().cursor()
     cursor.execute('''
         SELECT
-          person.firstname || ' ' || person.lastname AS person_name,
+          person.lastname || ' ' || person.firstname AS person_name,
           teaching_period.id AS teaching_period_id,
-          teaching_period.name AS teaching_period_name
+          teaching_period.name AS teaching_period_name,
+          registration.id AS registration_id
         FROM
           teaching_period
         JOIN
@@ -405,7 +408,12 @@ def administrator():
             registration.teaching_period_id = teaching_period.id),
           student ON (student.id = registration.student_id),
           person ON (person.id = student.person_id)
-    ''')
+        WHERE
+          person.firstname LIKE ? OR
+          person.lastname LIKE ?
+        ORDER BY
+          person.lastname
+    ''', (sql_search, sql_search))
     students = cursor.fetchall()
     return render_template('administrator.jinja2.html', students=students)
 
