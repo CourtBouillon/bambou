@@ -12,10 +12,6 @@
       <input id="firstname" name="firstname" value="{{ person.firstname }}" />
       <label for="lastname">Nom</label>
       <input id="lastname" name="lastname" value="{{ person.lastname }}" />
-      {% if roles.student %}
-        <label for="code">Code</label>
-        <input id="code" name="code" value="TODO id étudiant si étudiant" />
-      {% endif %}
       <label for="student">Apprenant</label>
       <input type="checkbox" id="student" name="student" {{ 'checked' if roles.student }} />
       <label for="tutor">Tuteur</label>

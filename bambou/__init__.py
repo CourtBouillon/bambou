@@ -101,10 +101,6 @@ def profile(person_id=None):
                 SET mail = ?, firstname = ?, lastname = ?
                 WHERE id = ?
             ''', parameters)
-            if 'code' in request.form:
-                cursor.execute(
-                    'UPDATE student SET code = ? WHERE person_id = ?',
-                    (request.form['code'], person_id))
             # TODO: handle roles
         else:
             cursor.execute(
@@ -300,7 +296,7 @@ def report(registration_id=None):
           tracking.unjustified_absence_minutes,
           tracking.lateness_minutes,
           tracking.comments AS tracking_comments,
-          registration.id AS registration_id,
+          course.id AS course_id,
           assignment.id,
           assignment.course_id,
           assignment.mark,
@@ -371,9 +367,26 @@ def report(registration_id=None):
           registration.id = ?
     ''', (registration_id,))
     student = cursor.fetchone()
+    cursor.execute('''
+        SELECT
+          course.id,
+          production_action.name
+        FROM
+          registration
+        JOIN
+          teaching_period ON (
+            teaching_period.id = registration.teaching_period_id),
+          semester ON (semester.teaching_period_id = teaching_period.id),
+          course ON (course.semester_id = semester.id),
+          production_action ON (
+            production_action.id = course.production_action_id)
+        WHERE
+          registration.id = ?
+    ''', (registration_id,))
+    courses = cursor.fetchall()
     return render_template(
         'report.jinja2.html', assignments=assignments, student=student,
-        examinations=examinations)
+        examinations=examinations, courses=courses)
 
 
 @app.route('/administrator')
@@ -788,15 +801,21 @@ def production_action_unlink(course_id):
     return redirect(request.referrer)
 
 
+@app.route(
+    '/course/link-registration/<int:registration_id>', methods=('POST',))
 @app.route('/course/link/<int:course_id>', methods=('POST',))
 @user.check(user.is_superadministrator)
-def course_link(course_id):
+def course_link(course_id=None, registration_id=None):
     connection = get_connection()
     cursor = connection.cursor()
+    if course_id is None:
+        course_id = request.form['course_id']
+    elif registration_id is None:
+        registration_id = request.form['registration_id']
     cursor.execute('''
         INSERT INTO assignment (registration_id, course_id)
         VALUES (?, ?)
-    ''', (request.form['registration_id'], course_id))
+    ''', (registration_id, course_id))
     connection.commit()
     flash('L’apprenant a été inscrit')
     return redirect(request.referrer)

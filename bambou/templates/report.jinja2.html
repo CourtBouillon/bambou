@@ -120,6 +120,13 @@
                   <td>{{ assignment.comments or '' }}</td>
                   {% if user.is_superadministrator() %}
                     <td><a href="{{ url_for('mark', assignment_id=assignment.id) }}">Modifier la note</a></td>
+                    {% if not assignment.mark %}
+                      <td>
+                        <form method="post" action="{{ url_for('course_unlink', assignment_id=assignment.id) }}">
+                          <input type="submit" class="button" value="Désinscrire"/>
+                        </form>
+                      </td>
+                    {% endif %}
                   {% endif %}
                 </tr>
               {% endfor %}
@@ -133,7 +140,7 @@
             <td>Appréciation du semestre</td>
             <td>{{ semester.tracking_comments or '(Pas d’appréciation)' }}</td>
             {% if user.is_superadministrator() %}
-              <td><a href="{{ url_for('semester_comment', registration_id=semester.registration_id, semester_id=semester_id, ) }}">Modifier l’appréciation du semestre</a></td>
+              <td><a href="{{ url_for('semester_comment', registration_id=student.registration_id, semester_id=semester_id, ) }}">Modifier l’appréciation du semestre</a></td>
             {% endif %}
           </tr>
         </tbody>
@@ -159,12 +166,16 @@
     {% endif %}
 
     <h4>Ajouter des cours à l’apprenant</h4>
-    <!-- si l’étudiant n’est pas inscrit à tous les cours de sa pf -->
-    <form class="link">
-      <select>
-        <option>TODO, liste des cours de la PF où l’étudiant n’est pas inscrit</option>
+    {% set course_ids = assignments | map(attribute='course_id') | list %}
+    <form class="link" method="post" action="{{ url_for('course_link', registration_id=student.registration_id) }}">
+      <select name="course_id">
+        {% for course in courses %}
+          {% if course.id not in course_ids %}
+            <option value="{{ course.id }}">{{ course.name }}</option>
+          {% endif %}
+        {% endfor %}
       </select>
-      <input type="submit" class="button" value="TODO Associer" />
+      <input type="submit" class="button" value="Associer" />
     </form>
   </article>
 {% endblock %}

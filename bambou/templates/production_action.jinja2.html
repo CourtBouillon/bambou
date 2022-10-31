@@ -37,7 +37,7 @@
               <td><a href="{{ url_for('report', registration_id=student.registration_id) }}">Voir les notes</a></td>
               <td>
                 <form method="post" action="{{ url_for('course_unlink', assignment_id=student.assignment_id) }}">
-                  <input type="submit" class="button" value="Dissocier"/>
+                  <input type="submit" class="button" value="Désinscrire"/>
                 </form>
               </td>
             </tr>
