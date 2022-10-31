@@ -1049,6 +1049,11 @@ def hours(minutes):
         f'{minutes//60} h {minutes%60:02}')
 
 
+@app.template_filter()
+def float(number):
+    return str(number).replace('.', ',')
+
+
 @app.context_processor
 def inject_variables():
     return {'user': user}

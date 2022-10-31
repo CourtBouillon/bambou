@@ -133,7 +133,7 @@
             <td>Appréciation du semestre</td>
             <td>{{ semester.tracking_comments or '(Pas d’appréciation)' }}</td>
             {% if user.is_superadministrator() %}
-              <td><a href="{{ url_for('semester_comment', registration_id=semester.registration_id, semester_id=semester_id, ) }}">Modifier le commentaire du semestre</a></td>
+              <td><a href="{{ url_for('semester_comment', registration_id=semester.registration_id, semester_id=semester_id, ) }}">Modifier l’appréciation du semestre</a></td>
             {% endif %}
           </tr>
         </tbody>
@@ -147,7 +147,7 @@
           {% for examination in examinations %}
             <tr>
               <td>{{ examination.name }}</td>
-              <td>{{ examination.mark or '' }}</td>
+              <td>{{ (examination.mark or '') | float }}</td>
               <td>{{ examination.comments or '' }}</td>
               {% if user.is_superadministrator() %}
                 <td><a href="{{ url_for('examination_mark', examination_id=examination.id, registration_id=student.registration_id) }}">Modifier la note</a></td>
