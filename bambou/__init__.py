@@ -39,9 +39,9 @@ def login():
             'SELECT id, password FROM person WHERE mail = ?',
             (request.form['login'],))
         person = cursor.fetchone()
-        if person:
+        if person and (app.config['DEBUG'] or person['password']):
             passwords = person['password'], request.form['password']
-            if check_password_hash(*passwords) or app.config['DEBUG']:
+            if app.config['DEBUG'] or check_password_hash(*passwords):
                 session['person_id'] = person['id']
                 return redirect(url_for('index'))
         flash('L’identifiant ou le mot de passe est incorrect')

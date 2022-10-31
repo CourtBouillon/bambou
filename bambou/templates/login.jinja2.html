@@ -3,22 +3,19 @@
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-
-<div>
   <img src="{{ url_for('static', filename='logo_ipi.svg') }}">
-</div>
 
-<section>
-  <h1>Gestion de notes</h1>
+  <section>
+    <h1>Gestion de notes</h1>
 
-  <form method="post">
-    <label for="login">Email</label>
-    <input id="login" name="login" placeholder="Email"/>
-    <label for="password">Mot de passe</label>
-    <input id="password" name="password" type="password" placeholder="Mot de passe"/>
-    <input class="button" type="submit" value="Se connecter"/>
-  </form>
+    <form method="post">
+      <label for="login">Email</label>
+      <input id="login" name="login" placeholder="Email"/>
+      <label for="password">Mot de passe</label>
+      <input id="password" name="password" type="password" placeholder="Mot de passe"/>
+      <input class="button" type="submit" value="Se connecter"/>
+    </form>
 
-  <a href="{{ url_for('lost_password') }}">Mot de passe perdu</a>
-</section>
+    <a href="{{ url_for('lost_password') }}">Mot de passe perdu</a>
+  </section>
 {% endblock %}

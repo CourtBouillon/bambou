@@ -5,7 +5,7 @@
 {% block content %}
   <h2>Tableau de bord</h2>
 
-  <form>
+  <form class="search">
     <input name="search" placeholder="Rechercher une période de formation, une action de production ou une personne" value="{{ search if search }}" />
     <input type="submit" class="button" value="Rechercher" />
   </form>
@@ -19,7 +19,7 @@
   {% if teaching_periods %}
     <section>
       <h3>Périodes de formation</h3>
-      <ul>
+      <ul class="main-list">
         {% for teaching_period in teaching_periods %}
           <li><a href="{{ url_for('teaching_period', teaching_period_id=teaching_period.id) }}">{{ teaching_period.name }}</a></li>
         {% endfor %}
@@ -30,7 +30,7 @@
   {% if production_actions %}
     <section>
       <h3>Actions de production</h3>
-      <ul>
+      <ul class="main-list">
         {% for production_action in production_actions %}
           <li><a href="{{ url_for('production_action', production_action_id=production_action.id) }}">{{ production_action.name }} ({{ production_action.teaching_period_names or 'Non affecté' }})</a></li>
         {% endfor %}
@@ -41,7 +41,7 @@
   {% if people %}
     <section>
       <h3>Personnes</h3>
-      <ul>
+      <ul class="main-list">
         {% for person in people %}
           <li><a href="{{ url_for('profile', person_id=person.id) }}">{{ person.person_name }}</a></li>
         {% endfor %}

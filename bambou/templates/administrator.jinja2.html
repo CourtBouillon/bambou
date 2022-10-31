@@ -5,7 +5,7 @@
 {% block content %}
   <h2>Périodes de formation</h2>
 
-  <form>
+  <form class="search">
     <input name="search" placeholder="Rechercher un apprenant"/>
     <input type="submit" class="button" value="Rechercher"/>
   </form>
@@ -14,7 +14,7 @@
     {% set teaching_period = students[0] %}
     <section>
       <h3>{{ teaching_period.teaching_period_name }}</h3>
-      <ul>
+      <ul class="main-list">
         {% for student in students %}
           <li><a href="{{ url_for('report', registration_id=student.registration_id) }}">{{ student.person_name }}</a></li>
         {% endfor %}

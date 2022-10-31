@@ -8,7 +8,7 @@
   {% for teaching_period_id, courses in courses | groupby(attribute='teaching_period_id') %}
     <section>
       <h3>{{ courses[0].teaching_period_name }}</h3>
-      <ul>
+      <ul class="main-list">
         {% for course in courses %}
           <li><a href="{{ url_for('marks', production_action_id=course.production_action_id) }}">{{ course.production_action_name }}</a></li>
         {% endfor %}

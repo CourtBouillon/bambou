@@ -52,6 +52,7 @@ body {
 }
 
 ::before {
+  display: inline-block;
   font-family: ForkAwesome;
   line-height: 1.5;
   padding-right: 0.5em;
@@ -65,10 +66,6 @@ a {
 
 a:hover {
   text-decoration: underline;
-}
-
-form * {
-  display: block;
 }
 
 h1 {
@@ -88,15 +85,54 @@ h3 {
   margin: 0.3em 0;
 }
 
+form > * {
+  display: block;
+}
+
+label {
+  margin-top: 1em;
+}
+
 input,
 select,
 textarea {
   background: var(--grey-opacity);
   border: 1px solid var(--blue-opacity);
   border-radius: 5px;
-  height: 3em;
   margin: 0.5em 0 1.5em 0;
+  padding: 1em;
   transition: 0.2s;
+}
+
+input:not(input[type="checkbox"], .button),
+select,
+textarea {
+  width: 50%;
+}
+
+input[type="checkbox"] {
+  margin-top: -1.5em;
+  position: absolute;
+}
+label:has(+ input[type="checkbox"]) {
+  padding-left: 1.5em;
+}
+
+.button {
+  background: var(--red-opacity);
+  border: 1px solid var(--red-opacity);
+  border-radius: 5px;
+  color: var(--white);
+  margin-left: 25%;
+  margin-right: 50%;
+  padding: 1em;
+  text-align: center;
+  transition: 0.2s;
+  width: 25%;
+}
+.button:hover {
+  background: var(--red);
+  cursor: pointer;
 }
 
 input:focus,
@@ -105,88 +141,39 @@ textarea:focus {
   background: var(--grey);
 }
 
-textarea:focus {
-  height: 6em;
-}
-
-input[type="checkbox"] {
-  border: none;
-  margin-left: 1em;
-  width: 1.5em;
-}
-
 li {
   list-style: none;
 }
 
 main {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  padding: 0 15em;
+  margin: auto;
+  max-width: 1400px;
+  padding: 0 1em;
 }
 
 table {
   border-collapse: collapse;
 }
 
+table form {
+  margin: 0;
+}
+
+table input,
+table .button {
+  display: inline-block;
+  margin: 0;
+  padding: 0.2em;
+  width: auto;
+}
+
 tr:not(:last-of-type) {
   border-bottom: 1px solid var(--grey);
 }
 
+th,
 td {
-  padding: 1em 0;
-}
-
-#page-profile form:first-of-type input:not(input[type="checkbox"]):not(.button),
-#page-teaching_period form:first-of-type input,
-#page-teaching_period_add form input,
-#page-production_action form:first-of-type input,
-#page-production_action form:first-of-type select,
-#page-production_action_add form input,
-#page-profile_add form input:not(input[type="checkbox"]):not(.button),
-#page-semester form input,
-#page-lost_password input,
-#page-reset_password input,
-#page-mark input,
-#page-mark select,
-#page-mark textarea,
-#page-semester_comment input,
-#page-mark_special input {
-  width: 50%;
-}
-
-#page-profile form:first-of-type .button,
-#page-teaching_period form:first-of-type .button,
-#page-teaching_period_add form .button,
-#page-production_action form:first-of-type .button,
-#page-production_action_add form .button,
-#page-profile_add form .button,
-#page-semester form .button,
-#page-lost_password .button,
-#page-reset_password .button,
-#page-mark .button,
-#page-semester_comment .button,
-#page-mark_special .button {
-  float: right;
-  height: initial;
-  margin-right: 50%;
-  margin-top: 0;
-  width: 25%;
-}
-
-.button {
-  background: var(--red-opacity);
-  border: 1px solid var(--red-opacity);
-  border-radius: 5px;
-  color: var(--white);
-  padding: 0.5em;
-  text-align: center;
-  transition: 0.2s;
-}
-.button:hover {
-  background: var(--red);
-  cursor: pointer;
+  padding: 0.5em 1em;
 }
 
 .link {
@@ -194,8 +181,27 @@ td {
   justify-content: space-between;
   width: 50%;
 }
-.link input {
+.link input,
+.link select {
+  width: 70%;
+}
+.link .button {
+  margin-left: 0;
+  margin-right: 0;
   width: 25%;
+}
+
+.search {
+  display: flex;
+  justify-content: space-evenly;
+}
+.search input:first-of-type {
+  width: 80%;
+}
+.search input.button {
+  margin-left: 0;
+  margin-right: 0;
+  width: 15%;
 }
 
 
@@ -209,8 +215,7 @@ nav  {
   background: var(--grey);
   border-bottom: 1px solid var(--red);
   display: flex;
-  height: 10vh;
-  padding: 0 5em;
+  padding: 0.5em 5em;
   text-transform: uppercase;
 }
 
@@ -220,13 +225,14 @@ nav a {
 }
 
 nav img {
-  display: inline-block;
-  max-height: 90%;
+  display: block;
+  height: 3em;
 }
 
 nav ul {
   display: flex;
-  margin-left: auto;
+  flex-wrap: wrap;
+  margin: 0 0 0 auto;
 }
 
 nav li {
@@ -236,7 +242,6 @@ nav li {
 
 nav li:first-of-type a::before {
   content: "\f2c0";
-  
 }
 
 nav li:last-of-type a::before {
@@ -248,40 +253,35 @@ nav li:last-of-type a::before {
   content: "\f090";
 }
 
+
 /* Login */
 
 #page-login {
+  align-items: center;
   display: flex;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 #page-login main {
-  align-items: center;
-  flex-direction: row;
+  display: flex;
   padding: 0;
-}
-
-#page-login div {
-  width: 50%;
 }
 
 #page-login img {
   display: block;
-  margin: auto;
-  width: 50%;
-}
-
-#page-login section {
-  width: 50%;
+  margin: 1em 2em;
+  width: 30em;
 }
 
 #page-login input {
-  width: 50%;
+  width: 80%;
 }
 
 #page-login .button {
   float: right;
   height: initial;
-  margin-right: 50%;
+  margin-right: 20%;
   margin-top: 0;
   width: 25%;
 }
@@ -291,22 +291,17 @@ nav li:last-of-type a::before {
 }
 
 
-/* Teacher, Administrator & Super Administrator */
+/* Main lists */
 
-#page-teacher section a,
-#page-administrator section a,
-#page-superadministrator section a {
+.main-list a {
   color: var(--black);
 }
 
-#page-teacher section a::before,
-#page-administrator section a::before,
-#page-superadministrator section a::before {
+.main-list a::before {
   content: "\f061";
 }
-#page-teacher section a:hover::before,
-#page-administrator section a:hover::before,
-#page-superadministrator section a:hover::before {
+
+.main-list a:hover::before {
   color: var(--red);
 }
 
@@ -336,18 +331,6 @@ nav li:last-of-type a::before {
 }
 
 
-/* Administrator */
-
-#page-administrator form {
-  display: flex;
-  justify-content: space-evenly;
-}
-
-#page-administrator input:first-of-type {
-  width: 80%;
-}
-
-
 /* Report */
 
 #page-report h4 {
@@ -365,24 +348,16 @@ nav li:last-of-type a::before {
   width: 25%;
 }
 
-#marks-summary td,
-.absences-summary td,
-.semester-marks th,
-.semester-marks td,
-.semester-comment tr td:not(:first-of-type),
-#special-mark tr td:not(:first-of-type) {
+tr > * {
   padding: 0.5em;
   text-align: right;
 }
 
-#marks-summary th,
-.absences-summary th,
-.semester-marks tr td:first-of-type,
-.semester-comment tr td:first-of-type,
-#special-mark tr td:first-of-type {
+tr > :first-child {
   padding: 0.5em;
   text-align: left;
 }
+
 .absences-summary tbody tr:nth-child(odd),
 .semester-marks tbody tr:nth-child(odd) {
   background: var(--grey-opacity);
@@ -391,7 +366,7 @@ nav li:last-of-type a::before {
 .validated {
   background: var(--mark-validated);
 }
-#acquiring {
+.acquiring {
   background: var(--mark-acquiring);
 }
 .non-validated {
@@ -421,19 +396,14 @@ nav li:last-of-type a::before {
 
 /* Super Administrator */
 
-#page-superadministrator form {
-  display: flex;
-  justify-content: space-evenly;
-  margin-bottom: 0;
-}
-
-#page-superadministrator input:first-of-type {
-  width: 75%;
-}
-
 #actions {
   display: flex;
   justify-content: space-evenly;
+  padding: 0;
+}
+#actions > * {
+  flex: 1;
+  text-align: center;
 }
 
 #page-teaching_period table,
@@ -452,14 +422,6 @@ nav li:last-of-type a::before {
   text-align: right;
 }
 
-#page-teaching_period select,
-#page-production_action select,
-#page-profile select,
-#page-report select {
-  margin-right: 1em;
-  width: 70%;
-}
-
 #add-semester {
   display: flex;
   justify-content: space-between;
@@ -467,11 +429,12 @@ nav li:last-of-type a::before {
 }
 
 #add-semester input {
+  margin-left: 0;
+  margin-right: 0;
   width: 22%;
 }
 
-#page-production_action a:last-of-type,
-#page-profile a:last-of-type {
+#page-production_action a:last-of-type {
   margin-bottom: 1em;
   width: 50%;
 }
@@ -490,32 +453,11 @@ nav li:last-of-type a::before {
 }
 
 #page-absences .button {
-  float: right;
   margin-left: auto;
+  margin-right: 0;
 }
 
 #page-absences .absences-summary {
   display: table;
   width: max-content;
-}
-
-#page-absences .absences-summary thead {
-  display: table-header-group;
-}
-
-#page-absences .absences-summary tbody {
-  display: table-row-group;
-}
-
-#page-absences .absences-summary tr {
-  display: table-row;
-}
-
-#page-absences .absences-summary th,
-#page-absences .absences-summary td {
-  display: table-cell;
-}
-
-#page-absences .absences-summary input {
-  text-align: right;
 }

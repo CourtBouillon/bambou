@@ -49,6 +49,7 @@
         <input type="submit" class="button" value="Dissocier"/>
       </form>
     {% endif %}
+    <h4>Inscrire un apprenant</h4>
     <form class="link" method="post" action="{{ url_for('course_link', course_id=semester.course_id) }}">
       <select id="registration_id" name="registration_id">
         {% for student in all_students %}
@@ -57,9 +58,10 @@
           {% endif %}
         {% endfor %}
       </select>
-      <input type="submit" class="button" value="Inscrire à {{ semester.teaching_period_name }}"/>
+      <input type="submit" class="button" value="Inscrire"/>
     </form>
   {% endfor %}
+  <h4>Associer à un semestre</h4>
   <form class="link" method="post" action="{{ url_for('production_action_link', production_action_id=production_action.id) }}">
     <select name="semester_id">
       {% set selected_semesters = students | map(attribute='semester_id') | list %}

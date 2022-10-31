@@ -13,12 +13,30 @@
     <input type="submit" class="button" value="Sauvegarder"/>
   </form>
 
+  <h3>Semestres</h3>
+  <table>
+    {% for semester_id, production_actions in production_actions | groupby('semester_id') %}
+      {% set semester = production_actions[0] %}
+      <tr>
+        <td>{{ semester.semester_name }}</td>
+        <td>{{ semester.semester_start | date }}</td>
+        <td>{{ semester.semester_stop | date  }}</td>
+        <td><a href="{{ url_for('semester', semester_id=semester.id) }}">Modifier</a></td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <form id="add-semester" method="post" action="{{ url_for('semester_add', teaching_period_id=teaching_period.id) }}">
+    <input name="name" placeholder="Nom du semestre"/>
+    <input name="start" type="date"/>
+    <input name="stop" type="date"/>
+    <input type="submit" class="button" value="Ajouter un semestre"/>
+  </form>
+
   <h3>Actions de production</h3>
   {% for semester_id, production_actions in production_actions | groupby('semester_id') %}
     {% set semester = production_actions[0] %}
-    <h4>{{ semester.semester_name }}</h4>
-    Du {{ semester.semester_start | date }} au {{ semester.semester_stop | date }}
-    <a href="{{ url_for('semester', semester_id=semester.id) }}">Modifier le semestre</a>
+    <h4>{{ semester.semester_name }} − {{ semester.semester_start | date }} au {{ semester.semester_stop | date }}</h4>
     {% if semester.id %}
       <table>
         <tbody>
@@ -52,12 +70,6 @@
       <input type="submit" class="button" value="Associer à {{ semester.semester_name }}"/>
     </form>
   {% endfor %}
-  <form id="add-semester" method="post" action="{{ url_for('semester_add', teaching_period_id=teaching_period.id) }}">
-    <input name="name" placeholder="Nom du semestre"/>
-    <input name="start" type="date"/>
-    <input name="stop" type="date"/>
-    <input type="submit" class="button" value="Ajouter un semestre"/>
-  </form>
 
   <h3>Étudiants</h3>
   <table>

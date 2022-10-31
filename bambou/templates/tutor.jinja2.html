@@ -3,13 +3,13 @@
 {% extends '_layout.jinja2' %}
 
 {% block content %}
+  <h2>Mes Apprenants</h2>
 
-<h2>Mes Apprenants</h2>
-
-<ul>
-  {% for student in students %}
-    <li><a href="{{ url_for('report', registration_id=student.registration_id) }}">{{ student.person_name }}</a></li>
-  {% endfor %}
-</ul>
-
+  <section>
+    <ul class="main-list">
+      {% for student in students %}
+        <li><a href="{{ url_for('report', registration_id=student.registration_id) }}">{{ student.person_name }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
 {% endblock %}

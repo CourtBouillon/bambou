@@ -31,7 +31,7 @@
             <th>Acquis − C</th>
             <td>{{ assignments | selectattr('mark', 'eq', 'C') | list | count }}</td>
           </tr>
-          <tr id="acquiring">
+          <tr class="acquiring">
             <th>En cours d’acquisition − D</th>
             <td>{{ assignments | selectattr('mark', 'eq', 'D') | list | count }}</td>
           </tr>
@@ -108,7 +108,8 @@
                 <th>Niveau d’acquisition</th>
                 <th>Commentaires</th>
                 {% if user.is_superadministrator() %}
-                <th>Modifier</th>
+                  <th>Modifier</th>
+                  <th>Désinscrire</th>
                 {% endif %}
               </tr>
             </thead>
@@ -165,17 +166,19 @@
       </table>
     {% endif %}
 
-    <h4>Ajouter des cours à l’apprenant</h4>
-    {% set course_ids = assignments | map(attribute='course_id') | list %}
-    <form class="link" method="post" action="{{ url_for('course_link', registration_id=student.registration_id) }}">
-      <select name="course_id">
-        {% for course in courses %}
-          {% if course.id not in course_ids %}
-            <option value="{{ course.id }}">{{ course.name }}</option>
-          {% endif %}
-        {% endfor %}
-      </select>
-      <input type="submit" class="button" value="Associer" />
-    </form>
+    {% if user.is_superadministrator() %}
+      <h4>Ajouter des cours à l’apprenant</h4>
+      {% set course_ids = assignments | map(attribute='course_id') | list %}
+      <form class="link" method="post" action="{{ url_for('course_link', registration_id=student.registration_id) }}">
+        <select name="course_id">
+          {% for course in courses %}
+            {% if course.id not in course_ids %}
+              <option value="{{ course.id }}">{{ course.name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <input type="submit" class="button" value="Associer" />
+      </form>
+    {% endif %}
   </article>
 {% endblock %}
