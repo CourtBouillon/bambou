@@ -7,6 +7,7 @@ CREATE TABLE person (
   firstname TEXT NOT NULL,
   lastname TEXT NOT NULL,
   password TEXT,
+  reset_password TEXT,
   photo BLOB
 );
 

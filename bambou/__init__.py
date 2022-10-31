@@ -1,3 +1,7 @@
+from email.message import EmailMessage
+from smtplib import SMTP_SSL
+from uuid import uuid4
+
 from flask import (
     Flask, abort, flash, redirect, render_template, request, session, url_for)
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -36,7 +40,7 @@ def login():
             (request.form['login'],))
         person = cursor.fetchone()
         if person:
-            passwords = request.form['password'], person['password']
+            passwords = person['password'], request.form['password']
             if check_password_hash(*passwords) or app.config['DEBUG']:
                 session['person_id'] = person['id']
                 return redirect(url_for('index'))
@@ -1250,13 +1254,61 @@ def absences(registration_id):
 
 @app.route('/lost_password', methods=('GET', 'POST'))
 def lost_password():
-    # TODO
+    if request.method == 'POST':
+        connection = get_connection()
+        cursor = connection.cursor()
+        uuid = str(uuid4())
+        cursor.execute('''
+            UPDATE person
+            SET reset_password = ?
+            WHERE mail = ?
+            RETURNING id, firstname, lastname
+        ''', (uuid, request.form['mail'],))
+        person = cursor.fetchone()
+        connection.commit()
+        if person:
+            smtp = SMTP_SSL(app.config['SMTP_HOSTNAME'])
+            smtp.set_debuglevel(1)
+            smtp.login(app.config['SMTP_LOGIN'], app.config['SMTP_PASSWORD'])
+            message = EmailMessage()
+            message['From'] = app.config['SMTP_FROM']
+            message['To'] = request.form['mail']
+            message['Subject'] = 'Réinitialisation de mot de passe'
+            message.set_content(
+                f'Bonjour {person["firstname"]} {person["lastname"]},\n\n'
+                'Nous avons reçu une demande de réinitialisation de mot de '
+                'passe concernant votre compte IPI. Merci de vous rendre '
+                'sur l’adresse suivante pour changer votre mot de passe :\n\n'
+                f'{url_for("reset_password", uuid=uuid, _external=True)}\n\n'
+                'Si vous n’êtes pas à l’origine de cette demande, vous pouvez '
+                'ignorer ce message.'
+            )
+            smtp.send_message(message)
+            smtp.quit()
+        flash('Un message vous a été envoyé si votre email est correct')
+        return redirect(url_for('login'))
     return render_template('lost_password.jinja2.html')
 
 
-@app.route('/reset_password', methods=('GET', 'POST'))
-def reset_password():
-    # TODO
+@app.route('/reset_password/<uuid>', methods=('GET', 'POST'))
+def reset_password(uuid):
+    connection = get_connection()
+    cursor = connection.cursor()
+    if request.method == 'POST':
+        password_match = (
+            request.form.get('password') ==
+            request.form.get('confirm_password'))
+        if not password_match:
+            flash('Les deux mots de passe doivent être les mêmes')
+            return redirect(request.referrer)
+        cursor.execute('''
+            UPDATE person
+            SET password = ?, reset_password = NULL
+            WHERE reset_password = ?
+        ''', (generate_password_hash(request.form['password']), uuid))
+        connection.commit()
+        flash('Le mot de passe a été modifié, merci de vous connecter')
+        return redirect(url_for('login'))
     return render_template('reset_password.jinja2.html')
 
 
