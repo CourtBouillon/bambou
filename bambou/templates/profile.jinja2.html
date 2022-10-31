@@ -13,15 +13,15 @@
       <label for="lastname">Nom</label>
       <input id="lastname" name="lastname" value="{{ person.lastname }}" />
       <label for="student">Apprenant</label>
-      <input type="checkbox" id="student" name="student" {{ 'checked' if roles.student }} />
+      <input type="checkbox" id="student" name="student" {{ 'checked' if roles.student }} {{ 'disabled' if roles.student and registrations }} />
       <label for="tutor">Tuteur</label>
-      <input type="checkbox" id="tutor" name="tutor" {{ 'checked' if roles.tutor }} />
+      <input type="checkbox" id="tutor" name="tutor" {{ 'checked' if roles.tutor }} {{ 'disabled' if roles.tutor and tutorings }} />
       <label for="teacher">Formateur</label>
-      <input type="checkbox" id="teacher" name="teacher" {{ 'checked' if roles.teacher }} />
+      <input type="checkbox" id="teacher" name="teacher" {{ 'checked' if roles.teacher }} {{ 'disabled' if roles.teacher and (production_actions | selectattr('teacher_id', 'eq', roles.teacher) | list) }} />
       <label for="administrator">Administrateur</label>
       <input type="checkbox" id="administrator" name="administrator" {{ 'checked' if roles.administrator }} />
       <label for="super_administrator">Super Administrateur</label>
-      <input type="checkbox" id="superadministrator" name="superadministrator" {{ 'checked' if roles.superadministrator }} />
+      <input type="checkbox" id="superadministrator" name="superadministrator" {{ 'checked' if roles.superadministrator }} {{ 'disabled' if g.person.id == person.id }} />
     {% endif %}
     <label for="mail">Email</label>
     <input id="mail" name="mail" type="email" value="{{ person.mail }}" />

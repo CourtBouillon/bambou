@@ -12,28 +12,28 @@ CREATE TABLE person (
 
 CREATE TABLE tutor (
   id INTEGER PRIMARY KEY,
-  person_id INTEGER NOT NULL REFERENCES person(id),
+  person_id INTEGER NOT NULL UNIQUE REFERENCES person(id),
   company TEXT
 );
 
 CREATE TABLE teacher (
   id INTEGER PRIMARY KEY,
-  person_id INTEGER NOT NULL REFERENCES person(id)
+  person_id INTEGER NOT NULL UNIQUE REFERENCES person(id)
 );
 
 CREATE TABLE student (
   id INTEGER PRIMARY KEY,
-  person_id INTEGER NOT NULL REFERENCES person(id)
+  person_id INTEGER NOT NULL UNIQUE REFERENCES person(id)
 );
 
 CREATE TABLE administrator (
   id INTEGER PRIMARY KEY,
-  person_id INTEGER NOT NULL REFERENCES person(id)
+  person_id INTEGER NOT NULL UNIQUE REFERENCES person(id)
 );
 
 CREATE TABLE superadministrator (
   id INTEGER PRIMARY KEY,
-  person_id INTEGER NOT NULL REFERENCES person(id)
+  person_id INTEGER NOT NULL UNIQUE REFERENCES person(id)
 );
 
 CREATE TABLE teaching_period (

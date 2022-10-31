@@ -3,7 +3,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from . import user
-from .db import get_connection
+from .db import close_connection, get_connection
 
 app = Flask(__name__)
 app.config.update(
@@ -113,33 +113,6 @@ def profile(person_id=None):
 
     connection = get_connection()
     cursor = connection.cursor()
-    if request.method == 'POST':
-        if request.form['password'] != request.form['confirm_password']:
-            flash('Les deux mots de passe doivent être les mêmes')
-            return redirect(url_for('profile', person_id=person_id))
-        if user.is_superadministrator():
-            parameters = (
-                request.form['mail'], request.form['firstname'],
-                request.form['lastname'], person_id)
-            cursor.execute('''
-                UPDATE person
-                SET mail = ?, firstname = ?, lastname = ?
-                WHERE id = ?
-            ''', parameters)
-            # TODO: handle roles
-        else:
-            cursor.execute(
-                'UPDATE person SET mail = ? WHERE id = ?',
-                (request.form['mail'], person_id))
-        if request.form['password']:
-            cursor.execute(
-                'UPDATE person SET password = ? WHERE id = ?',
-                (generate_password_hash(request.form['password']), person_id))
-        connection.commit()
-        flash('Les informations ont été sauvegardées')
-        return redirect(url_for('profile', person_id=person_id))
-    cursor.execute('SELECT * FROM person WHERE id = ?', (person_id,))
-    person = cursor.fetchone()
     cursor.execute('''
         SELECT
           student.id AS student,
@@ -161,6 +134,47 @@ def profile(person_id=None):
           superadministrator ON (superadministrator.person_id = ?)
     ''', (person_id,) * 5)
     roles = cursor.fetchone()
+
+    if request.method == 'POST':
+        password_match = (
+            request.form.get('password') ==
+            request.form.get('confirm_password'))
+        if not password_match:
+            flash('Les deux mots de passe doivent être les mêmes')
+            return redirect(url_for('profile', person_id=person_id))
+        if user.is_superadministrator():
+            parameters = (
+                request.form['mail'], request.form['firstname'],
+                request.form['lastname'], person_id)
+            cursor.execute('''
+                UPDATE person
+                SET mail = ?, firstname = ?, lastname = ?
+                WHERE id = ?
+            ''', parameters)
+            current_roles = {role for role in user.ROLES if roles[role]}
+            new_roles = {role for role in user.ROLES if role in request.form}
+            print(current_roles, new_roles, dict(roles), request.form)
+            for removed_role in current_roles - new_roles:
+                cursor.execute(
+                    f'DELETE FROM {removed_role} WHERE person_id = ?',
+                    (person_id,))
+            for added_role in new_roles - current_roles:
+                cursor.execute(
+                    f'INSERT INTO {added_role} (person_id) VALUES (?)',
+                    (person_id,))
+        else:
+            cursor.execute(
+                'UPDATE person SET mail = ? WHERE id = ?',
+                (request.form['mail'], person_id))
+        if request.form.get('password'):
+            cursor.execute(
+                'UPDATE person SET password = ? WHERE id = ?',
+                (generate_password_hash(request.form['password']), person_id))
+        connection.commit()
+        flash('Les informations ont été sauvegardées')
+        return redirect(url_for('profile', person_id=person_id))
+    cursor.execute('SELECT * FROM person WHERE id = ?', (person_id,))
+    person = cursor.fetchone()
     extra_data = {}
     if roles['student']:
         cursor.execute('''
@@ -1267,3 +1281,8 @@ def date(iso_date):
 @app.context_processor
 def inject_variables():
     return {'user': user}
+
+
+@app.teardown_appcontext
+def teardown(exception):
+    close_connection()

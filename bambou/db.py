@@ -10,6 +10,9 @@ def get_connection():
         cursor = g.connection.cursor()
         cursor.execute('PRAGMA foreign_keys=ON')
         cursor.close()
-        current_app.teardown_appcontext_funcs = [
-            lambda _: g.connection.close()]
     return g.connection
+
+
+def close_connection():
+    if hasattr(g, 'connection'):
+        g.connection.close()
