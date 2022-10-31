@@ -14,16 +14,16 @@ app.config.from_envvar('BAMBOU_CONFIG', silent=True)
 
 @app.route('/')
 def index():
-    if user.is_tutor():
-        return redirect(url_for('tutor'))
-    elif user.is_teacher():
-        return redirect(url_for('teacher'))
-    elif user.is_student():
-        return redirect(url_for('report'))
+    if user.is_superadministrator():
+        return redirect(url_for('superadministrator'))
     elif user.is_administrator():
         return redirect(url_for('administrator'))
-    elif user.is_superadministrator():
-        return redirect(url_for('superadministrator'))
+    elif user.is_teacher():
+        return redirect(url_for('teacher'))
+    elif user.is_tutor():
+        return redirect(url_for('tutor'))
+    elif user.is_student():
+        return redirect(url_for('report'))
     return redirect(url_for('login'))
 
 
