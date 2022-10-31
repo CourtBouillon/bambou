@@ -75,6 +75,31 @@ def tutor():
     return render_template('tutor.jinja2.html', students=students)
 
 
+@app.route('/tutoring/add/<int:tutor_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def tutoring_add(tutor_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        INSERT INTO tutoring (tutor_id, registration_id)
+        VALUES (?, ?)
+    ''', (tutor_id, request.form['registration_id']))
+    connection.commit()
+    flash('L’apprenant a été assigné au tuteur')
+    return redirect(request.referrer)
+
+
+@app.route('/tutoring/tutoring/<int:tutoring_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def tutoring_delete(tutoring_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('DELETE FROM tutoring WHERE id = ?', (tutoring_id,))
+    connection.commit()
+    flash('L’apprenant a été retiré au tuteur')
+    return redirect(request.referrer)
+
+
 @app.route('/profile', methods=('GET', 'POST'))
 @app.route('/profile/<int:person_id>', methods=('GET', 'POST'))
 @user.check(user.is_connected)
@@ -136,7 +161,84 @@ def profile(person_id=None):
           superadministrator ON (superadministrator.person_id = ?)
     ''', (person_id,) * 5)
     roles = cursor.fetchone()
-    return render_template('profile.jinja2.html', person=person, roles=roles)
+    extra_data = {}
+    if roles['student']:
+        cursor.execute('''
+            SELECT
+              registration.id,
+              teaching_period.id AS teaching_period_id,
+              teaching_period.name AS teaching_period_name
+            FROM
+              registration
+            JOIN
+              teaching_period ON (
+                teaching_period.id = registration.teaching_period_id)
+            WHERE
+              student_id = ?
+        ''', (roles['student'],))
+        extra_data['registrations'] = cursor.fetchall()
+        cursor.execute('SELECT id, name FROM teaching_period ORDER BY name')
+        extra_data['teaching_periods'] = cursor.fetchall()
+    if roles['tutor']:
+        cursor.execute('''
+            SELECT
+              tutoring.id,
+              registration.id AS registration_id,
+              person.lastname || ' ' || person.firstname AS person_name,
+              person.mail AS person_mail
+            FROM
+              tutoring
+            JOIN
+              registration ON (registration.id = tutoring.registration_id),
+              student ON (student.id = registration.student_id),
+              person ON (person.id = student.person_id)
+            WHERE
+              tutoring.tutor_id = ?
+            ORDER BY
+              person_name
+        ''', (roles['tutor'],))
+        extra_data['tutorings'] = cursor.fetchall()
+        cursor.execute('''
+            SELECT
+              registration.id,
+              person.lastname || ' ' || person.firstname as person_name,
+              teaching_period.name AS teaching_period_name
+            FROM
+              registration
+            JOIN
+              student ON (student.id = registration.student_id),
+              person ON (person.id = student.person_id),
+              teaching_period ON (
+                teaching_period.id = registration.teaching_period_id)
+            ORDER BY
+              person_name
+        ''')
+        extra_data['registrations'] = cursor.fetchall()
+    if roles['teacher']:
+        extra_data['production_actions'] = cursor.fetchall()
+        cursor.execute('''
+            SELECT
+              production_action.id,
+              production_action.name,
+              production_action.teacher_id,
+              group_concat(teaching_period.name, ', ') AS teaching_period_names
+            FROM
+              production_action
+            LEFT JOIN
+              course ON (course.production_action_id = production_action.id)
+            LEFT JOIN
+              semester ON (semester.id = course.semester_id)
+            LEFT JOIN
+              teaching_period ON (
+                teaching_period.id = semester.teaching_period_id)
+            GROUP BY
+              production_action.id
+            ORDER BY
+              production_action.name
+        ''')
+        extra_data['production_actions'] = cursor.fetchall()
+    return render_template(
+        'profile.jinja2.html', person=person, roles=roles, **extra_data)
 
 
 @app.route('/profile/add', methods=('GET', 'POST'))
@@ -207,7 +309,7 @@ def marks(production_action_id):
         WHERE
           course.production_action_id = ?
         GROUP BY
-          teaching_period.name
+          production_action.name
         ORDER BY
           teaching_period.name
     ''', (production_action_id,))
@@ -588,15 +690,20 @@ def teaching_period_delete(teaching_period_id):
     return redirect(url_for('index'))
 
 
+@app.route('/registration/add-student/<int:student_id>', methods=('POST',))
 @app.route('/registration/add/<int:teaching_period_id>', methods=('POST',))
 @user.check(user.is_superadministrator)
-def registration_add(teaching_period_id):
+def registration_add(teaching_period_id=None, student_id=None):
     connection = get_connection()
     cursor = connection.cursor()
+    if teaching_period_id is None:
+        teaching_period_id = request.form['teaching_period_id']
+    elif student_id is None:
+        student_id = request.form['student_id']
     cursor.execute('''
         INSERT INTO registration (teaching_period_id, student_id)
         VALUES (?, ?)
-    ''', (teaching_period_id, request.form['student_id']))
+    ''', (teaching_period_id, student_id))
     connection.commit()
     flash('L’apprenant a été inscrit')
     return redirect(request.referrer)
@@ -757,6 +864,39 @@ def production_action_add():
     teachers = cursor.fetchall()
     return render_template(
         'production_action_add.jinja2.html', teachers=teachers)
+
+
+@app.route(
+    '/production-action/link-teacher/<int:teacher_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def production_action_link_teacher(teacher_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        UPDATE production_action
+        SET teacher_id = ?
+        WHERE id = ?
+    ''', (teacher_id, request.form['production_action_id']))
+    connection.commit()
+    flash('L’action de production a été assignée au formateur')
+    return redirect(request.referrer)
+
+
+@app.route(
+    '/production-action/unlink-teacher/<int:production_action_id>',
+    methods=('POST',))
+@user.check(user.is_superadministrator)
+def production_action_unlink_teacher(production_action_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        UPDATE production_action
+        SET teacher_id = NULL
+        WHERE id = ?
+    ''', (production_action_id,))
+    connection.commit()
+    flash('L’action de production a été retirée au formateur')
+    return redirect(request.referrer)
 
 
 @app.route(
@@ -1096,11 +1236,13 @@ def absences(registration_id):
 
 @app.route('/lost_password', methods=('GET', 'POST'))
 def lost_password():
+    # TODO
     return render_template('lost_password.jinja2.html')
 
 
 @app.route('/reset_password', methods=('GET', 'POST'))
 def reset_password():
+    # TODO
     return render_template('reset_password.jinja2.html')
 
 

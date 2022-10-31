@@ -25,10 +25,12 @@
     {% endif %}
     <label for="mail">Email</label>
     <input id="mail" name="mail" type="email" value="{{ person.mail }}" />
-    <label for="password">Mot de passe</label>
-    <input id="password" name="password" type="password" placeholder="Mot de passe"/>
-    <label for="confirm_password">Confirmez le mot de passe</label>
-    <input id="confirm_password" name="confirm_password" type="password" placeholder="Mot de passe"/>
+    {% if person.id == g.person.id %}
+      <label for="password">Mot de passe</label>
+      <input id="password" name="password" type="password" placeholder="Mot de passe"/>
+      <label for="confirm_password">Confirmez le mot de passe</label>
+      <input id="confirm_password" name="confirm_password" type="password" placeholder="Mot de passe"/>
+    {% endif %}
     <input type="submit" class="button" value="Mettre à jour"/>
   </form>
 
@@ -37,17 +39,30 @@
       <h4>Étudiant − Périodes de formation</h4>
       <table>
         <tbody>
-          <tr>
-            <td>TODO liste, Nom période de formation</td>
-            <td><a href="TODO">Désassocier</a></td>
-          </tr>
+          {% for registration in registrations %}
+            <tr>
+              <td>{{ registration.teaching_period_name }}</td>
+              <td>
+                <td>
+                  <form method="post" action="{{ url_for('registration_delete', registration_id=registration.id) }}">
+                    <input type="submit" class="button" value="Désinscrire"/>
+                  </form>
+                </td>
+              </td>
+            </tr>
+          {% endfor %}
         </tbody>
       </table>
-      <form class="link">
-        <select>
-          <option>TODO liste des pfs</option>
+      {% set selected_teaching_periods = registrations | map(attribute='teaching_period_id') | list %}
+      <form class="link" method="post" action="{{ url_for('registration_add', student_id=roles.student) }}">
+        <select name="teaching_period_id">
+          {% for teaching_period in teaching_periods %}
+            {% if teaching_period.id not in selected_teaching_periods %}
+              <option value="{{ teaching_period.id }}">{{ teaching_period.name }}</option>
+            {% endif %}
+          {% endfor %}
         </select>
-        <input type="submit" class="button" value="Associer">
+        <input type="submit" class="button" value="Inscrire"/>
       </form>
     {% endif %}
 
@@ -55,17 +70,29 @@
       <h4>Tuteur − Apprenants</h4>
       <table>
         <tbody>
-          <tr>
-            <td>TODO liste, Nom prénom id étudiant</td>
-            <td><a href="TODO">Désassocier</a></td>
-          </tr>
+          {% for tutoring in tutorings %}
+            <tr>
+              <td>{{ tutoring.person_name }}</td>
+              <td>{{ tutoring.person_mail }}</td>
+              <td>
+                <form method="post" action="{{ url_for('tutoring_delete', tutoring_id=tutoring.id) }}">
+                  <input type="submit" class="button" value="Retirer"/>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
         </tbody>
       </table>
-      <form class="link">
-        <select>
-          <option>TODO liste des étudiants, nom prénom id</option>
+      {% set selected_registrations = tutorings | map(attribute='registration_id') | list %}
+      <form class="link" method="post" action="{{ url_for('tutoring_add', tutor_id=roles.tutor) }}">
+        <select name="registration_id">
+          {% for registration in registrations %}
+            {% if registration.id not in selected_registrations %}
+              <option value="{{ registration.id }}">{{ registration.person_name }} ({{ registration.teaching_period_name }})</option>
+            {% endif %}
+          {% endfor %}
         </select>
-        <input type="submit" class="button" value="Associer">
+        <input type="submit" class="button" value="Assigner">
       </form>
     {% endif %}
 
@@ -73,22 +100,32 @@
       <h4>Formateur − Actions de production</h4>
       <table>
         <tbody>
-          <tr>
-            <td>TODO liste, Nom Période de formation</td>
-            <td>nom action de production</td>
-            <td><a href="TODO">Désassocier</a></td>
-          </tr>
+          {% for production_action in production_actions %}
+            {% if production_action.teacher_id == roles.teacher %}
+              <tr>
+                <td>{{ production_action.name }}</td>
+                <td>{{ production_action.teaching_period_names }}</td>
+                <td>
+                  <form method="post" action="{{ url_for('production_action_unlink_teacher', production_action_id=production_action.id) }}">
+                    <input type="submit" class="button" value="Retirer"/>
+                  </form>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
         </tbody>
       </table>
-      <form class="link">
-        <select>
-          <option>TODO liste, période de formation / action de production</option>
+      {% set selected_production_actions = production_actions | selectattr('teacher_id', 'eq', roles.teacher) | map(attribute='id') | list %}
+      <form class="link" method="post" action="{{ url_for('production_action_link_teacher', teacher_id=roles.teacher) }}">
+        <select name="production_action_id">
+          {% for production_action in production_actions %}
+            {% if production_action.id not in selected_production_actions %}
+              <option value="{{ production_action.id }}">{{ production_action.name }} ({{ production_action.teaching_period_names }})</option>
+            {% endif %}
+          {% endfor %}
         </select>
-        <input type="submit" class="button" value="Associer">
+        <input type="submit" class="button" value="Assigner">
       </form>
     {% endif %}
-
-    <h4>Zone de danger</h4>
-    <a href="TODO" class="button" >Supprimer cette personne</a>
   {% endif %}
 {% endblock %}
