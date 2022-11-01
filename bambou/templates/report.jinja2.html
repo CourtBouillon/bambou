@@ -59,31 +59,31 @@
           <tr>
             <th>Absences</th>
             {% for semester_id, assignments in assignments | groupby(attribute='semester_id') %}
-            {% set semester = assignments[0] %}
-            <th>{{ semester.semester_name }}</th>
-              {% endfor %}
+              {% set semester = assignments[0] %}
+              <th>{{ semester.semester_name }}</th>
+            {% endfor %}
           </tr>
         </thead>
         <tbody>
           <tr>
             <th>Justifiées</th>
             {% for semester_id, assignments in assignments | groupby(attribute='semester_id') %}
-            {% set semester = assignments[0] %}
-            <td>{{ semester.justified_absence_minutes | hours }}</td>
+              {% set semester = assignments[0] %}
+              <td>{{ semester.justified_absence_minutes | hours }}</td>
             {% endfor %}
           </tr>
           <tr>
             <th>Injustifiées</th>
             {% for semester_id, assignments in assignments | groupby(attribute='semester_id') %}
-            {% set semester = assignments[0] %}
-            <td>{{ semester.unjustified_absence_minutes | hours }}</td>
+              {% set semester = assignments[0] %}
+              <td>{{ semester.unjustified_absence_minutes | hours }}</td>
             {% endfor %}
           </tr>
           <tr>
             <th>Retards</th>
             {% for semester_id, assignments in assignments | groupby(attribute='semester_id') %}
-            {% set semester = assignments[0] %}
-            <td>{{ semester.lateness_minutes | hours }}</td>
+              {% set semester = assignments[0] %}
+              <td>{{ semester.lateness_minutes | hours }}</td>
             {% endfor %}
           </tr>
         </tbody>
@@ -116,18 +116,18 @@
             <tbody>
               {% for assignment in assignments %}
                 <tr>
-                  <td>{{ assignment.production_action_name }}</td>
+                  <th>{{ assignment.production_action_name }}</th>
                   <td>{{ assignment.mark or '' }}</td>
                   <td>{{ assignment.comments or '' }}</td>
                   {% if user.is_superadministrator() %}
                     <td><a href="{{ url_for('mark', assignment_id=assignment.id) }}">Modifier la note</a></td>
-                    {% if not assignment.mark %}
-                      <td>
+                    <td>
+                      {% if not assignment.mark %}
                         <form method="post" action="{{ url_for('course_unlink', assignment_id=assignment.id) }}">
                           <input type="submit" class="button" value="Désinscrire"/>
                         </form>
-                      </td>
-                    {% endif %}
+                      {% endif %}
+                    </td>
                   {% endif %}
                 </tr>
               {% endfor %}
@@ -138,7 +138,7 @@
       <table class="semester-comment">
         <tbody>
           <tr>
-            <td>Appréciation du semestre</td>
+            <th>Appréciation du semestre</th>
             <td>{{ semester.tracking_comments or '(Pas d’appréciation)' }}</td>
             {% if user.is_superadministrator() %}
               <td><a href="{{ url_for('semester_comment', registration_id=student.registration_id, semester_id=semester_id, ) }}">Modifier l’appréciation du semestre</a></td>
@@ -154,7 +154,7 @@
         <tbody>
           {% for examination in examinations %}
             <tr>
-              <td>{{ examination.name }}</td>
+              <th>{{ examination.name }}</th>
               <td>{{ (examination.mark or '') | float }}</td>
               <td>{{ examination.comments or '' }}</td>
               {% if user.is_superadministrator() %}

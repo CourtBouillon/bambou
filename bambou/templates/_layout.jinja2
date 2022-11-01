@@ -11,10 +11,10 @@
         <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_ipi.svg') }}"></a>
         <ul>
           {% if g.person %}
-            <li><a href="{{ url_for('profile') }}">Mon profil</a></li>
-            <li><a href="{{ url_for('logout') }}">Déconnexion</a></li>
+            <li class="profile"><a href="{{ url_for('profile') }}">Mon profil</a></li>
+            <li class="logout"><a href="{{ url_for('logout') }}">Déconnexion</a></li>
           {% else %}
-            <li><a href="{{ url_for('login') }}">Connexion</a></li>
+            <li class="login"><a href="{{ url_for('login') }}">Connexion</a></li>
           {% endif %}
         </ul>
       </nav>
