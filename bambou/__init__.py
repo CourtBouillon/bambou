@@ -518,6 +518,7 @@ def report(registration_id=None):
     cursor.execute('''
         SELECT
           student.id,
+          person.id AS person_id,
           person.firstname || ' ' || person.lastname AS name,
           teaching_period.name AS teaching_period_name,
           registration.id AS registration_id

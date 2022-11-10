@@ -4,6 +4,10 @@
 
 {% block content %}
   <h2>Notes − {{ student.name }}</h2>
+  {% if user.is_superadministrator() %}
+    <a href="{{ url_for('profile', person_id=student.person_id) }}">Voir le profil</a>
+  {% endif %}
+
   <h3>{{ student.teaching_period_name }}</h3>
 
   {% set validated_modules = assignments | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count %}
