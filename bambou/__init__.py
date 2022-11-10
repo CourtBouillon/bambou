@@ -45,6 +45,7 @@ def login():
                 session['person_id'] = person['id']
                 return redirect(url_for('index'))
         flash('L’identifiant ou le mot de passe est incorrect')
+        return redirect(url_for('login'))
     return render_template('login.jinja2.html')
 
 
