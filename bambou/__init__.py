@@ -94,7 +94,7 @@ def tutoring_add(tutor_id):
     return redirect(request.referrer)
 
 
-@app.route('/tutoring/tutoring/<int:tutoring_id>', methods=('POST',))
+@app.route('/tutoring/delete/<int:tutoring_id>', methods=('POST',))
 @user.check(user.is_superadministrator)
 def tutoring_delete(tutoring_id):
     connection = get_connection()
@@ -102,6 +102,33 @@ def tutoring_delete(tutoring_id):
     cursor.execute('DELETE FROM tutoring WHERE id = ?', (tutoring_id,))
     connection.commit()
     flash('L’apprenant a été retiré au tuteur')
+    return redirect(request.referrer)
+
+
+@app.route('/tutoring/update/<int:student_id>', methods=('POST',))
+@user.check(user.is_superadministrator)
+def tutoring_update(student_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+        DELETE FROM tutoring
+        WHERE registration_id IN (
+          SELECT id
+          FROM registration
+          WHERE registration.student_id = ?)
+    ''', (student_id,))
+    cursor.execute(
+        'SELECT id FROM registration WHERE student_id = ?', (student_id,))
+    registration_ids = tuple(row['id'] for row in cursor.fetchall())
+    for registration_id in registration_ids:
+        tutor_id = request.form.get(f'tutor-registration-{registration_id}')
+        if tutor_id:
+            cursor.execute('''
+                INSERT INTO tutoring (tutor_id, registration_id)
+                VALUES (?, ?)
+            ''', (tutor_id, registration_id))
+    connection.commit()
+    flash('Les tuteurs ont été associés à l’apprenant')
     return redirect(request.referrer)
 
 
@@ -196,6 +223,23 @@ def profile(person_id=None):
               student_id = ?
         ''', (roles['student'],))
         extra_data['registrations'] = cursor.fetchall()
+        cursor.execute('''
+            SELECT
+              tutor.id,
+              group_concat(tutoring.registration_id, ',') AS registrations,
+              person.lastname || ' ' || person.firstname AS person_name
+            FROM
+              tutor
+            JOIN
+              person ON (person.id = tutor.person_id)
+            LEFT JOIN
+              tutoring ON (tutoring.tutor_id = tutor.id)
+            GROUP BY
+              tutor.id
+            ORDER BY
+              person_name
+        ''')
+        extra_data['tutors'] = cursor.fetchall()
         cursor.execute('SELECT id, name FROM teaching_period ORDER BY name')
         extra_data['teaching_periods'] = cursor.fetchall()
     if roles['tutor']:

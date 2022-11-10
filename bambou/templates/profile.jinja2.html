@@ -43,11 +43,9 @@
             <tr>
               <td>{{ registration.teaching_period_name }}</td>
               <td>
-                <td>
-                  <form method="post" action="{{ url_for('registration_delete', registration_id=registration.id) }}">
-                    <input type="submit" class="button" value="Désinscrire"/>
-                  </form>
-                </td>
+                <form method="post" action="{{ url_for('registration_delete', registration_id=registration.id) }}">
+                  <input type="submit" class="button" value="Désinscrire"/>
+                </form>
               </td>
             </tr>
           {% endfor %}
@@ -63,6 +61,28 @@
           {% endfor %}
         </select>
         <input type="submit" class="button" value="Inscrire"/>
+      </form>
+
+      <h4>Étudiant − Tuteurs</h4>
+      <form method="post" action="{{ url_for('tutoring_update', student_id=roles.student) }}">
+        <table>
+          <tbody>
+            {% for registration in registrations %}
+              <tr>
+                <td>{{ registration.teaching_period_name }}</td>
+                <td>
+                  <select name="tutor-registration-{{ registration.id }}">
+                    <option></option>
+                    {% for tutor in tutors %}
+                      <option value="{{ tutor.id }}" {{ 'selected' if (registration.id | string) in (tutor.registrations or '').split(',') }}>{{ tutor.person_name }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <input type="submit" class="button" value="Mettre à jour"/>
       </form>
     {% endif %}
 
