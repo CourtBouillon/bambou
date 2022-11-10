@@ -297,7 +297,10 @@ nav li.login a::before {
 }
 
 #messages section {
+  backdrop-filter: blur(0.3em);
+  background: #fffc;
   border: 1px solid;
+  border-radius: 0.1em;
   box-shadow: 0.1em 0.1em 0.3em #0004;
   font-size: 0.8em;
   line-height: 1.2;
