@@ -536,7 +536,8 @@ def administrator():
           person.lastname
     ''', (sql_search, sql_search))
     students = cursor.fetchall()
-    return render_template('administrator.jinja2.html', students=students)
+    return render_template(
+        'administrator.jinja2.html', students=students, search=query_search)
 
 
 @app.route('/superadministrator')
