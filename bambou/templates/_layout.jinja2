@@ -19,11 +19,17 @@
         </ul>
       </nav>
 
-      {% for message in get_flashed_messages() %}
-        <aside>
-          {{ message }}
+      {% set messages = get_flashed_messages() %}
+      {% if messages %}
+        <aside id="messages">
+          {% for message in messages %}
+            <section>
+              <input type="checkbox" title="Fermer" />
+              {{ message }}
+            </section>
+          {% endfor %}
         </aside>
-      {% endfor %}
+      {% endif %}
     </header>
 
     <main>
