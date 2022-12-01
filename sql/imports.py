@@ -2,6 +2,7 @@ import csv
 import sqlite3
 from itertools import chain
 from pathlib import Path
+from unicodedata import normalize
 
 _ignored_teachers = [
     '',
@@ -20,6 +21,13 @@ _alias_teachers = {
     'berger amelie': 'BERGER Amélie',
 }
 
+
+def slugify(text):
+    return (
+        normalize('NFKD', text).encode('ASCII', 'ignore')
+        .decode().strip().lower())
+
+
 connection = sqlite3.connect(Path(__file__).parent.parent / 'bambou.db')
 cursor = connection.cursor()
 
@@ -27,32 +35,63 @@ actions = {}
 periods = {}
 students = {}
 teachers = {}
+tutors = {}
+
+students_mails = {}
+teachers_mails = {}
+tutors_companies = {}
+
 courses = set()
 registrations = set()
 assignments = set()
 
-reader = csv.reader((Path(__file__).parent / 'apprenants_modules.csv').open())
+reader = csv.reader((Path(__file__).parent / 'students.csv').open())
 next(reader)  # Remove header
 for line in reader:
-    action_code, action_name, _, action_start, action_stop = line[2:7]
+    person_id, mail = line[2], line[11]
+    students_mails[person_id] = mail
+
+reader = csv.reader((Path(__file__).parent / 'teachers.csv').open())
+next(reader)  # Remove header
+for line in reader:
+    lastname, firstname, mail, igs_mail = line[0:4]
+    teachers_mails[slugify(f'{lastname} {firstname}')] = mail or igs_mail
+
+reader = csv.reader((Path(__file__).parent / 'students_modules.csv').open())
+next(reader)  # Remove header
+for line in reader:
+    action_code, action_name, _, action_start, action_stop, code = line[2:8]
+    for start in ('IAPI', 'IAPC', 'GEN', 'IZEX'):
+        if code.startswith(start):
+            continue
     person_id, civility, firstname, lastname = line[14:18]
     period_code, period_name = line[18:]
+    mail = students_mails[person_id]
     if action_code not in actions:
         actions[action_code] = action_name
     if period_code not in periods:
         periods[period_code] = period_name
     if person_id not in students:
-        students[person_id] = (firstname, lastname, f'{person_id}@ipilyon.net')
+        students[person_id] = (firstname, lastname, mail)
     courses.add((period_code, action_code))
-    registrations.add((period_code, f'{person_id}@ipilyon.net'))
-    assignments.add((period_code, action_code, f'{person_id}@ipilyon.net'))
+    registrations.add((period_code, mail))
+    assignments.add((period_code, action_code, mail))
 
-reader = csv.reader((Path(__file__).parent / 'cours.csv').open())
+reader = csv.reader((Path(__file__).parent / 'tutors.csv').open())
+next(reader)  # Remove header
+for i, line in enumerate(reader):
+    student_lastname, student_firstname = line[3:5]
+    company, tutor_lastname, tutor_firstname, tutor_mail = line[5:9]
+    tutors[(student_lastname, student_firstname)] = (
+        tutor_lastname, tutor_firstname, tutor_mail)
+    tutors_companies[tutor_mail] = company
+
+reader = csv.reader((Path(__file__).parent / 'courses.csv').open())
 next(reader)  # Remove header
 for line in reader:
     period_code, _, action_code = line[8:11]
     teacher = _alias_teachers.get(line[16].lower(), line[16])
-    if teacher.lower() in _ignored_teachers:
+    if slugify(teacher) in _ignored_teachers:
         if action_code not in teachers:
             teachers[action_code] = set()
     else:
@@ -63,16 +102,21 @@ for code, teacher in teachers.copy().items():
         teachers[code] = None
     else:
         if len(set(teacher.lower() for teacher in teacher)) > 1:
-            print('Problème d’enseignant :', code, teacher)
+            print('Plusieurs enseignants', code, teacher)
         teachers[code] = teacher.pop()
 
+slugs = set(slugify(teacher) for teacher in teachers.values() if teacher)
+for slug in slugs:
+    if slug not in _ignored_teachers and slug not in teachers_mails:
+        print('Email enseignant manquant', slug)
 teacher_names = tuple({(
     teacher.rsplit(' ', 1)[0].upper(),
     teacher.rsplit(' ', 1)[1].title(),
-    f'{teacher.lower().replace(" ", ".")}@test.com')
+    teachers_mails.get(slugify(teacher), f'{slugify(teacher)}@example.com'))
     for teacher in teachers.values() if teacher})
 action_teachers = tuple(
-    (action_code, f'{teacher.lower().replace(" ", ".")}@test.com')
+    (action_code, teachers_mails.get(
+        slugify(teacher), f'{slugify(teacher)}@example.com'))
     for action_code, teacher in teachers.items() if teacher)
 
 cursor.execute('PRAGMA foreign_keys=ON')
@@ -91,9 +135,10 @@ request += ', '.join(
 cursor.execute(request, tuple(range(1, len(periods) + 1)))
 
 request = 'INSERT INTO person (lastname, firstname, mail) VALUES '
-request += ', '.join(
-    ('(?, ?, ?)',) * (len(teacher_names) + len(students)))
-cursor.execute(request, tuple(chain(*teacher_names, *students.values())))
+request += ', '.join(('(?, ?, ?)',) * (
+    len(teacher_names) + len(students) + len(set(tutors.values()))))
+cursor.execute(request, tuple(chain(
+    *teacher_names, *students.values(), *set(tutors.values()))))
 
 request = 'INSERT INTO teacher (person_id) VALUES '
 request += ', '.join(('(?)',) * len(teacher_names))
@@ -103,6 +148,19 @@ request = 'INSERT INTO student (person_id) VALUES '
 request += ', '.join(('(?)',) * len(students))
 cursor.execute(request, tuple(range(
     len(teacher_names) + 1, len(teacher_names) + len(students) + 1)))
+
+tutors_ids = {}
+for _, _, mail in set(tutors.values()):
+    company = tutors_companies[mail]
+    request = '''
+    INSERT INTO tutor (person_id, company)
+    SELECT id, ?
+    FROM person
+    WHERE mail = ?
+    RETURNING id
+    '''
+    cursor.execute(request, (company, mail))
+    tutors_ids[mail] = cursor.fetchone()[0]
 
 request = '''
     INSERT INTO course (semester_id, production_action_id)
@@ -121,6 +179,26 @@ request = '''
     WHERE (teaching_period.code, person.mail) IN ('''
 request += ', '.join(('(?, ?)',) * len(registrations)) + ')'
 cursor.execute(request, tuple(chain(*registrations)))
+
+for student, (_, _, mail) in tutors.items():
+    tutor_id = tutors_ids[mail]
+    cursor.execute(
+        'SELECT id FROM person '
+        'WHERE lastname LIKE ? and firstname LIKE ?', student)
+    result = cursor.fetchone()
+    if result:
+        cursor.execute(
+            'INSERT INTO tutoring (tutor_id, registration_id) '
+            'SELECT ?, registration.id '
+            'FROM registration '
+            'JOIN student ON (student.id = registration.student_id) '
+            'WHERE person_id = ? '
+            'RETURNING id', (tutor_id, result[0]))
+        lines = len(cursor.fetchall())
+        if lines != 1:
+            print('Problème de tuteur', f'({lines})', ' '.join(student))
+    else:
+        print('Tuteur non assigné', ' '.join(student))
 
 request = '''
     INSERT INTO assignment (registration_id, course_id)
