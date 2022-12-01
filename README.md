@@ -19,6 +19,7 @@ Install dependencies:
 Configure Bambou (`/path/to/bambou.cfg`):
 
 ```py
+DB = '/path/to/bambou.db'
 SMTP_HOSTNAME = 'smtp.example.com'
 SMTP_LOGIN = 'login'
 SMTP_PASSWORD = 'password'
