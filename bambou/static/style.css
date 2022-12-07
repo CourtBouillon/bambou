@@ -363,6 +363,7 @@ nav li.login a::before {
 }
 
 #page-login main {
+  align-items: center;
   display: flex;
 }
 
