@@ -21,7 +21,7 @@
         <td>{{ semester.semester_name }}</td>
         <td>{{ semester.semester_start | date }}</td>
         <td>{{ semester.semester_stop | date  }}</td>
-        <td><a href="{{ url_for('semester', semester_id=semester.id) }}">Modifier</a></td>
+        <td><a href="{{ url_for('semester', semester_id=semester_id) }}">Modifier</a></td>
       </tr>
     {% endfor %}
   </table>
