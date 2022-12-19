@@ -675,7 +675,7 @@ def teaching_period(teaching_period_id):
         WHERE
           semester.teaching_period_id = ?
         GROUP BY
-          production_action.id
+          production_action.id, semester.id
         ORDER BY
           production_action.name
     ''', (teaching_period_id,))
