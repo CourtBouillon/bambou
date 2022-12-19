@@ -185,7 +185,6 @@ def profile(person_id=None):
             ''', parameters)
             current_roles = {role for role in user.ROLES if roles[role]}
             new_roles = {role for role in user.ROLES if role in request.form}
-            print(current_roles, new_roles, dict(roles), request.form)
             for removed_role in current_roles - new_roles:
                 cursor.execute(
                     f'DELETE FROM {removed_role} WHERE person_id = ?',
@@ -1033,7 +1032,6 @@ def production_action_change_semester(course_id=None, semester_id=None,
     if request.method == 'POST':
         if semester_id is None:
             semester_id = request.form['semester_id']
-            print(semester_id)
         cursor.execute(
             'SELECT teaching_period_id FROM semester WHERE id = ?',
             (semester_id,))
@@ -1069,7 +1067,6 @@ def production_action_change_semester(course_id=None, semester_id=None,
           semester.name
     ''', (old_semester_id, course_id))
     semesters = cursor.fetchall()
-    print(semesters)
     return render_template(
         'production_action_change_semester.jinja2.html',
         semesters=semesters, old_semester_id=old_semester_id)
