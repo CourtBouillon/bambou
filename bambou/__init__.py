@@ -662,7 +662,8 @@ def teaching_period(teaching_period_id):
           semester.id AS semester_id,
           semester.start AS semester_start,
           semester.stop AS semester_stop,
-          semester.name AS semester_name
+          semester.name AS semester_name,
+          count(assignment.id) AS has_assignment
         FROM
           semester
         LEFT JOIN
@@ -670,8 +671,12 @@ def teaching_period(teaching_period_id):
         LEFT JOIN
           production_action ON (
             production_action.id = course.production_action_id)
+        LEFT JOIN
+          assignment ON (assignment.course_id = course.id)
         WHERE
           semester.teaching_period_id = ?
+        GROUP BY
+          production_action.id
         ORDER BY
           production_action.name
     ''', (teaching_period_id,))
@@ -1012,6 +1017,62 @@ def production_action_unlink(course_id):
     connection.commit()
     flash('L’action de production a été dissociée')
     return redirect(request.referrer)
+
+
+@app.route(
+    '/production-action/change-semester/<int:course_id>/<int:old_semester_id>',
+    methods=('GET', 'POST'))
+@app.route(
+    '/production-action/switch-semester/<int:course_id>/<int:semester_id>',
+    methods=('POST',))
+@user.check(user.is_superadministrator)
+def production_action_change_semester(course_id=None, semester_id=None,
+                                      old_semester_id=None):
+    connection = get_connection()
+    cursor = connection.cursor()
+    if request.method == 'POST':
+        if semester_id is None:
+            semester_id = request.form['semester_id']
+            print(semester_id)
+        cursor.execute(
+            'SELECT teaching_period_id FROM semester WHERE id = ?',
+            (semester_id,))
+        teaching_period_id = cursor.fetchone()['teaching_period_id']
+        cursor.execute('''
+            UPDATE course
+            SET semester_id = ?
+            WHERE id = ?
+        ''', (semester_id, course_id))
+        connection.commit()
+        flash('Le semestre de l’action de production a été modifié')
+        return redirect(url_for(
+            'teaching_period', teaching_period_id=teaching_period_id))
+    cursor.execute('''
+        SELECT
+          semester.id,
+          semester.name,
+          production_action.name AS production_action_name
+        FROM
+          semester
+        JOIN
+          course
+        JOIN
+          production_action ON (
+            production_action.id = course.production_action_id)
+        JOIN
+          semester AS old_semester ON (
+            semester.teaching_period_id = old_semester.teaching_period_id)
+        WHERE
+          old_semester.id = ? AND
+          course.id = ?
+        ORDER BY
+          semester.name
+    ''', (old_semester_id, course_id))
+    semesters = cursor.fetchall()
+    print(semesters)
+    return render_template(
+        'production_action_change_semester.jinja2.html',
+        semesters=semesters, old_semester_id=old_semester_id)
 
 
 @app.route(

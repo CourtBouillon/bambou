@@ -34,6 +34,8 @@
   </form>
 
   <h3>Actions de production</h3>
+  {% set all_semesters = production_actions | groupby('semester_id') %}
+  {% set semesters_count = all_semesters | length %}
   {% for semester_id, production_actions in production_actions | groupby('semester_id') %}
     {% set semester = production_actions[0] %}
     <h4>{{ semester.semester_name }} − {{ semester.semester_start | date }} au {{ semester.semester_stop | date }}</h4>
@@ -45,9 +47,25 @@
               <td>{{ production_action.name }}</td>
               <td><a href="{{ url_for('production_action', production_action_id=production_action.id) }}">Modifier</a></td>
               <td>
-                <form method="post" action="{{ url_for('production_action_unlink', course_id=production_action.course_id) }}">
-                  <input type="submit" class="button" value="Dissocier"/>
-                </form>
+                {% if semesters_count == 2 %}
+                  {% for other_semester_id, other_production_actions in all_semesters %}
+                    {% if semester_id != other_semester_id %}
+                      {% set other_semester = other_production_actions[0] %}
+                      <form method="post" action="{{ url_for('production_action_change_semester', course_id=production_action.course_id, semester_id=other_semester_id) }}">
+                        <input type="submit" class="button" value="Mettre sur {{ other_semester.semester_name }}"/>
+                      </form>
+                    {% endif %}
+                  {% endfor %}
+                {% elif semesters_count > 2 %}
+                  <a href="{{ url_for('production_action_change_semester', course_id=production_action.course_id, old_semester_id=semester_id) }}">Changer de semestre</a>
+                {% endif %}
+              </td>
+              <td>
+                {% if not production_action.has_assignment %}
+                  <form method="post" action="{{ url_for('production_action_unlink', course_id=production_action.course_id) }}">
+                    <input type="submit" class="button" value="Dissocier"/>
+                  </form>
+                {% endif %}
               </td>
             </tr>
           {% endfor %}

@@ -1,0 +1,17 @@
+{% set title = semesters[0].production_action_name %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+  <h2>{{ semesters[0].production_action_name }}</h2>
+
+  <form method="post">
+    <label for="name">Semestre</label>
+    <select name="semester_id">
+      {% for semester in semesters %}
+        <option value="{{ semester.id }}" {{ 'selected' if semester.id == old_semester_id }}>{{ semester.name }}</option>
+      {% endfor %}
+    </select>
+    <input type="submit" class="button" value="Affecter au semestre"/>
+  </form>
+{% endblock %}
