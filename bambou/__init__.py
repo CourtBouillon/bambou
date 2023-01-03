@@ -475,7 +475,9 @@ def report(registration_id=None):
         JOIN
           assignment ON (assignment.registration_id = registration.id)
         LEFT JOIN
-          tracking ON (tracking.semester_id = semester.id)
+          tracking ON (
+            tracking.semester_id = semester.id AND
+            tracking.registration_id = registration.id)
         JOIN
           course ON (
             course.id = assignment.course_id AND
@@ -1328,7 +1330,9 @@ def absences(registration_id):
           registration ON (
             registration.teaching_period_id = teaching_period.id)
         LEFT JOIN
-          tracking ON (tracking.semester_id = semester.id)
+          tracking ON (
+            tracking.semester_id = semester.id AND
+            tracking.registration_id = registration.id)
         WHERE
           registration.id = ?
         ORDER BY
