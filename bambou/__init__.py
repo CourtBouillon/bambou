@@ -786,6 +786,22 @@ def registration_delete(registration_id):
     connection = get_connection()
     cursor = connection.cursor()
     cursor.execute('''
+        DELETE FROM tutoring
+        WHERE registration_id = ?
+    ''', (registration_id,))
+    cursor.execute('''
+        DELETE FROM tracking
+        WHERE registration_id = ?
+    ''', (registration_id,))
+    cursor.execute('''
+        DELETE FROM examination_mark
+        WHERE registration_id = ?
+    ''', (registration_id,))
+    cursor.execute('''
+        DELETE FROM assignment
+        WHERE registration_id = ?
+    ''', (registration_id,))
+    cursor.execute('''
         DELETE FROM registration
         WHERE id = ?
     ''', (registration_id,))
