@@ -20,17 +20,17 @@
       </thead>
       <tbody>
         <tr>
-          <th>Justifiées (en minutes)</th>
+          <th>Justifiées (en heures)</th>
           {% for semester_id, trackings in trackings | groupby(attribute='semester_id') %}
             {% set semester = trackings[0] %}
-            <td><input name="justified_absence_minutes_{{ semester_id }}" value="{{ semester.justified_absence_minutes or 0 }}"/></td>
+            <td><input name="justified_hours_{{ semester_id }}" value="{{ (semester.justified_absence_minutes or 0) // 60 }}"/></td>
           {% endfor %}
         </tr>
         <tr>
-          <th>Injustifiées (en minutes)</th>
+          <th>Injustifiées (en heures)</th>
           {% for semester_id, trackings in trackings | groupby(attribute='semester_id') %}
             {% set semester = trackings[0] %}
-            <td><input name="unjustified_absence_minutes_{{ semester_id }}" value="{{ semester.unjustified_absence_minutes or 0 }}"/></td>
+            <td><input name="unjustified_hours_{{ semester_id }}" value="{{ (semester.unjustified_absence_minutes or 0) // 60 }}"/></td>
           {% endfor %}
         </tr>
         <tr>

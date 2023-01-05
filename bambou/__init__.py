@@ -1366,9 +1366,9 @@ def absences(registration_id):
                   (?, ?, ?, ?, ?)
             ''', (
                 registration_id, semester_id,
-                request.form[f'justified_absence_minutes_{semester_id}'],
-                request.form[f'unjustified_absence_minutes_{semester_id}'],
-                request.form[f'lateness_minutes_{semester_id}'],
+                int(request.form[f'justified_hours_{semester_id}']) * 60,
+                int(request.form[f'unjustified_hours_{semester_id}']) * 60,
+                int(request.form[f'lateness_minutes_{semester_id}']),
             ))
         connection.commit()
         flash('Les absences ont été modifiées')
@@ -1442,7 +1442,7 @@ def hours(minutes):
     minutes = minutes or 0
     return (
         f'{minutes} min' if minutes < 60 else
-        f'{minutes//60} h {minutes%60:02}')
+        f'{minutes//60} h' + (f' {minutes%60:02}' if minutes % 60 else ''))
 
 
 @app.template_filter()
