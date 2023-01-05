@@ -168,6 +168,11 @@ textarea {
   transition: 0.2s;
 }
 
+input[type="checkbox"][readonly] {
+  filter: grayscale(100);
+  opacity: 0.5;
+}
+
 select {
   padding: 0.5em 1em;
 }
