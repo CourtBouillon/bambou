@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="fr">
   <head>
     <title>Bambou{% if title %} − {{ title }}{% endif %}</title>
@@ -24,7 +25,7 @@
         <aside id="messages">
           {% for message in messages %}
             <section>
-              <input type="checkbox" title="Fermer" />
+              <input type="checkbox" title="Fermer" onClick="return this.parentNode.remove() /* Just for Firefox that’s missing ':has, ;) */" />
               {{ message }}
             </section>
           {% endfor %}

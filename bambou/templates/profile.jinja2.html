@@ -20,7 +20,7 @@
       <input type="checkbox" id="teacher" name="teacher" {{ 'checked' if roles.teacher }} {{ 'readonly' if roles.teacher and (production_actions | selectattr('teacher_id', 'eq', roles.teacher) | list) }} />
       <label for="administrator">Administrateur</label>
       <input type="checkbox" id="administrator" name="administrator" {{ 'checked' if roles.administrator }} />
-      <label for="super_administrator">Super Administrateur</label>
+      <label for="superadministrator">Super Administrateur</label>
       <input type="checkbox" id="superadministrator" name="superadministrator" {{ 'checked' if roles.superadministrator }} {{ 'readonly' if g.person.id == person.id }} />
     {% endif %}
     <label for="mail">Email</label>
