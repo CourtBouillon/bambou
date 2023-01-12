@@ -1279,10 +1279,13 @@ def semester_comment(semester_id, registration_id):
     connection = get_connection()
     cursor = connection.cursor()
     if request.method == 'POST':
+        comments = request.form['comments']
         cursor.execute('''
             INSERT INTO tracking (semester_id, registration_id, comments)
             VALUES (?, ?, ?)
-        ''', (semester_id, registration_id, request.form['comments']))
+            ON CONFLICT (registration_id, semester_id)
+            DO UPDATE SET comments = ?
+        ''', (semester_id, registration_id, comments, comments))
         connection.commit()
         flash('Le commentaire a été modifié')
         return redirect(url_for('report', registration_id=registration_id))
@@ -1358,17 +1361,27 @@ def absences(registration_id):
     if request.method == 'POST':
         for tracking in trackings:
             semester_id = tracking['semester_id']
+            justified = int(
+                request.form[f'justified_hours_{semester_id}']) * 60
+            unjustified = int(
+                request.form[f'unjustified_hours_{semester_id}']) * 60
+            lateness = int(request.form[f'lateness_minutes_{semester_id}'])
             cursor.execute('''
                 INSERT INTO tracking (
                   registration_id, semester_id, justified_absence_minutes,
                   unjustified_absence_minutes, lateness_minutes)
                 VALUES
                   (?, ?, ?, ?, ?)
+                ON CONFLICT
+                  (registration_id, semester_id)
+                DO UPDATE SET
+                  justified_absence_minutes = ?,
+                  unjustified_absence_minutes = ?,
+                  lateness_minutes = ?
             ''', (
                 registration_id, semester_id,
-                int(request.form[f'justified_hours_{semester_id}']) * 60,
-                int(request.form[f'unjustified_hours_{semester_id}']) * 60,
-                int(request.form[f'lateness_minutes_{semester_id}']),
+                justified, unjustified, lateness,
+                justified, unjustified, lateness,
             ))
         connection.commit()
         flash('Les absences ont été modifiées')
