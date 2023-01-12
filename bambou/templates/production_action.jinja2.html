@@ -53,7 +53,7 @@
     <form class="link" method="post" action="{{ url_for('course_link', course_id=semester.course_id) }}">
       <select id="registration_id" name="registration_id">
         {% for student in all_students %}
-          {% if student.id not in selected_students %}
+          {% if student.id not in selected_students and student.semester_id == semester_id %}
             <option value="{{ student.registration_id }}">{{ student.name }} ({{ student.mail }})</option>
           {% endif %}
         {% endfor %}

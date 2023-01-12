@@ -887,7 +887,8 @@ def production_action(production_action_id):
           student.id,
           person.lastname || ' ' || person.firstname AS name,
           person.mail,
-          registration.id AS registration_id
+          registration.id AS registration_id,
+          semester.id AS semester_id
         FROM
           course
         JOIN
