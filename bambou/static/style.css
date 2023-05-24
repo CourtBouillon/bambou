@@ -87,11 +87,13 @@ table {
 
 table form {
   margin: 0;
+  width: initial;
 }
 
 table input,
 table .button {
   display: inline-block;
+  float: initial;
   margin: calc(-0.2em - 1px) 0;
   padding: 0.2em;
   width: auto;
@@ -133,6 +135,7 @@ h2 {
 }
 
 h3 {
+  clear: both;
   font-size: 1.8em;
   letter-spacing: -0.3;
   line-height: 1;
@@ -148,6 +151,10 @@ h4 {
 
 
 /* Forms */
+
+form {
+  width: 50%
+}
 
 form > * {
   display: block;
@@ -202,7 +209,8 @@ textarea:focus {
 input:not(input[type="checkbox"], input[type="radio"], .button),
 select,
 textarea {
-  width: 50%;
+  /* 100% - padding l/r - border l/r */
+  width: calc(100% - 2em - 2px);
 }
 
 input[type="checkbox"] {
@@ -216,8 +224,8 @@ input[type="checkbox"] {
   border: 1px solid var(--red-opacity);
   border-radius: 5px;
   color: var(--white);
-  margin-left: 25%;
-  margin-right: 50%;
+  float: right;
+  margin-right: 0;
   padding: 1em;
   text-align: center;
   transition: 0.2s;
@@ -227,6 +235,11 @@ input[type="checkbox"] {
 .button:hover {
   background: var(--red);
   cursor: pointer;
+}
+
+.danger {
+  display: block;
+  width: 100%;
 }
 
 .link {
@@ -250,6 +263,7 @@ input[type="checkbox"] {
   display: flex;
   justify-content: space-evenly;
   margin: 0;
+  width: 100%;
 }
 .search input:first-of-type {
   width: 80%;
@@ -391,18 +405,15 @@ nav li.login a::before {
   width: 30em;
 }
 
-#page-login input {
-  width: 80%;
+#page-login form {
+  width: 100%;
 }
-
-#page-login .button {
-  float: right;
-  margin: 0 20% 0 0;
-  width: 25%;
-}
-
 
 /* Marks */
+
+#page-marks form {
+  width: 100%;
+}
 
 #page-marks section {
   border-bottom: 1px solid var(--grey);
@@ -490,11 +501,6 @@ nav li.login a::before {
   width: 80%;
 }
 
-#page-production_action fieldset,
-#page-production_action_add fieldset {
-  width: 50%;
-}
-
 #add-semester {
   display: flex;
   justify-content: space-between;
@@ -508,6 +514,12 @@ nav li.login a::before {
 
 #page-profile table {
   width: 50%;
+}
+
+#page-profile form table,
+#page-profile form tbody,
+#page-profile form tr {
+  width: 100%;
 }
 
 #page-absences form {

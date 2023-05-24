@@ -84,7 +84,7 @@
   {% if not (students | selectattr('course_id') | list) %}
     <h3>Zone de danger</h3>
     <form method="post" action="{{ url_for('production_action_delete', production_action_id=production_action.id) }}">
-      <input type="submit" class="button" value="Supprimer l’action"/>
+      <input type="submit" class="button danger" value="Supprimer l’action"/>
     </form>
   {% endif %}
 {% endblock %}
