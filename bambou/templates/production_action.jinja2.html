@@ -19,6 +19,13 @@
         <option value="{{ teacher.id }}" {{ 'selected' if production_action.teacher_id == teacher.id }}>{{ teacher.name }}</option>
       {% endfor %}
     </select>
+    <fieldset>
+      <input type="radio" id="language" name="is_language" value="true">
+      <label for="language">Anglais</label>
+
+      <input type="radio" id="common" name="is_language" value="false" checked>
+      <label for="common">Autre</label>
+    </fieldset>
     <input type="submit" class="button" value="Sauvegarder"/>
   </form>
 

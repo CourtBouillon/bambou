@@ -146,6 +146,13 @@
       <table class="semester-comment">
         <tbody>
           <tr>
+            <th>TODO nom du module d’anglais</th>
+            <td>TODO commentaire module anglais</td>
+            {% if user.is_superadministrator() %}
+            <td><a href="">TODO Modifier le commentaire</a></td>
+            {% endif %}
+          </tr>
+          <tr>
             <th>Appréciation du semestre</th>
             <td>{{ semester.tracking_comments or '(Pas d’appréciation)' }}</td>
             {% if user.is_superadministrator() %}

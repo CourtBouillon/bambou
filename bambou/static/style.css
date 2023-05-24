@@ -465,6 +465,12 @@ nav li.login a::before {
   margin-right: 0;
 }
 
+/* Marks */
+
+#page-marks h4 + textarea {
+  width: 60%;
+}
+
 /* Super Administrator */
 
 #actions {
@@ -482,6 +488,11 @@ nav li.login a::before {
 #page-teaching_period table,
 #page-production_action table {
   width: 80%;
+}
+
+#page-production_action fieldset,
+#page-production_action_add fieldset {
+  width: 50%;
 }
 
 #add-semester {
