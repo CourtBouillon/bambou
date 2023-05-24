@@ -1,0 +1,19 @@
+{% set title = 'Générer le bulletin − TODO nom apprenant' %}
+
+{% extends '_layout.jinja2' %}
+
+{% block content %}
+  <h2>Bulletin − TODO nom apprenant</h2>
+
+  <form method="post">
+    <fieldset>
+      <input type="radio" id="accepted" name="accepted_status" value="accepted">
+      <label for="accepted">Admis</label>
+
+      <input type="radio" id="refused" name="accepted_status" value="refused">
+      <label for="refused">Non-admis</label>
+    </fieldset>
+
+    <input type="submit" class="button" value="Générer le bulletin">
+  </form>
+{% endblock %}

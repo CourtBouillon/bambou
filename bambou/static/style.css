@@ -153,6 +153,13 @@ form > * {
   display: block;
 }
 
+fieldset {
+  align-items: center;
+  border: 1px solid var(--blue-opacity);
+  border-radius: 5px;
+  display: flex;
+}
+
 label {
   margin-top: 1em;
 }
@@ -173,6 +180,15 @@ input[type="checkbox"][readonly] {
   opacity: 0.5;
 }
 
+input[type="radio"] {
+  margin: 0;
+  width: 2em;
+}
+
+fieldset label {
+  margin: 0 5em 0 0;
+}
+
 select {
   padding: 0.5em 1em;
 }
@@ -183,7 +199,7 @@ textarea:focus {
   background: var(--grey);
 }
 
-input:not(input[type="checkbox"], .button),
+input:not(input[type="checkbox"], input[type="radio"], .button),
 select,
 textarea {
   width: 50%;
@@ -440,6 +456,14 @@ nav li.login a::before {
   width: 100%;
 }
 
+#page-generate_report form {
+  width: 50%;
+}
+
+#page-generate_report .button {
+  float: right;
+  margin-right: 0;
+}
 
 /* Super Administrator */
 

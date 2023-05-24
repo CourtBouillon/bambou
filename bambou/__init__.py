@@ -418,6 +418,12 @@ def marks(production_action_id):
         'marks.jinja2.html', assignments=assignments, course=course)
 
 
+@app.route('/generate_report')
+@user.check(user.is_superadministrator)
+def generate_report():
+    return render_template('generate_report.jinja2.html')
+
+
 @app.route('/report')
 @app.route('/report/<int:registration_id>')
 @user.check(
