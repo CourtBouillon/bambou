@@ -381,10 +381,13 @@ def marks(production_action_id):
           person.lastname || ' ' || person.firstname AS person_name,
           assignment.id,
           assignment.mark,
+          production_action.language,
           assignment.comments
         FROM
           course
         JOIN
+          production_action ON (
+            production_action.id = course.production_action_id),
           assignment ON (assignment.course_id = course.id),
           registration ON (registration.id = assignment.registration_id),
           student ON (student.id = registration.student_id),
@@ -398,7 +401,7 @@ def marks(production_action_id):
     if request.method == 'POST':
         for assignment in assignments:
             values = (
-                request.form[f'{assignment["id"]}-mark'] or None,
+                request.form.get(f'{assignment["id"]}-mark') or None,
                 request.form[f'{assignment["id"]}-comments'] or None,
                 assignment['id'])
             cursor.execute('''
@@ -460,6 +463,7 @@ def report(registration_id=None):
     cursor.execute('''
         SELECT
           production_action.name AS production_action_name,
+          production_action.language,
           semester.id AS semester_id,
           semester.name AS semester_name,
           tracking.justified_absence_minutes,
@@ -828,10 +832,16 @@ def production_action(production_action_id):
             request.form['name'],
             request.form['teacher_id'],
             request.form['last_course_date'],
+            request.form['language'],
             production_action_id)
         cursor.execute('''
             UPDATE production_action
-            SET code = ?, name = ?, teacher_id = ?, last_course_date = ?
+            SET
+              code = ?,
+              name = ?,
+              teacher_id = ?,
+              last_course_date = ?,
+              language = ?
             WHERE production_action.id = ?
         ''', values)
         connection.commit()
@@ -839,7 +849,7 @@ def production_action(production_action_id):
         return redirect(url_for(
             'production_action', production_action_id=production_action_id))
     cursor.execute('''
-        SELECT id, code, name, teacher_id, last_course_date
+        SELECT id, code, name, teacher_id, last_course_date, language
         FROM production_action
         WHERE production_action.id = ?
     ''', (production_action_id,))
@@ -936,10 +946,10 @@ def production_action_add():
     cursor = connection.cursor()
     if request.method == 'POST':
         cursor.execute('''
-            INSERT INTO
-              production_action (teacher_id, code, name, last_course_date)
+            INSERT INTO production_action
+              (teacher_id, code, name, last_course_date, language)
             VALUES
-              (:teacher, :code, :name, :last_course_date)
+              (:teacher, :code, :name, :last_course_date, :language)
         ''', request.form)
         connection.commit()
         flash('L’action de production a été ajoutée')
@@ -1209,7 +1219,8 @@ def mark(assignment_id):
             SET mark = ?, comments = ?
             WHERE id = ?
             RETURNING registration_id
-        ''', (request.form['mark'], request.form['comments'], assignment_id))
+        ''', (
+            request.form.get('mark'), request.form['comments'], assignment_id))
         registration_id = cursor.fetchone()['registration_id']
         connection.commit()
         flash('La note a été modifiée')
@@ -1219,10 +1230,15 @@ def mark(assignment_id):
           assignment.mark,
           assignment.comments,
           teaching_period.name AS teaching_period_name,
+          production_action.language,
+          production_action.name AS production_action_name,
           person.firstname || ' ' || person.lastname AS person_name
         FROM
           assignment
         JOIN
+          course ON (course.id = assignment.course_id),
+          production_action ON (
+            production_action.id = course.production_action_id),
           registration ON (registration.id = assignment.registration_id),
           student ON (student.id = registration.student_id),
           person ON (person.id = student.person_id),

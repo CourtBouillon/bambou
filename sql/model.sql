@@ -77,7 +77,8 @@ CREATE TABLE production_action (
   teacher_id INTEGER REFERENCES teacher(id),
   code TEXT NOT NULL,
   name TEXT NOT NULL,
-  last_course_date DATE
+  last_course_date DATE,
+  language BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE course (

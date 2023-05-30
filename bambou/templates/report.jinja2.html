@@ -14,8 +14,8 @@
 
   <h3>{{ student.teaching_period_name }}</h3>
 
-  {% set validated_modules = assignments | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count %}
-  {% set missing_modules = (assignments | count * 0.6) | round(method='ceil') | int - validated_modules %}
+  {% set validated_modules = assignments | rejectattr('language') | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count %}
+  {% set missing_modules = (assignments | rejectattr('language') | list | count * 0.6) | round(method='ceil') | int - validated_modules %}
 
   <article id="summaries">
     <section id="marks-summary">
@@ -23,7 +23,7 @@
         <thead>
           <tr>
             <th>Niveaux d’acquisition</th>
-            <td>{{ 0 if not assignments else (validated_modules / (assignments | count) * 100) | int }} %</td>
+            <td>{{ 0 if not assignments else (validated_modules / (assignments | rejectattr('language') | list | count) * 100) | int }} %</td>
           </tr>
         </thead>
         <tbody>
@@ -122,7 +122,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for assignment in assignments %}
+              {% for assignment in assignments | rejectattr('language') %}
                 <tr>
                   <th>{{ assignment.production_action_name }}</th>
                   <td>{{ assignment.mark or '' }}</td>
@@ -145,13 +145,22 @@
       {% endif %}
       <table class="semester-comment">
         <tbody>
-          <tr>
-            <th>TODO nom du module d’anglais</th>
-            <td>TODO commentaire module anglais</td>
-            {% if user.is_superadministrator() %}
-            <td><a href="">TODO Modifier le commentaire</a></td>
-            {% endif %}
-          </tr>
+          {% for assignment in assignments | selectattr('language') %}
+            <tr>
+              <th>{{ assignment.production_action_name }}</th>
+              <td>{{ assignment.comments or '' }}</td>
+              {% if user.is_superadministrator() %}
+                <td><a href="{{ url_for('mark', assignment_id=assignment.id) }}">Modifier le commentaire</a></td>
+                <td>
+                  {% if not assignment.comments %}
+                    <form method="post" action="{{ url_for('course_unlink', assignment_id=assignment.id) }}">
+                      <input type="submit" class="button" value="Désinscrire"/>
+                    </form>
+                  {% endif %}
+                </td>
+              {% endif %}
+            </tr>
+          {% endfor %}
           <tr>
             <th>Appréciation du semestre</th>
             <td>{{ semester.tracking_comments or '(Pas d’appréciation)' }}</td>
