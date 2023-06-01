@@ -99,45 +99,60 @@
     <thead>
       <tr>
         <th>Nom</th>
-        <th>Mail</th>
         <th>Validation</th>
-        <th>A</th>
-        <th>B</th>
-        <th>C</th>
-        <th>D</th>
-        <th>E</th>
-        <th>NE</th>
+        {% for mark in ('A', 'B', 'C', 'D', 'E', 'NE') %}
+          <th class="{{ 'non-validated' if mark in ('E', 'NE') else ('acquiring' if mark == 'D' else 'validated') }}">{{ mark }}</th>
+        {% endfor %}
         <th>Rang</th>
         <th>Quart</th>
         <th></th>
         <th></th>
-    <tbody>
-    {% for student in students %}
-      <tr>
-        <td>{{ student.name }}</td>
-        <td>{{ student.mail }}</td>
-        <td>50 %</td>
-        <td>14</td>
-        <td>4</td>
-        <td>8</td>
-        <td>14</td>
-        <td>8</td>
-        <td>4</td>
-        <td>X / 23</td>
-        <td>2e quart</td>
-        <td><a href="{{ url_for('report', registration_id=student.registration_id) }}">Voir les notes</a></td>
-        {% if student.registration_id not in registrations_with_data %}
-          <td>
-            <form method="post" action="{{ url_for('registration_delete', registration_id=student.registration_id) }}">
-              <input type="submit" class="button" value="Désinscrire"/>
-            </form>
-          </td>
-        {% endif %}
       </tr>
-    {% endfor %}
+    </thead>
+    <tbody>
+      {% set total_students = assignments | groupby('grouper') | count %}
+      {% set rank_data = [] %}
+      {% for grouper, assignments in assignments | groupby('grouper') %}
+        {% set validated_modules = assignments | rejectattr('language') | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count %}
+        {% set all_modules = (assignments | rejectattr('language') | list | count) or 1 %}
+        {% set validation_percentage = (validated_modules / all_modules * 100) | round(method='ceil') | int %}
+        {% set sort_key = [validation_percentage] %}
+        {% for mark in 'ABCD' %}
+          {{ sort_key.append(assignments | rejectattr('language') | selectattr('mark', 'eq', mark) | list | count) or '' }}
+        {% endfor %}
+        {{ rank_data.append(sort_key) or '' }}
+      {% endfor %}
+      {% set sorted_rank_data = rank_data | sort(reverse=True) %}
+      {% for grouper, assignments in assignments | groupby('grouper') %}
+        {% set student = assignments[0] %}
+        {% set validated_modules = assignments | rejectattr('language') | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count %}
+        {% set all_modules = assignments | rejectattr('language') | list | count %}
+        {% set validation_percentage = (validated_modules / all_modules * 100) | round(method='ceil') | int %}
+        {% set rank = sorted_rank_data.index(rank_data[loop.index0]) + 1 %}
+        {% set quarter = 1 + (4 * (rank - 1) / total_students) | round(method='floor') | int %}
+        <tr>
+          <td>{{ student.name }}</td>
+          <td>{{ validation_percentage }} %</td>
+          {% for mark in ('A', 'B', 'C', 'D', 'E', 'NE') %}
+            <td class="{{ 'non-validated' if mark in ('E', 'NE') else ('acquiring' if mark == 'D' else 'validated') }}">
+              {{ assignments | rejectattr('language') | selectattr('mark', 'eq', mark) | list | count }}
+            </td>
+          {% endfor %}
+          <td>{{ rank }} / {{ total_students }}</td>
+          <td>{{ quarter }}<sup>{{ 'er' if quarter == 1 else 'e' }}</sup> quart</td>
+          <td><a href="{{ url_for('report', registration_id=student.registration_id) }}">Voir les notes</a></td>
+          {% if student.registration_id not in registrations_with_data %}
+            <td>
+              <form method="post" action="{{ url_for('registration_delete', registration_id=student.registration_id) }}">
+                <input type="submit" class="button" value="Désinscrire"/>
+              </form>
+            </td>
+          {% endif %}
+        </tr>
+      {% endfor %}
     </tbody>
   </table>
-  {% set selected_students = students | map(attribute='id') | list %}
+  {% set selected_students = assignments | map(attribute='student_id') | list %}
   <form class="link" method="post" action="{{ url_for('registration_add', teaching_period_id=teaching_period.id) }}">
     <select name="student_id">
       {% for student in all_students %}

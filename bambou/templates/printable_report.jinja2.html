@@ -4,6 +4,7 @@
 
 {% set validated_modules = assignments | rejectattr('language') | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count %}
 {% set all_modules = assignments | rejectattr('language') | list | count %}
+{% set validation_percentage = (validated_modules / all_modules * 100) | round(method='ceil') | int %}
 
 <html lang="fr">
   <head>
@@ -25,7 +26,7 @@
           <p><strong>Chargé(e) de formation : TODO</strong></p>
         </section>
         <section>
-          <p>Pourcentage de validation de modules : <strong>{{ (validated_modules / all_modules * 100) | round(method='ceil') | int }} %</strong></p>
+          <p>Pourcentage de validation de modules : <strong>{{ validation_percentage }} %</strong></p>
           <p><small>Seuls les les niveaux A, B et C sont pris en compte dans le pourcentage de validation de modules.</small></p>
           <p><small>Légende : {{ ('A', 'B', 'C', 'D', 'E', 'NE') | map('full_mark') | join(', ') }}.</small></p>
         </section>

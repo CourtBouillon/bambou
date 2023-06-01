@@ -797,21 +797,25 @@ def teaching_period(teaching_period_id):
     all_production_actions = cursor.fetchall()
     cursor.execute('''
         SELECT
-          student.id,
-          person.lastname || ' ' || person.firstname as name,
-          person.mail,
-          registration.id AS registration_id
+          student.id AS student_id,
+          person.lastname || ' ' || person.firstname AS name,
+          person.lastname || student.id AS grouper,
+          registration.id AS registration_id,
+          assignment.id,
+          assignment.mark
         FROM
           person
         JOIN
           student ON (student.person_id = person.id),
           registration ON (registration.student_id = student.id)
+        LEFT JOIN
+          assignment ON (assignment.registration_id = registration.id)
         WHERE
           registration.teaching_period_id = ?
         ORDER BY
           person.lastname
     ''', (teaching_period_id,))
-    students = cursor.fetchall()
+    assignments = cursor.fetchall()
     cursor.execute('''
         SELECT
           student.id,
@@ -836,7 +840,7 @@ def teaching_period(teaching_period_id):
     return render_template(
         'teaching_period.jinja2.html', teaching_period=teaching_period,
         production_actions=production_actions, all_students=all_students,
-        all_production_actions=all_production_actions, students=students,
+        all_production_actions=all_production_actions, assignments=assignments,
         registrations_with_data=registrations_with_data)
 
 
