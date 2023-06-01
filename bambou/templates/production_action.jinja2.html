@@ -19,12 +19,8 @@
         <option value="{{ teacher.id }}" {{ 'selected' if production_action.teacher_id == teacher.id }}>{{ teacher.name }}</option>
       {% endfor %}
     </select>
-    <fieldset>
-      <input type="radio" id="language" name="language" value="1" {{ 'checked' if production_action.language }}>
-      <label for="language">Anglais</label>
-      <input type="radio" id="common" name="language" value="0" {{ 'checked' if not production_action.language }}>
-      <label for="common">Autre</label>
-    </fieldset>
+    <label for="language">Module de langues</label>
+    <input type="checkbox" id="language" name="language" {{ 'checked' if production_action.language }}>
     <input type="submit" class="button" value="Sauvegarder"/>
   </form>
 

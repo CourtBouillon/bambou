@@ -84,13 +84,6 @@ form > * {
   display: block;
 }
 
-fieldset {
-  align-items: center;
-  border: 1px solid var(--blue-opacity);
-  border-radius: 5px;
-  display: flex;
-}
-
 label {
   margin-top: 1em;
 }
@@ -106,18 +99,10 @@ textarea {
   transition: 0.2s;
 }
 
-input[type="checkbox"][readonly] {
+input[type="checkbox"][readonly],
+input[type="radio"][readonly] {
   filter: grayscale(100);
   opacity: 0.5;
-}
-
-input[type="radio"] {
-  margin: 0;
-  width: 2em;
-}
-
-fieldset label {
-  margin: 0 5em 0 0;
 }
 
 select {
@@ -137,7 +122,8 @@ textarea {
   width: calc(100% - 2em - 2px);
 }
 
-input[type="checkbox"] {
+input[type="checkbox"],
+input[type="radio"] {
   margin-left: -1.5em;
   margin-top: -1.5em;
   position: absolute;

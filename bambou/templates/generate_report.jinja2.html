@@ -12,13 +12,8 @@
   {% endif %}
 
   <form method="post">
-    <fieldset>
-      <input type="radio" id="admitted" name="admitted" value="1" checked>
-      <label for="admitted">Admis</label>
-      <input type="radio" id="refused" name="admitted" value="0">
-      <label for="refused">Non-admis</label>
-    </fieldset>
-
+    <label for="admitted">Admis</label>
+    <input type="checkbox" id="admitted" name="admitted" checked>
     <input type="submit" class="button" value="Générer le bulletin">
   </form>
 {% endblock %}

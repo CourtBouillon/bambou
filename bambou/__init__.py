@@ -437,7 +437,7 @@ def generate_report(registration_id):
     report = folder / f'{registration_id}.pdf'
     if request.method == 'POST':
         folder.mkdir(exist_ok=True)
-        admitted = bool(int(request.form['admitted']))
+        admitted = 'admitted' in request.form
         report_url = url_for(
             'report', registration_id=registration_id, printable=True,
             admitted=admitted)
@@ -522,7 +522,8 @@ def download_report(registration_id):
            defaults={'printable': True, 'admitted': True})
 @app.route('/report/<int:registration_id>/printable/not-admitted',
            defaults={'printable': True, 'admitted': False})
-@app.route('/report/<int:registration_id>', defaults={'printable': False})
+@app.route('/report/<int:registration_id>',
+           defaults={'printable': False, 'admitted': True})
 @user.check(
     user.is_student, user.is_tutor, user.is_administrator,
     user.is_superadministrator)
@@ -931,7 +932,7 @@ def production_action(production_action_id):
             request.form['name'],
             request.form['teacher_id'],
             request.form['last_course_date'],
-            request.form['language'],
+            'language' in request.form,
             production_action_id)
         cursor.execute('''
             UPDATE production_action
@@ -1044,12 +1045,14 @@ def production_action_add():
     connection = get_connection()
     cursor = connection.cursor()
     if request.method == 'POST':
+        form = dict(request.form)
+        form['language'] = 'language' in form
         cursor.execute('''
             INSERT INTO production_action
               (teacher_id, code, name, last_course_date, language)
             VALUES
               (:teacher, :code, :name, :last_course_date, :language)
-        ''', request.form)
+        ''', form)
         connection.commit()
         flash('L’action de production a été ajoutée')
         return redirect(url_for('index'))
