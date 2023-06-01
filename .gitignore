@@ -1,2 +1,6 @@
 bambou.db
 *.pyc
+*.csv
+*.egg-info
+/reports/
+/venv/
