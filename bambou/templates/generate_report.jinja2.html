@@ -1,15 +1,20 @@
-{% set title = 'Générer le bulletin − TODO nom apprenant' %}
+{% set title = 'Générer le bulletin − ' + registration.name %}
 
 {% extends '_layout.jinja2' %}
 
 {% block content %}
-  <h2>Bulletin − TODO nom apprenant</h2>
+  <h2>{{ title }}</h2>
+
+  {% if report.exists() %}
+    <ul id="actions">
+      <li><a href="{{ url_for('download_report', registration_id=registration.id) }}">Télécharger le bulletin existant</a></li>
+    </ul>
+  {% endif %}
 
   <form method="post">
     <fieldset>
-      <input type="radio" id="accepted" name="accepted_status" value="accepted">
+      <input type="radio" id="accepted" name="accepted_status" value="accepted" checked>
       <label for="accepted">Admis</label>
-
       <input type="radio" id="refused" name="accepted_status" value="refused">
       <label for="refused">Non-admis</label>
     </fieldset>

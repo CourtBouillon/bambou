@@ -1,0 +1,121 @@
+@import 'common.css';
+
+
+/* Page */
+
+@page {
+  margin: 2cm 1cm 0 1cm;
+}
+
+
+/* Titles */
+
+h2 {
+  font-weight: normal;
+  margin: 1em 0;
+  text-align: center;
+  text-transform: none;
+}
+
+h3 {
+  font-size: 1.15em;
+  margin: 0.8em 0;
+  text-align: center;
+}
+
+
+/* Common */
+
+body {
+  font-size: 8pt;
+  line-height: 1.1;
+}
+
+article {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 0.5em 0;
+}
+
+article section {
+  width: 48%;
+}
+
+article section:first-child:last-child {
+  margin: 0 auto;
+  width: 70%;
+}
+
+div {
+  border: 0.1mm solid #bbb;
+  margin: 0.5em 0;
+  padding: 0.3em;
+}
+
+div > * {
+  margin: 0.3em 0;
+  text-align: center;
+}
+
+div h3 {
+  font-size: 1em;
+}
+
+small {
+  font-size: 0.7em;
+}
+
+
+/* Tables */
+
+table {
+  border-collapse: collapse;
+  font-size: 0.85em;
+  width: 100%;
+}
+
+td,
+th {
+  border: 0.1mm solid;
+  padding: 0.1em 0.3em;
+}
+
+thead th,
+td {
+  text-align: center;
+}
+
+thead,
+tfoot {
+  font-weight: bold;
+}
+
+tbody th {
+  font-weight: normal;
+}
+
+td.inactive {
+  background-color: #ddd;
+}
+
+th:empty {
+  border: none;
+}
+
+
+/* Specific elements */
+
+#admission {
+  height: 6.5em;
+}
+
+#admission p {
+  margin: 2em 0;
+  text-align: center;
+}
+
+#signature {
+  height: 6.5em;
+  text-align: left;
+}

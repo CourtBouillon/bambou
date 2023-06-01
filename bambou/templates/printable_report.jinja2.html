@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+{% set title = 'Relevé final − ' + student.name %}
+
+{% set validated_modules = assignments | rejectattr('language') | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count %}
+{% set all_modules = assignments | rejectattr('language') | list | count %}
+
+<html lang="fr">
+  <head>
+    <title>{{ title }}</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='print.css') }}" />
+  </head>
+
+  <body>
+    <header>
+      <h2>
+        Relevé final de validation de modules<br>
+        {{ student.teaching_period_name }}
+      </h2>
+
+      <article>
+        <section>
+          <p>{{ student.name }}</p>
+          <p><strong>Chargé(e) de formation : TODO</strong></p>
+        </section>
+        <section>
+          <p>Pourcentage de validation de modules : <strong>{{ (validated_modules / all_modules * 100) | round(method='ceil') | int }} %</strong></p>
+          <p><small>Seuls les les niveaux A, B et C sont pris en compte dans le pourcentage de validation de modules.</small></p>
+        </section>
+      </article>
+    </header>
+
+    <main>
+      <article>
+        {% for semesters in (assignments | groupby(attribute='semester_id')) | batch(2) %}
+          {% set validations = [] %}
+          {% if semesters[0][1][0].production_action_name %}
+            <section>
+              <h3>
+                Année {{ loop.index }}<br>
+                du {{ semesters[0][1][0].semester_start | date }} au {{ semesters[-1][1][0].semester_stop | date }}
+              </h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th></th>
+                    {% for semester in semesters %}
+                      {% set semester_id, assignments = semester %}
+                      {% set semester = assignments[0] %}
+                      <th>{{ semester.semester_name }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for semester in semesters %}
+                    {% set semester_id, assignments = semester %}
+                    {% set semester = assignments[0] %}
+                    {% set semester_loop = loop %}
+                    {% for assignment in assignments | rejectattr('language') %}
+                      <tr>
+                        <th>{{ assignment.production_action_name }}</th>
+                        <td class="{{ 'inactive' if semester_loop.index != 1 }}">{{ (assignment.mark or '') if semester_loop.index == 1 }}</td>
+                        <td class="{{ 'inactive' if semester_loop.index != 2 }}">{{ (assignment.mark or '') if semester_loop.index == 2 }}</td>
+                      </tr>
+                    {% endfor %}
+                    {{ validations.append((
+                      assignments | rejectattr('language') | selectattr('mark', 'in', ('A', 'B', 'C')) | list | count,
+                      assignments | rejectattr('language') | list | count,
+                    )) or '' }}
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th>Modules validés sur la période</th>
+                    {% for validated, all in validations %}
+                      <td>{{ validated }} / {{ all }}</td>
+                    {% endfor %}
+                  </tr>
+                </tfoot>
+              </table>
+            </section>
+          {% endif %}
+        {% endfor %}
+      </article>
+
+      <article>
+        {% for semesters in (assignments | groupby(attribute='semester_id')) | batch(2) %}
+          <section>
+            <h3>Absences</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  {% for semester in semesters %}
+                    {% set semester_id, assignments = semester %}
+                    {% set semester = assignments[0] %}
+                    <th>{{ semester.semester_name }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Justifiées</th>
+                  {% for semester in semesters %}
+                    {% set semester_id, assignments = semester %}
+                    {% set semester = assignments[0] %}
+                    <td>{{ semester.justified_absence_minutes | hours }}</td>
+                  {% endfor %}
+                </tr>
+                <tr>
+                  <th>Injustifiées</th>
+                  {% for semester in semesters %}
+                    {% set semester_id, assignments = semester %}
+                    {% set semester = assignments[0] %}
+                    <td>{{ semester.unjustified_absence_minutes | hours }}</td>
+                  {% endfor %}
+                </tr>
+                <tr>
+                  <th>Retards</th>
+                  {% for semester in semesters %}
+                    {% set semester_id, assignments = semester %}
+                    {% set semester = assignments[0] %}
+                    <td>{{ semester.lateness_minutes | hours }}</td>
+                  {% endfor %}
+                </tr>
+              </tbody>
+            </table>
+          </section>
+        {% endfor %}
+      </article>
+
+      <article>
+        {% for semesters in (assignments | groupby(attribute='semester_id')) | batch(2) %}
+          <section>
+            {% for semester in semesters %}
+              {% set semester_id, assignments = semester %}
+              {% set semester = assignments[0] %}
+              <div>
+                <h3>Commentaires de l’équipe pédagogique {{ semester.semester_name }}</h3>
+                <p>{{ semester.tracking_comments or '(Pas d’appréciation)' }}</p>
+              </div>
+            {% endfor %}
+            {% for semester in semesters %}
+              {% set semester_id, assignments = semester %}
+              {% set semester = assignments[0] %}
+              {% for assignment in assignments | selectattr('language') %}
+                <div>
+                  <h3>{{ assignment.production_action_name }}</h3>
+                  <p>{{ assignment.comments or '(Pas d’évaluation)' }}</p>
+                </div>
+              {% endfor %}
+            {% endfor %}
+          </section>
+        {% endfor %}
+      </article>
+
+      <article>
+        <section>
+          {% if examinations %}
+            <div id="examinations">
+              <table>
+                <tbody>
+                  {% for examination in examinations %}
+                    <tr>
+                      <th>{{ examination.name }}</th>
+                      <td>{{ (examination.mark or '') | float }} / 20</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+
+          <div id="admission">
+            <h3>Conseil des avis - Admission aux examens finaux</h3>
+            <p><strong>Admis</strong></p>
+          </div>
+        </section>
+
+        <section>
+          <div id="signature">
+            Fait à Lyon, le {{ today | date }}
+          </div>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

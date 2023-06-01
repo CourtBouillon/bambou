@@ -5,11 +5,10 @@
 {% block content %}
   <h2>Notes − {{ student.name }}</h2>
   {% if user.is_superadministrator() %}
-  <ul id="actions">
-    <li><a href="{{ url_for('profile', person_id=student.person_id) }}">Voir le profil</a></li>
-    <li><a href="">Dernier bulletin (date)</a></li>
-    <li><a href="{{ url_for('generate_report') }}">Générer le bulletin</a></li>
-  </ul>
+    <ul id="actions">
+      <li><a href="{{ url_for('profile', person_id=student.person_id) }}">Voir le profil</a></li>
+      <li><a href="{{ url_for('generate_report', registration_id=student.registration_id) }}">Voir le bulletin</a></li>
+    </ul>
   {% endif %}
 
   <h3>{{ student.teaching_period_name }}</h3>

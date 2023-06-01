@@ -1,50 +1,7 @@
-/* Fonts */
-
-@font-face {
-  font-family: ClarityCity;
-  font-weight: 400;
-  src: local("ClarityCity Regular"), local("ClarityCity-Regular"), url(/static/fonts/ClarityCity-Regular.woff2);
-}
-
-@font-face {
-  font-family: ClarityCity;
-  font-weight: 700;
-  src: local("ClarityCity Bold"), local("ClarityCity-Bold"), url(/static/fonts/ClarityCity-Bold.woff2);
-}
-
-@font-face {
-  font-family: ForkAwesome;
-  src: local("ForkAwesome"), url(/static/fonts/forkawesome-webfont.woff2);
-}
-
-
-/* Variables */
-
-:root {
-  --black: #333;
-  --blue: #428bca;
-  --blue-opacity: #428bca77;
-  --grey: #f1f2f2;
-  --grey-opacity: #f1f2f277;
-  --red: #dd1d2a;
-  --red-opacity: #dd1d2a77;
-  --white: #fff;
-
-  --mark-validated: #78e47877;
-  --mark-acquiring: #e4d17877;
-  --mark-non-validated: #e4788477;
-}
+@import 'common.css';
 
 
 /* Common */
-
-html {
-  background: var(--white);
-  color: var(--black);
-  font-family: ClarityCity, sans-serif;
-  font-size: 14pt;
-  line-height: 1.5;
-}
 
 body {
   margin: 0;
@@ -114,40 +71,6 @@ tr > :first-child {
 
 tbody:has(tr:nth-of-type(3)) tr:nth-child(odd) {
   background: var(--grey-opacity);
-}
-
-/* Titles */
-
-h1 {
-  font-size: 3.2em;
-  letter-spacing: -1;
-  line-height: 1;
-  margin: 0.3em 0;
-  text-transform: uppercase;
-}
-
-h2 {
-  font-size: 2.4em;
-  letter-spacing: -0.4;
-  line-height: 1;
-  margin: 1.2em 0 0.3em;
-  text-transform: uppercase;
-}
-
-h3 {
-  clear: both;
-  font-size: 1.8em;
-  letter-spacing: -0.3;
-  line-height: 1;
-  margin: 1.2em 0 0.3em;
-}
-
-h4 {
-  clear: both;
-  font-size: 1.35em;
-  letter-spacing: -0.15;
-  line-height: 1;
-  margin: 1.2em 0 0.3em;
 }
 
 

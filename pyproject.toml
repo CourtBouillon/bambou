@@ -1,6 +1,6 @@
 [project]
 name = 'bambou'
-dependencies = ['flask']
+dependencies = ['flask', 'flask-weasyprint']
 version = '0'
 
 [tool.setuptools]

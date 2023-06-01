@@ -1,10 +1,17 @@
+import datetime
 from email.message import EmailMessage
+from io import BytesIO
+from pathlib import Path
 from smtplib import SMTP_SSL
 from uuid import uuid4
+from zipfile import ZipFile
 
 from flask import (
-    Flask, abort, flash, redirect, render_template, request, session, url_for)
+    Flask, Response, abort, flash, redirect, render_template, request, session,
+    url_for)
+from flask_weasyprint import HTML
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 from . import user
 from .db import close_connection, get_connection
@@ -12,7 +19,8 @@ from .db import close_connection, get_connection
 app = Flask(__name__)
 app.config.update(
     SECRET_KEY=b'change_me_in_configuration_file',
-    DB='bambou.db')
+    DB='bambou.db',
+    REPORTS_FOLDER='reports')
 app.config.from_envvar('BAMBOU_CONFIG', silent=True)
 
 
@@ -421,18 +429,100 @@ def marks(production_action_id):
         'marks.jinja2.html', assignments=assignments, course=course)
 
 
-@app.route('/generate_report')
+@app.route('/report/<int:registration_id>/generate', methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
-def generate_report():
-    return render_template('generate_report.jinja2.html')
+def generate_report(registration_id):
+    cursor = get_connection().cursor()
+    folder = Path(app.config['REPORTS_FOLDER'])
+    report = folder / f'{registration_id}.pdf'
+    if request.method == 'POST':
+        folder.mkdir(exist_ok=True)
+        report_url = url_for(
+            'report', registration_id=registration_id, printable=True)
+        HTML(report_url).write_pdf(report)
+        return redirect(
+            url_for('download_report', registration_id=registration_id))
+    cursor.execute('''
+        SELECT
+          registration.id,
+          person.firstname || ' ' || person.lastname AS name
+        FROM registration
+        JOIN student ON (student.id = registration.student_id)
+        JOIN person ON (person.id = student.person_id)
+        WHERE registration.id = ?
+    ''', (registration_id,))
+    registration = cursor.fetchone()
+    return render_template(
+        'generate_report.jinja2.html', registration=registration,
+        report=report)
+
+
+@app.route('/report/<int:teaching_period_id>/generate-all',
+           methods=('GET', 'POST'))
+@user.check(user.is_superadministrator)
+def generate_teaching_period_reports(teaching_period_id):
+    folder = Path(app.config['REPORTS_FOLDER'])
+    folder.mkdir(exist_ok=True)
+    archive = BytesIO()
+    cursor = get_connection().cursor()
+    cursor.execute('''
+        SELECT
+          registration.id,
+          teaching_period.name AS teaching_period_name,
+          person.firstname || ' ' || person.lastname AS name
+        FROM registration
+        JOIN teaching_period ON (
+            registration.teaching_period_id = teaching_period.id)
+        JOIN student ON (registration.student_id = student.id)
+        JOIN person ON (student.person_id = person.id)
+        WHERE teaching_period_id = ?
+    ''', (teaching_period_id,))
+    registrations = cursor.fetchall()
+    with ZipFile(archive, 'w') as zipfile:
+        for registration in registrations:
+            report = folder / f'{registration["id"]}.pdf'
+            if not report.exists():
+                report_url = url_for(
+                    'report', registration_id=registration['id'],
+                    printable=True)
+                HTML(report_url).write_pdf(report)
+            name = secure_filename(registration['name'])
+            zipfile.write(report, arcname=f'{name}.pdf')
+    name = secure_filename(registration['teaching_period_name'])
+    return Response(
+        archive.getvalue(), mimetype='application/zip',
+        headers={'content-disposition': f'attachment; filename="{name}.zip"'})
+
+
+@app.route('/report/<int:registration_id>.pdf')
+@user.check(user.is_superadministrator)
+def download_report(registration_id):
+    cursor = get_connection().cursor()
+    cursor.execute('''
+        SELECT person.firstname || ' ' || person.lastname AS name
+        FROM registration
+        JOIN student ON (registration.student_id = student.id)
+        JOIN person ON (student.person_id = person.id)
+        WHERE registration.id = ?
+    ''', (registration_id,))
+    report = Path(app.config['REPORTS_FOLDER'], f'{registration_id}.pdf')
+    if not report.exists():
+        return abort(404)
+    person = cursor.fetchone()
+    name = secure_filename(person['name'])
+    return Response(
+        report.read_bytes(), mimetype='application/pdf',
+        headers={'content-disposition': f'attachment; filename="{name}.pdf"'})
 
 
 @app.route('/report')
-@app.route('/report/<int:registration_id>')
+@app.route('/report/<int:registration_id>/printable',
+           defaults={'printable': True})
+@app.route('/report/<int:registration_id>', defaults={'printable': False})
 @user.check(
     user.is_student, user.is_tutor, user.is_administrator,
     user.is_superadministrator)
-def report(registration_id=None):
+def report(registration_id=None, printable=False):
     cursor = get_connection().cursor()
     if registration_id is None:
         cursor.execute('''
@@ -466,6 +556,8 @@ def report(registration_id=None):
           production_action.language,
           semester.id AS semester_id,
           semester.name AS semester_name,
+          semester.start AS semester_start,
+          semester.stop AS semester_stop,
           tracking.justified_absence_minutes,
           tracking.unjustified_absence_minutes,
           tracking.lateness_minutes,
@@ -561,9 +653,11 @@ def report(registration_id=None):
           registration.id = ?
     ''', (registration_id,))
     courses = cursor.fetchall()
+    template = 'printable_report' if printable else 'report'
+    today = datetime.date.today().isoformat()
     return render_template(
-        'report.jinja2.html', assignments=assignments, student=student,
-        examinations=examinations, courses=courses)
+        f'{template}.jinja2.html', assignments=assignments, student=student,
+        examinations=examinations, courses=courses, today=today)
 
 
 @app.route('/administrator')
