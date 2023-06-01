@@ -1,10 +1,10 @@
-INSERT INTO person (mail, civility, firstname, lastname)
+INSERT INTO person (mail, firstname, lastname)
 VALUES
-  ('marie@apprenant.fr', 'Mme', 'Marie', 'Étudiante'),
-  ('gerard@admin.fr', 'M.', 'Gérard', 'Admin'),
-  ('lucie@superadmin.com', 'Mme', 'Lucie', 'Superadmin'),
-  ('guillaume@prof.fr', 'M.', 'Guillaume', 'Enseignant'),
-  ('camille@tuteur.fr', 'Mme', 'Camille', 'Tutrice');
+  ('marie@apprenant.fr', 'Marie', 'Étudiante'),
+  ('gerard@admin.fr', 'Gérard', 'Admin'),
+  ('lucie@superadmin.com', 'Lucie', 'Superadmin'),
+  ('guillaume@prof.fr', 'Guillaume', 'Enseignant'),
+  ('camille@tuteur.fr', 'Camille', 'Tutrice');
 
 INSERT INTO tutor (person_id, company)
 VALUES
@@ -64,6 +64,6 @@ INSERT INTO examination (teaching_period_id, name)
 VALUES
   (1, 'Examen 1');
 
-INSERT INTO examination_mark (examination_id, registration_id, mark, comment)
+INSERT INTO examination_mark (examination_id, registration_id, mark, comments)
 VALUES
   (1, 1, 17.5, 'Très bon travail');
