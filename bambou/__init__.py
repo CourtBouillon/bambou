@@ -437,8 +437,10 @@ def generate_report(registration_id):
     report = folder / f'{registration_id}.pdf'
     if request.method == 'POST':
         folder.mkdir(exist_ok=True)
+        admitted = bool(int(request.form['admitted']))
         report_url = url_for(
-            'report', registration_id=registration_id, printable=True)
+            'report', registration_id=registration_id, printable=True,
+            admitted=admitted)
         HTML(report_url).write_pdf(report)
         return redirect(
             url_for('download_report', registration_id=registration_id))
@@ -484,7 +486,7 @@ def generate_teaching_period_reports(teaching_period_id):
             if not report.exists():
                 report_url = url_for(
                     'report', registration_id=registration['id'],
-                    printable=True)
+                    printable=True, admitted=True)
                 HTML(report_url).write_pdf(report)
             name = secure_filename(registration['name'])
             zipfile.write(report, arcname=f'{name}.pdf')
@@ -516,13 +518,15 @@ def download_report(registration_id):
 
 
 @app.route('/report')
-@app.route('/report/<int:registration_id>/printable',
-           defaults={'printable': True})
+@app.route('/report/<int:registration_id>/printable/admitted',
+           defaults={'printable': True, 'admitted': True})
+@app.route('/report/<int:registration_id>/printable/not-admitted',
+           defaults={'printable': True, 'admitted': False})
 @app.route('/report/<int:registration_id>', defaults={'printable': False})
 @user.check(
     user.is_student, user.is_tutor, user.is_administrator,
     user.is_superadministrator)
-def report(registration_id=None, printable=False):
+def report(registration_id=None, printable=False, admitted=True):
     cursor = get_connection().cursor()
     if registration_id is None:
         cursor.execute('''
@@ -657,7 +661,8 @@ def report(registration_id=None, printable=False):
     today = datetime.date.today().isoformat()
     return render_template(
         f'{template}.jinja2.html', assignments=assignments, student=student,
-        examinations=examinations, courses=courses, today=today)
+        examinations=examinations, courses=courses, today=today,
+        admitted=admitted)
 
 
 @app.route('/administrator')
@@ -1583,6 +1588,23 @@ def float(number):
 @app.template_filter()
 def date(iso_date):
     return '/'.join(iso_date.split('-')[::-1])
+
+
+@app.template_filter()
+def full_mark(mark):
+    if mark == 'A':
+        return 'A — Expertise'
+    elif mark == 'B':
+        return 'B — Maîtrise'
+    elif mark == 'C':
+        return 'C — Acquis'
+    elif mark == 'D':
+        return 'D — En cours d’acquisition'
+    elif mark == 'E':
+        return 'E — Non acquis'
+    elif mark == 'NE':
+        return 'NE — Non évalué'
+    return ''
 
 
 @app.context_processor

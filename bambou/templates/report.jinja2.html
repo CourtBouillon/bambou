@@ -27,27 +27,27 @@
         </thead>
         <tbody>
           <tr class="validated">
-            <th>Expertise − A</th>
+            <th>{{ 'A' | full_mark }}</th>
             <td>{{ assignments | selectattr('mark', 'eq', 'A') | list | count }}</td>
           </tr>
           <tr class="validated">
-            <th>Maîtrise − B</th>
+            <th>{{ 'B' | full_mark }}</th>
             <td>{{ assignments | selectattr('mark', 'eq', 'B') | list | count }}</td>
           </tr>
           <tr class="validated">
-            <th>Acquis − C</th>
+            <th>{{ 'C' | full_mark }}</th>
             <td>{{ assignments | selectattr('mark', 'eq', 'C') | list | count }}</td>
           </tr>
           <tr class="acquiring">
-            <th>En cours d’acquisition − D</th>
+            <th>{{ 'D' | full_mark }}</th>
             <td>{{ assignments | selectattr('mark', 'eq', 'D') | list | count }}</td>
           </tr>
           <tr class="non-validated">
-            <th>Non acquis − E</th>
+            <th>{{ 'E' | full_mark }}</th>
             <td>{{ assignments | selectattr('mark', 'eq', 'E') | list | count }}</td>
           </tr>
           <tr class="non-validated">
-            <th>Non évalué − NE</th>
+            <th>{{ 'NE' | full_mark }}</th>
             <td>{{ assignments | selectattr('mark', 'eq', 'NE') | list | count }}</td>
           </tr>
           {% if missing_modules > 0 %}

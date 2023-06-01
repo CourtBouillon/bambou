@@ -27,6 +27,7 @@
         <section>
           <p>Pourcentage de validation de modules : <strong>{{ (validated_modules / all_modules * 100) | round(method='ceil') | int }} %</strong></p>
           <p><small>Seuls les les niveaux A, B et C sont pris en compte dans le pourcentage de validation de modules.</small></p>
+          <p><small>Légende : {{ ('A', 'B', 'C', 'D', 'E', 'NE') | map('full_mark') | join(', ') }}.</small></p>
         </section>
       </article>
     </header>
@@ -174,7 +175,7 @@
 
           <div id="admission">
             <h3>Conseil des avis - Admission aux examens finaux</h3>
-            <p><strong>Admis</strong></p>
+            <p><strong>{{ 'Admis' if admitted else 'Non-admis' }}</strong></p>
           </div>
         </section>
 

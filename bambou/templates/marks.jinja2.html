@@ -13,12 +13,9 @@
         {% if not assignment.language %}
           <select name="{{ assignment.id }}-mark">
             <option value="" {{ 'selected' if not assignment.mark }}></option>
-            <option value="A" {{ 'selected' if assignment.mark == 'A' }}>Expertise - A</option>
-            <option value="B" {{ 'selected' if assignment.mark == 'B' }}>Maîtrisé − B</option>
-            <option value="C" {{ 'selected' if assignment.mark == 'C' }}>Acquis − C</option>
-            <option value="D" {{ 'selected' if assignment.mark == 'D' }}>En cours d’acquisition − D</option>
-            <option value="E" {{ 'selected' if assignment.mark == 'E' }}>Non acquis − E</option>
-            <option value="NE" {{ 'selected' if assignment.mark == 'NE' }}>Non évalué − NE</option>
+            {% for mark in ('A', 'B', 'C', 'D', 'E', 'NE') %}
+              <option value="{{ mark }}" {{ 'selected' if assignment.mark == mark }}>{{ mark | full_mark }}</option>
+            {% endfor %}
           </select>
         {% endif %}
         <textarea name="{{ assignment.id }}-comments">{{ assignment.comments or '' }}</textarea>
