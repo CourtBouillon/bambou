@@ -6,7 +6,7 @@
   <h2>{{ teaching_period.name }}</h2>
   {% if user.is_superadministrator() %}
     <ul id="actions">
-      <li><a href="{{ url_for('generate_teaching_period_reports', teaching_period_id=teaching_period.id) }}">Générer les bulletins</a></li>
+      <li><a href="{{ url_for('generate_teaching_period_reports', teaching_period_id=teaching_period.id) }}" download>Générer les bulletins</a></li>
     </ul>
   {% endif %}
 
