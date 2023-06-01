@@ -90,12 +90,36 @@
   {% endfor %}
 
   <h3>Étudiants</h3>
-  <table>
+  <table id="students">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Mail</th>
+        <th>Validation</th>
+        <th>A</th>
+        <th>B</th>
+        <th>C</th>
+        <th>D</th>
+        <th>NA</th>
+        <th>NE</th>
+        <th>Rang</th>
+        <th>Quart</th>
+        <th></th>
+        <th></th>
     <tbody>
     {% for student in students %}
       <tr>
         <td>{{ student.name }}</td>
         <td>{{ student.mail }}</td>
+        <td>50 %</td>
+        <td>14</td>
+        <td>4</td>
+        <td>8</td>
+        <td>14</td>
+        <td>8</td>
+        <td>4</td>
+        <td>X / 23</td>
+        <td>2e quart</td>
         <td><a href="{{ url_for('report', registration_id=student.registration_id) }}">Voir les notes</a></td>
         {% if student.registration_id not in registrations_with_data %}
           <td>

@@ -502,6 +502,46 @@ nav li.login a::before {
   width: 80%;
 }
 
+#page-teaching_period #students {
+  width: 100%;
+}
+
+#students th:nth-child(4),
+#students td:nth-child(4),
+#students th:nth-child(5),
+#students td:nth-child(5),
+#students th:nth-child(6),
+#students td:nth-child(6) {
+  background: var(--mark-validated);
+}
+
+#students th:nth-child(7),
+#students td:nth-child(7) {
+  background: var(--mark-acquiring);
+}
+
+#students th:nth-child(8),
+#students td:nth-child(8),
+#students th:nth-child(9),
+#students td:nth-child(9) {
+  background: var(--mark-non-validated);
+}
+
+#students th:nth-child(4),
+#students td:nth-child(4),
+#students th:nth-child(5),
+#students td:nth-child(5),
+#students th:nth-child(6),
+#students td:nth-child(6),
+#students th:nth-child(7),
+#students td:nth-child(7),
+#students th:nth-child(8),
+#students td:nth-child(8),
+#students th:nth-child(9),
+#students td:nth-child(9) {
+  text-align: center;
+}
+
 #add-semester {
   display: flex;
   justify-content: space-between;
