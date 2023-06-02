@@ -168,20 +168,12 @@
 
       <article>
         <section>
-          {% if examinations %}
-            <div id="examinations">
-              <table>
-                <tbody>
-                  {% for examination in examinations %}
-                    <tr>
-                      <th>{{ examination.name }}</th>
-                      <td>{{ (examination.mark or '') | float }} / 20</td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+          {% for examination in examinations %}
+            <div>
+              <h3>{{ examination.name }}</h3>
+              <p>{{ (examination.mark or '') | float }} / 20</p>
             </div>
-          {% endif %}
+          {% endfor %}
 
           <div id="admission">
             <h3>Conseil des avis - Admission aux examens finaux</h3>
