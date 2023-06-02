@@ -185,10 +185,10 @@ def profile(person_id=None):
         if user.is_superadministrator():
             parameters = (
                 request.form['mail'], request.form['firstname'],
-                request.form['lastname'], person_id)
+                request.form['lastname'], request.form['address'], person_id)
             cursor.execute('''
                 UPDATE person
-                SET mail = ?, firstname = ?, lastname = ?
+                SET mail = ?, firstname = ?, lastname = ?, address = ?
                 WHERE id = ?
             ''', parameters)
             current_roles = {role for role in user.ROLES if roles[role]}
@@ -628,6 +628,7 @@ def report(registration_id=None, printable=False, admitted=True):
           student.id,
           person.id AS person_id,
           person.firstname || ' ' || person.lastname AS name,
+          person.address,
           teaching_period.name AS teaching_period_name,
           registration.id AS registration_id
         FROM

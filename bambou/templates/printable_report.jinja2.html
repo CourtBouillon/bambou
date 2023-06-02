@@ -22,7 +22,10 @@
 
       <article>
         <section>
-          <p>{{ student.name }}</p>
+          <address>
+            {{ student.name }}
+            {{ student.address or '' }}
+          </address>
           <p><strong>Chargé(e) de formation : TODO</strong></p>
         </section>
         <section>
