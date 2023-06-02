@@ -47,6 +47,14 @@ article section:first-child:last-child {
   width: 70%;
 }
 
+header article section:first-child {
+  width: 38%;
+}
+
+header article section:last-child {
+  width: 60%;
+}
+
 div {
   border: 0.1mm solid #bbb;
   margin: 0.5em 0;
@@ -115,6 +123,20 @@ th:empty {
 
 /* Specific elements */
 
+#ipi-logo {
+  left: 0;
+  position: absolute;
+  top: -1.2cm;
+  height: 1.5cm;
+}
+
+#training-logo {
+  position: absolute;
+  right: 0;
+  top: -1.2cm;
+  height: 1.5cm;
+}
+
 #admission {
   height: 6.5em;
 }
@@ -126,5 +148,15 @@ th:empty {
 
 #signature {
   height: 6.5em;
+  position: relative;
   text-align: left;
+}
+
+#signature-img,
+#training-stamp {
+  display: block;
+  max-height: 5em;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
 }

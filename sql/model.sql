@@ -7,7 +7,8 @@ CREATE TABLE person (
   lastname TEXT NOT NULL,
   password TEXT,
   reset_password TEXT,
-  address TEXT
+  address TEXT,
+  signature BLOB
 );
 
 CREATE TABLE tutor (
@@ -36,11 +37,19 @@ CREATE TABLE superadministrator (
   person_id INTEGER NOT NULL UNIQUE REFERENCES person(id)
 );
 
+CREATE TABLE training_company (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  logo BLOB,
+  stamp BLOB
+);
+
 CREATE TABLE teaching_period (
   id INTEGER PRIMARY KEY,
   code TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
-  manager_id INTEGER REFERENCES person(id)
+  manager_id INTEGER REFERENCES person(id),
+  training_company_id INTEGER REFERENCES training_company(id)
 );
 
 CREATE TABLE registration (

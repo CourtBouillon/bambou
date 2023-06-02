@@ -1,4 +1,5 @@
 import datetime
+from base64 import b64encode
 from email.message import EmailMessage
 from io import BytesIO
 from pathlib import Path
@@ -628,8 +629,11 @@ def report(registration_id=None, printable=False, admitted=True):
           student.id,
           person.id AS person_id,
           person.firstname || ' ' || person.lastname AS name,
-          manager.firstname || ' ' || manager.lastname AS manager_name,
           person.address,
+          manager.firstname || ' ' || manager.lastname AS manager_name,
+          manager.signature AS manager_signature,
+          training_company.logo AS training_company_logo,
+          training_company.stamp AS training_company_stamp,
           teaching_period.name AS teaching_period_name,
           registration.id AS registration_id
         FROM
@@ -641,6 +645,9 @@ def report(registration_id=None, printable=False, admitted=True):
             teaching_period.id = registration.teaching_period_id)
         LEFT JOIN
           person AS manager ON (manager.id = teaching_period.manager_id)
+        LEFT JOIN
+          training_company ON (
+            teaching_period.training_company_id = training_company.id)
         WHERE
           registration.id = ?
     ''', (registration_id,))
@@ -758,9 +765,15 @@ def teaching_period(teaching_period_id):
         form['id'] = teaching_period_id
         if not form['manager_id']:
             form['manager_id'] = None
+        if not form['training_company_id']:
+            form['training_company_id'] = None
         cursor.execute('''
             UPDATE teaching_period
-            SET code = :code, name = :name, manager_id = :manager_id
+            SET
+              code = :code,
+              name = :name,
+              manager_id = :manager_id,
+              training_company_id = :training_company_id
             WHERE teaching_period.id = :id
         ''', form)
         connection.commit()
@@ -768,7 +781,7 @@ def teaching_period(teaching_period_id):
         return redirect(url_for(
             'teaching_period', teaching_period_id=teaching_period_id))
     cursor.execute('''
-        SELECT id, code, name, manager_id
+        SELECT id, code, name, manager_id, training_company_id
         FROM teaching_period
         WHERE id = ?
     ''', (teaching_period_id,))
@@ -846,15 +859,18 @@ def teaching_period(teaching_period_id):
     registrations_with_data = tuple(
         registration['registration_id'] for registration in cursor.fetchall())
     cursor.execute('''
-        SELECT person.id, person.lastname || ' ' || person.firstname AS name
+        SELECT id, lastname || ' ' || firstname AS name
         FROM person
         ORDER BY name''')
     persons = cursor.fetchall()
+    cursor.execute('SELECT id, name, logo FROM training_company ORDER BY name')
+    training_companies = cursor.fetchall()
     return render_template(
         'teaching_period.jinja2.html', teaching_period=teaching_period,
         production_actions=production_actions, all_students=all_students,
         all_production_actions=all_production_actions, assignments=assignments,
-        registrations_with_data=registrations_with_data, persons=persons)
+        registrations_with_data=registrations_with_data, persons=persons,
+        training_companies=training_companies)
 
 
 @app.route('/teaching-period/add', methods=('GET', 'POST'))
@@ -866,9 +882,12 @@ def teaching_period_add():
         form = dict(request.form)
         if not form['manager_id']:
             form['manager_id'] = None
+        if not form['training_company_id']:
+            form['training_company_id'] = None
         cursor.execute('''
-            INSERT INTO teaching_period (code, name, manager_id)
-            VALUES (:code, :name, :manager_id)
+            INSERT INTO teaching_period
+              (code, name, manager_id, training_company_id)
+            VALUES (:code, :name, :manager_id, :training_company_id)
         ''', form)
         connection.commit()
         flash('La période de formation a été ajoutée')
@@ -878,7 +897,11 @@ def teaching_period_add():
         FROM person
         ORDER BY name''')
     persons = cursor.fetchall()
-    return render_template('teaching_period_add.jinja2.html', persons=persons)
+    cursor.execute('SELECT id, name, logo FROM training_company ORDER BY name')
+    training_companies = cursor.fetchall()
+    return render_template(
+        'teaching_period_add.jinja2.html', persons=persons,
+        training_companies=training_companies)
 
 
 @app.route(
@@ -1633,6 +1656,11 @@ def full_mark(mark):
     elif mark == 'NE':
         return 'NE — Non évalué'
     return ''
+
+
+@app.template_filter()
+def base64(bytes):
+    return b64encode(bytes).decode()
 
 
 @app.context_processor

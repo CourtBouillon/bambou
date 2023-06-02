@@ -19,6 +19,10 @@
         Relevé final de validation de modules<br>
         {{ student.teaching_period_name }}
       </h2>
+      <img id="ipi-logo" src="{{ url_for('static', filename='logo_ipi_printable.svg') }}">
+      {% if student.training_company_logo %}
+        <img id="training-logo" src="data:image/png;base64,{{ student.training_company_logo | base64 }}">
+      {% endif %}
 
       <article>
         <section>
@@ -188,6 +192,12 @@
         <section>
           <div id="signature">
             Fait à Lyon, le {{ today | date }}
+            {% if student.manager_signature %}
+              <img id="signature-img" src="data:image/png;base64,{{ student.manager_signature | base64 }}">
+            {% endif %}
+            {% if student.training_company_stamp %}
+              <img id="training-stamp" src="data:image/png;base64,{{ student.training_company_stamp | base64 }}">
+            {% endif %}
           </div>
         </section>
       </article>
