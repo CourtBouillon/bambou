@@ -139,7 +139,7 @@
             </td>
           {% endfor %}
           <td>{{ rank }} / {{ total_students }}</td>
-          <td>{{ quarter }}<sup>{{ 'er' if quarter == 1 else 'e' }}</sup> quart</td>
+          <td>{{ quarter }}<sup>e{{ 'r' if quarter == 1 }}</sup> quart</td>
           <td><a href="{{ url_for('report', registration_id=student.registration_id) }}">Voir les notes</a></td>
           {% if student.registration_id not in registrations_with_data %}
             <td>
