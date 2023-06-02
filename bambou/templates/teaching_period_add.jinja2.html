@@ -10,6 +10,13 @@
     <input id="code" name="code" placeholder="Code"/>
     <label for="name">Nom de la période</label>
     <input id="name" name="name" placeholder="Nom de la période"/>
+    <label for="manager_id">Responsable</label>
+    <select id="manager_id" name="manager_id">
+      <option></option>
+      {% for person in persons %}
+        <option value="{{ person.id }}">{{ person.name }}</option>
+      {% endfor %}
+    </select>
     <input type="submit" class="button" value="Ajouter"/>
   </form>
 {% endblock %}

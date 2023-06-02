@@ -15,6 +15,13 @@
     <input id="name" name="name" value="{{ teaching_period.name }}" />
     <label for="code">Code</label>
     <input id="code" name="code" value="{{ teaching_period.code }}" />
+    <label for="manager_id">Responsable</label>
+    <select id="manager_id" name="manager_id">
+      <option></option>
+      {% for person in persons %}
+        <option value="{{ person.id }}" {{ 'selected' if teaching_period.manager_id == person.id }}>{{ person.name }}</option>
+      {% endfor %}
+    </select>
     <input type="submit" class="button" value="Sauvegarder"/>
   </form>
 

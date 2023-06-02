@@ -628,6 +628,7 @@ def report(registration_id=None, printable=False, admitted=True):
           student.id,
           person.id AS person_id,
           person.firstname || ' ' || person.lastname AS name,
+          manager.firstname || ' ' || manager.lastname AS manager_name,
           person.address,
           teaching_period.name AS teaching_period_name,
           registration.id AS registration_id
@@ -638,6 +639,8 @@ def report(registration_id=None, printable=False, admitted=True):
           registration ON (registration.student_id = student.id),
           teaching_period ON (
             teaching_period.id = registration.teaching_period_id)
+        LEFT JOIN
+          person AS manager ON (manager.id = teaching_period.manager_id)
         WHERE
           registration.id = ?
     ''', (registration_id,))
@@ -751,17 +754,21 @@ def teaching_period(teaching_period_id):
     connection = get_connection()
     cursor = connection.cursor()
     if request.method == 'POST':
+        form = dict(request.form)
+        form['id'] = teaching_period_id
+        if not form['manager_id']:
+            form['manager_id'] = None
         cursor.execute('''
             UPDATE teaching_period
-            SET code = ?, name = ?
-            WHERE teaching_period.id = ?
-        ''', (request.form['code'], request.form['name'], teaching_period_id))
+            SET code = :code, name = :name, manager_id = :manager_id
+            WHERE teaching_period.id = :id
+        ''', form)
         connection.commit()
         flash('La période de formation a été modifiée')
         return redirect(url_for(
             'teaching_period', teaching_period_id=teaching_period_id))
     cursor.execute('''
-        SELECT id, code, name
+        SELECT id, code, name, manager_id
         FROM teaching_period
         WHERE id = ?
     ''', (teaching_period_id,))
@@ -820,7 +827,7 @@ def teaching_period(teaching_period_id):
     cursor.execute('''
         SELECT
           student.id,
-          person.lastname || ' ' || person.firstname as name,
+          person.lastname || ' ' || person.firstname AS name,
           person.mail
         FROM
           person
@@ -838,27 +845,40 @@ def teaching_period(teaching_period_id):
     ''')
     registrations_with_data = tuple(
         registration['registration_id'] for registration in cursor.fetchall())
+    cursor.execute('''
+        SELECT person.id, person.lastname || ' ' || person.firstname AS name
+        FROM person
+        ORDER BY name''')
+    persons = cursor.fetchall()
     return render_template(
         'teaching_period.jinja2.html', teaching_period=teaching_period,
         production_actions=production_actions, all_students=all_students,
         all_production_actions=all_production_actions, assignments=assignments,
-        registrations_with_data=registrations_with_data)
+        registrations_with_data=registrations_with_data, persons=persons)
 
 
 @app.route('/teaching-period/add', methods=('GET', 'POST'))
 @user.check(user.is_superadministrator)
 def teaching_period_add():
+    connection = get_connection()
+    cursor = connection.cursor()
     if request.method == 'POST':
-        connection = get_connection()
-        cursor = connection.cursor()
+        form = dict(request.form)
+        if not form['manager_id']:
+            form['manager_id'] = None
         cursor.execute('''
-            INSERT INTO teaching_period (code, name)
-            VALUES (:code, :name)
-        ''', request.form)
+            INSERT INTO teaching_period (code, name, manager_id)
+            VALUES (:code, :name, :manager_id)
+        ''', form)
         connection.commit()
         flash('La période de formation a été ajoutée')
         return redirect(url_for('index'))
-    return render_template('teaching_period_add.jinja2.html')
+    cursor.execute('''
+        SELECT person.id, person.lastname || ' ' || person.firstname AS name
+        FROM person
+        ORDER BY name''')
+    persons = cursor.fetchall()
+    return render_template('teaching_period_add.jinja2.html', persons=persons)
 
 
 @app.route(

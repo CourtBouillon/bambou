@@ -39,7 +39,8 @@ CREATE TABLE superadministrator (
 CREATE TABLE teaching_period (
   id INTEGER PRIMARY KEY,
   code TEXT NOT NULL UNIQUE,
-  name TEXT NOT NULL
+  name TEXT NOT NULL,
+  manager_id INTEGER REFERENCES person(id)
 );
 
 CREATE TABLE registration (
