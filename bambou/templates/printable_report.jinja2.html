@@ -169,9 +169,19 @@
       <article>
         <section>
           {% for examination in examinations %}
+            {% if examination.mark in (None, '') %}
+              {% set mark = '' %}
+            {% elif examination.mark.is_integer() %}
+              {% set mark = examination.mark | int %}
+            {% else %}
+              {% set mark = examination.mark | float %}
+            {% endif %}
             <div>
               <h3>{{ examination.name }}</h3>
-              <p>{{ (examination.mark or '') | float }} / 20</p>
+              <p>{{ mark }} / 20</p>
+              {% if examination.comments %}
+                <p>{{ examination.comments }}</p>
+              {% endif %}
             </div>
           {% endfor %}
 
