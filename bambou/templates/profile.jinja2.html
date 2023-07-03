@@ -12,8 +12,6 @@
       <input id="firstname" name="firstname" value="{{ person.firstname }}" />
       <label for="lastname">Nom</label>
       <input id="lastname" name="lastname" value="{{ person.lastname }}" />
-      <label for="address">Adresse</label>
-      <textarea id="address" name="address">{{ person.address or '' }}</textarea>
       <label for="student">Apprenant</label>
       <input type="checkbox" id="student" name="student" {{ 'checked' if roles.student }} {{ 'readonly' if roles.student and registrations }} />
       <label for="tutor">Tuteur</label>
@@ -27,6 +25,8 @@
     {% endif %}
     <label for="mail">Email</label>
     <input id="mail" name="mail" type="email" value="{{ person.mail }}" />
+    <label for="address">Adresse</label>
+    <textarea id="address" name="address">{{ person.address or '' }}</textarea>
     {% if person.id == g.person.id %}
       <label for="password">Mot de passe</label>
       <input id="password" name="password" type="password" placeholder="Mot de passe"/>

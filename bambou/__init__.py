@@ -204,8 +204,8 @@ def profile(person_id=None):
                     (person_id,))
         else:
             cursor.execute(
-                'UPDATE person SET mail = ? WHERE id = ?',
-                (request.form['mail'], person_id))
+                'UPDATE person SET mail = ?, address = ? WHERE id = ?',
+                (request.form['mail'], request.form['address'], person_id))
         if request.form.get('password'):
             cursor.execute(
                 'UPDATE person SET password = ? WHERE id = ?',
