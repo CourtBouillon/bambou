@@ -377,6 +377,14 @@ nav li.login a::before {
   width: 100%;
 }
 
+.semester-marks table td:nth-child(3),
+.semester-comment td:nth-child(2) {
+  text-align: left;
+}
+.semester-marks table td:nth-child(3) {
+  padding-left: 2em;
+}
+
 #page-generate_report form {
   width: 50%;
 }
