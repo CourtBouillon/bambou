@@ -400,6 +400,34 @@ nav li.login a::before {
   width: 60%;
 }
 
+/* Teacher */
+
+.labels {
+  margin-bottom: 1em;
+  padding-left: 1.4em;
+}
+.labels li {
+  border-radius: 5px;
+  display: inline-block;
+  font-size: 0.8em;
+  padding: 0.15em 0.3em 0.08em 0.3em;
+}
+.labels .label-marks::before {
+  content: 'Notes :';
+  font-family: inherit;
+  padding-right: 0.5em;
+}
+.labels .full {
+  background: var(--mark-validated);
+}
+.labels .ongoing {
+  background: var(--mark-acquiring);
+}
+.labels .empty,
+.label-comments {
+  background: var(--mark-non-validated);
+}
+
 /* Super Administrator */
 
 #actions {

@@ -10,7 +10,15 @@
       <h3>{{ courses[0].teaching_period_name }}</h3>
       <ul class="main-list">
         {% for course in courses %}
-          <li><a href="{{ url_for('marks', production_action_id=course.production_action_id) }}">{{ course.production_action_name }}</a></li>
+        <li>
+          <a href="{{ url_for('marks', production_action_id=course.production_action_id) }}">{{ course.production_action_name }}</a>
+          <ul class="labels">
+            <!-- TODO class full Y/Y, empty X=0, ongoing sinon -->
+            <li class="label-marks full">X/Y</li>
+            <!-- TODO Dès qu’il manque un commentaire alors qu’une note a été mise -->
+            <li class="label-comments">Commentaires manquants</li>
+          </ul>
+        </li>
         {% endfor %}
       </ul>
     </section>
