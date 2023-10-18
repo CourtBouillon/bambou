@@ -170,6 +170,7 @@ input[type="radio"] {
 }
 
 .search {
+  align-items: center;
   display: flex;
   justify-content: space-evenly;
   margin: 0;
@@ -183,7 +184,61 @@ input[type="radio"] {
   margin-right: 0;
   width: 15%;
 }
-
+.search div {
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8em;
+  margin: 0 1em;
+}
+.search p {
+  margin: 0;
+  text-align: center;
+}
+.search label {
+  background: var(--grey);
+  border: 1px solid var(--blue-opacity);
+  border-radius: 2em;
+  color: transparent;
+  cursor: pointer;
+  display: block;
+  font-size: 0.8em;
+  height: 3em;
+  margin: 0;
+  position: relative;
+  text-align: center;
+  top: 0;
+  width: 6em;
+}
+.search label::after {
+  background: var(--white);
+  border-radius: 1em;
+  content: '';
+  height: 2em;
+  left: 0.5em;
+  position: absolute;
+  top: 0.5em;
+  transition: 0.2s;
+  width: 2em;
+}
+.search input[type="checkbox"] {
+  height: 0;
+  margin: initial;
+  position: initial;
+  visibility: hidden;
+  width: 0;
+}
+.search input:checked + label {
+  background: var(--red-opacity);
+  border-color: transparent;
+}
+.search input:checked + label:after {
+  left: calc(100% - 0.5em);
+  transform: translateX(-100%);
+}
+.search label:active:after {
+  width: 3em;
+}
 
 /* Nav */
 
