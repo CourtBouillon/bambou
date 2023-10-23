@@ -49,19 +49,22 @@ CREATE TABLE teaching_period (
   code TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   manager_id INTEGER REFERENCES person(id),
-  training_company_id INTEGER REFERENCES training_company(id)
+  training_company_id INTEGER REFERENCES training_company(id),
+  archived BOOLEAN DEFAULT false
 );
 
 CREATE TABLE registration (
   id INTEGER PRIMARY KEY,
   teaching_period_id INTEGER NOT NULL REFERENCES teaching_period(id),
-  student_id INTEGER NOT NULL REFERENCES student(id)
+  student_id INTEGER NOT NULL REFERENCES student(id),
+  CONSTRAINT registration_unique UNIQUE (teaching_period_id, student_id)
 );
 
 CREATE TABLE tutoring (
   id INTEGER PRIMARY KEY,
   tutor_id INTEGER NOT NULL REFERENCES tutor(id),
-  registration_id INTEGER NOT NULL REFERENCES registration(id)
+  registration_id INTEGER NOT NULL REFERENCES registration(id),
+  CONSTRAINT tutoring_unique UNIQUE (tutor_id, registration_id)
 );
 
 CREATE TABLE semester (

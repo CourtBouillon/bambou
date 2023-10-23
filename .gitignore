@@ -1,4 +1,4 @@
-bambou.db
+*.db
 *.pyc
 *.csv
 *.egg-info
