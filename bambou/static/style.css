@@ -128,6 +128,14 @@ input[type="radio"] {
   margin-top: -1.5em;
   position: absolute;
 }
+label:has(+ input[type="checkbox"]),
+label:has(+ input[type="radio"]) {
+  padding-left: 2em;
+}
+label:has(+ input[type="checkbox"]) + input[type="checkbox"],
+label:has(+ input[type="radio"]) + input[type="radio"] {
+  margin-left: 0.5em;
+}
 
 .button {
   background: var(--red-opacity);
