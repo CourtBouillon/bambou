@@ -184,18 +184,14 @@ input[type="radio"] {
   margin-right: 0;
   width: 15%;
 }
-.search div {
-  align-self: start;
-  display: flex;
-  flex-direction: column;
-  font-size: 0.8em;
-  margin: 0 1em;
-}
-.search p {
-  margin: 0;
+.search label[for=archived] {
+  font-size: 0.85em;
+  margin-top: -1.5rem;
   text-align: center;
+  padding: 0.5em;
 }
-.search label {
+.search #archived {
+  appearance: none;
   background: var(--grey);
   border: 1px solid var(--blue-opacity);
   border-radius: 2em;
@@ -210,7 +206,7 @@ input[type="radio"] {
   top: 0;
   width: 6em;
 }
-.search label::after {
+.search #archived::after {
   background: var(--white);
   border-radius: 1em;
   content: '';
@@ -221,22 +217,15 @@ input[type="radio"] {
   transition: 0.2s;
   width: 2em;
 }
-.search input[type="checkbox"] {
-  height: 0;
-  margin: initial;
-  position: initial;
-  visibility: hidden;
-  width: 0;
-}
-.search input:checked + label {
+.search #archived:checked {
   background: var(--red-opacity);
   border-color: transparent;
 }
-.search input:checked + label:after {
+.search #archived:checked::after {
   left: calc(100% - 0.5em);
   transform: translateX(-100%);
 }
-.search label:active:after {
+.search #archived:active::after {
   width: 3em;
 }
 
