@@ -345,16 +345,29 @@ def teacher():
           teaching_period.id AS teaching_period_id,
           teaching_period.name AS teaching_period_name,
           production_action.id AS production_action_id,
-          production_action.name AS production_action_name
+          production_action.name AS production_action_name,
+          COUNT(mark) AS marks,
+          COUNT(comments) AS comments,
+          COUNT(*) AS count
         FROM
           teacher
         JOIN
           production_action ON (production_action.teacher_id = teacher.id),
           course ON (course.production_action_id = production_action.id),
           semester ON (semester.id = course.semester_id),
-          teaching_period ON (teaching_period.id = semester.teaching_period_id)
+          teaching_period ON (
+            teaching_period.id = semester.teaching_period_id),
+          registration ON (
+            registration.teaching_period_id = teaching_period.id),
+          assignment ON (
+            assignment.registration_id = registration.id AND
+            assignment.course_id = course.id)
         WHERE
           teacher.person_id = ?
+        GROUP BY
+          production_action_id
+        ORDER BY
+          production_action_name
     ''', (session['person_id'],))
     courses = cursor.fetchall()
     return render_template('teacher.jinja2.html', courses=courses)

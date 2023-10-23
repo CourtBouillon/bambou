@@ -5,7 +5,7 @@
 {% block content %}
   <h2>Mes formations</h2>
 
-  {% for teaching_period_id, courses in courses | groupby(attribute='teaching_period_id') %}
+  {% for teaching_period_id, courses in courses | groupby(attribute='teaching_period_name') %}
     <section>
       <h3>{{ courses[0].teaching_period_name }}</h3>
       <ul class="main-list">
@@ -13,10 +13,12 @@
         <li>
           <a href="{{ url_for('marks', production_action_id=course.production_action_id) }}">{{ course.production_action_name }}</a>
           <ul class="labels">
-            <!-- TODO class full Y/Y, empty X=0, ongoing sinon -->
-            <li class="label-marks full">X/Y</li>
-            <!-- TODO Dès qu’il manque un commentaire alors qu’une note a été mise -->
-            <li class="label-comments">Commentaires manquants</li>
+            {% set class = 'empty' if not course.marks else 'full' if course.marks == course.count else 'ongoing' %}
+            <li class="label-marks {{ class }}">{{ course.marks }}/{{ course.count }}</li>
+            {% set difference = course.marks - course.comments %}
+            {% if difference > 0 %}
+              <li class="label-comments">{{ difference }} commentaire{{ 's' if difference > 1  }} manquant{{ 's' if difference > 1 }}</li>
+            {% endif %}
           </ul>
         </li>
         {% endfor %}
