@@ -89,7 +89,7 @@ CREATE TABLE tracking (
 CREATE TABLE production_action (
   id INTEGER PRIMARY KEY,
   teacher_id INTEGER REFERENCES teacher(id),
-  code TEXT NOT NULL,
+  code TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
   last_course_date DATE,
   language BOOLEAN NOT NULL DEFAULT false
