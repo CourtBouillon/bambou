@@ -7,10 +7,14 @@
 
   <form class="search">
     <input name="search" placeholder="Rechercher un apprenant" value="{{ search if search }}"/>
+    <label for="archived">
+      Archives
+      <input type="checkbox" id="archived" name="archived" {{ archived and 'checked' }} />
+    </label>
     <input type="submit" class="button" value="Rechercher"/>
   </form>
 
-  {% for teaching_period_id, students in students | groupby(attribute='teaching_period_id') %}
+  {% for teaching_period_id, students in students | groupby(attribute='teaching_period_name') %}
     {% set teaching_period = students[0] %}
     <section>
       <h3>{{ teaching_period.teaching_period_name }}</h3>

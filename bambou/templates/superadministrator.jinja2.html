@@ -7,6 +7,10 @@
 
   <form class="search">
     <input name="search" placeholder="Rechercher une période de formation, une action de production ou une personne" value="{{ search if search }}" />
+    <label for="archived">
+      Archives
+      <input type="checkbox" id="archived" name="archived" {{ archived and 'checked' }} />
+    </label>
     <input type="submit" class="button" value="Rechercher" />
   </form>
 

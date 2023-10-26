@@ -77,10 +77,13 @@ def tutor():
         JOIN
           tutoring ON (tutoring.tutor_id = tutor.id),
           registration ON (registration.id = tutoring.registration_id),
+          teaching_period ON (
+            teaching_period.id = registration.teaching_period_id),
           student ON (student.id = registration.student_id),
           person ON (person.id = student.person_id)
         WHERE
-          tutor.person_id = ?
+          tutor.person_id = ? AND
+          teaching_period.archived = false
     ''', (session['person_id'],))
     students = cursor.fetchall()
     if len(students) == 1:
@@ -345,16 +348,30 @@ def teacher():
           teaching_period.id AS teaching_period_id,
           teaching_period.name AS teaching_period_name,
           production_action.id AS production_action_id,
-          production_action.name AS production_action_name
+          production_action.name AS production_action_name,
+          COUNT(mark) AS marks,
+          COUNT(comments) AS comments,
+          COUNT(*) AS count
         FROM
           teacher
         JOIN
           production_action ON (production_action.teacher_id = teacher.id),
           course ON (course.production_action_id = production_action.id),
           semester ON (semester.id = course.semester_id),
-          teaching_period ON (teaching_period.id = semester.teaching_period_id)
+          teaching_period ON (
+            teaching_period.id = semester.teaching_period_id),
+          registration ON (
+            registration.teaching_period_id = teaching_period.id),
+          assignment ON (
+            assignment.registration_id = registration.id AND
+            assignment.course_id = course.id)
         WHERE
-          teacher.person_id = ?
+          teacher.person_id = ? AND
+          teaching_period.archived = false
+        GROUP BY
+          production_action_id
+        ORDER BY
+          production_action_name
     ''', (session['person_id'],))
     courses = cursor.fetchall()
     return render_template('teacher.jinja2.html', courses=courses)
@@ -529,13 +546,16 @@ def download_report(registration_id):
     user.is_student, user.is_tutor, user.is_administrator,
     user.is_superadministrator)
 def report(registration_id=None, printable=False, admitted=True):
+    archived_query = 'AND archived = false'
     cursor = get_connection().cursor()
     if registration_id is None:
-        cursor.execute('''
+        cursor.execute(f'''
             SELECT registration.id
             FROM registration
             JOIN student ON (student.id = registration.student_id)
-            WHERE student.person_id = ?
+            JOIN teaching_period ON (
+              teaching_period.id = registration.teaching_period_id)
+            WHERE student.person_id = ? {archived_query}
         ''', (session['person_id'],))
         registration = cursor.fetchone()
         if registration:
@@ -544,19 +564,24 @@ def report(registration_id=None, printable=False, admitted=True):
             return abort(404)
     else:
         if user.is_tutor():
-            cursor.execute('''
+            cursor.execute(f'''
                 SELECT registration.id
                 FROM registration
                 JOIN tutoring ON (tutoring.registration_id = registration.id)
                 JOIN tutor ON (tutor.id = tutoring.tutor_id)
-                WHERE tutor.person_id = ? AND registration.id = ?
+                JOIN teaching_period ON (
+                  teaching_period.id = registration.teaching_period_id)
+                WHERE tutor.person_id = ?
+                AND registration.id = ? {archived_query}
             ''', (session['person_id'], registration_id))
             if not cursor.fetchone():
                 return abort(403)
-        elif not (user.is_administrator() or user.is_superadministrator()):
+        elif user.is_administrator() or user.is_superadministrator():
+            archived_query = ''
+        else:
             return abort(403)
 
-    cursor.execute('''
+    cursor.execute(f'''
         SELECT
           production_action.name AS production_action_name,
           production_action.language,
@@ -594,7 +619,7 @@ def report(registration_id=None, printable=False, admitted=True):
           production_action ON (
             production_action.id = course.production_action_id)
         WHERE
-          registration.id = ?
+          registration.id = ? {archived_query}
         ORDER BY
           semester.start,
           production_action.last_course_date,
@@ -680,10 +705,13 @@ def report(registration_id=None, printable=False, admitted=True):
 @app.route('/administrator')
 @user.check(user.is_administrator)
 def administrator():
-    query_search = request.args.to_dict().get('search')
+    args = request.args.to_dict()
+    query_search = args.get('search')
     sql_search = f'%{query_search or ""}%'
+    archived = args.get('archived') == 'on'
+    archived_query = '' if archived else 'AND archived = false'
     cursor = get_connection().cursor()
-    cursor.execute('''
+    cursor.execute(f'''
         SELECT
           person.lastname || ' ' || person.firstname AS person_name,
           teaching_period.id AS teaching_period_id,
@@ -697,30 +725,33 @@ def administrator():
           student ON (student.id = registration.student_id),
           person ON (person.id = student.person_id)
         WHERE
-          person.firstname LIKE ? OR
-          person.lastname LIKE ?
+          (person.firstname LIKE ? OR person.lastname LIKE ?) {archived_query}
         ORDER BY
           person.lastname
     ''', (sql_search, sql_search))
     students = cursor.fetchall()
     return render_template(
-        'administrator.jinja2.html', students=students, search=query_search)
+        'administrator.jinja2.html', students=students, search=query_search,
+        archived=archived)
 
 
 @app.route('/superadministrator')
 @user.check(user.is_superadministrator)
 def superadministrator():
-    query_search = request.args.to_dict().get('search')
+    args = request.args.to_dict()
+    query_search = args.get('search')
     sql_search = f'%{query_search or ""}%'
+    archived = args.get('archived') == 'on'
+    archived_query = '' if archived else 'AND archived = false'
     cursor = get_connection().cursor()
-    cursor.execute('''
+    cursor.execute(f'''
         SELECT id, name
         FROM teaching_period
-        WHERE name LIKE ?
+        WHERE name LIKE ? {archived_query}
         ORDER BY teaching_period.name
     ''', (sql_search,))
     teaching_periods = cursor.fetchall()
-    cursor.execute('''
+    cursor.execute(f'''
         SELECT
           production_action.id,
           production_action.name,
@@ -734,24 +765,34 @@ def superadministrator():
         LEFT JOIN
           teaching_period on (teaching_period.id = semester.teaching_period_id)
         WHERE
-          production_action.name LIKE ?
+          production_action.name LIKE ? {archived_query}
         GROUP BY
           production_action.id, teaching_period.name
         ORDER BY
           production_action.name
     ''', (sql_search,))
     production_actions = cursor.fetchall()
-    cursor.execute('''
+    cursor.execute(f'''
         SELECT id, person.lastname || ' ' || person.firstname as person_name
         FROM person
-        WHERE firstname LIKE ? OR lastname LIKE ?
+        WHERE (firstname LIKE ? OR lastname LIKE ?)
+        AND (
+          id NOT IN (SELECT person_id FROM student) OR
+          id IN (
+            SELECT DISTINCT student.person_id
+            FROM student
+            LEFT JOIN registration
+            ON (registration.student_id = student.id)
+            LEFT JOIN teaching_period
+            ON (teaching_period.id = registration.teaching_period_id)
+            WHERE 1 {archived_query}))
         ORDER BY person.lastname
     ''', (sql_search, sql_search))
     people = cursor.fetchall()
     return render_template(
         'superadministrator.jinja2.html', teaching_periods=teaching_periods,
         production_actions=production_actions, people=people,
-        search=query_search)
+        search=query_search, archived=archived)
 
 
 @app.route('/teaching-period/<int:teaching_period_id>',
