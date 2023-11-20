@@ -144,6 +144,7 @@ label:has(+ input[type="radio"]) + input[type="radio"] {
   color: var(--white);
   float: right;
   margin-right: 0;
+  min-width: min-content;
   padding: 1em;
   text-align: center;
   transition: 0.2s;
@@ -239,7 +240,7 @@ label:has(+ input[type="radio"]) + input[type="radio"] {
 
 /* Nav */
 
-nav  {
+nav {
   background: var(--grey);
   border-bottom: 1px solid var(--red);
   display: flex;
@@ -286,7 +287,7 @@ nav li.login a::before {
 #messages {
   bottom: 0;
   position: fixed;
-  right: 0;
+  left: 0;
   width: 20em;
 }
 
@@ -294,7 +295,7 @@ nav li.login a::before {
   backdrop-filter: blur(0.3em);
   background: #fffc;
   border: 1px solid;
-  border-radius: 0.1em;
+  border-radius: 0.2em;
   box-shadow: 0.1em 0.1em 0.3em #0004;
   font-size: 0.8em;
   line-height: 1.2;
@@ -373,30 +374,35 @@ nav li.login a::before {
 
 /* Marks */
 
-#page-marks form {
+#page-marks main form {
   width: 100%;
 }
 
-#page-marks section {
+#page-marks main section {
   border-bottom: 1px solid var(--grey);
   display: flex;
   justify-content: space-between;
 }
 
-#page-marks section:last-of-type {
+#page-marks main section:last-of-type {
   border-bottom: none;
 }
 
-#page-marks section > * {
+#page-marks main section > * {
   margin: 1em 0;
   width: 30%;
 }
 
-#page-marks .button {
-  bottom: 3em;
+#page-marks main textarea {
+  height: 4em;
+  padding: 0.25em 0.5em;
+}
+
+#page-marks main .button {
+  bottom: 1em;
   margin: 0;
   position: fixed;
-  right: 3em;
+  right: 1em;
   width: 10%;
 }
 
