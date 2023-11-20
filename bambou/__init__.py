@@ -1706,7 +1706,8 @@ def base64(bytes):
 
 @app.context_processor
 def inject_variables():
-    return {'user': user}
+    style_mtime = (Path(app.static_folder) / 'style.css').stat().st_mtime
+    return {'user': user, 'style_mtime': int(style_mtime)}
 
 
 @app.teardown_appcontext
