@@ -107,9 +107,8 @@ cursor.execute(
     'DELETE FROM production_action WHERE id in (496, 521, 500, 525)')
 cursor.execute(
     'UPDATE production_action SET code = id WHERE code = \'\'')
-cursor.execute('ALTER TABLE production_action RENAME TO production_action_old')
 cursor.execute('''
-CREATE TABLE production_action (
+CREATE TABLE production_action_new (
   id INTEGER PRIMARY KEY,
   teacher_id INTEGER REFERENCES teacher(id),
   code TEXT NOT NULL UNIQUE,
@@ -118,30 +117,31 @@ CREATE TABLE production_action (
   language BOOLEAN NOT NULL DEFAULT false
 )''')
 cursor.execute(
-    'INSERT INTO production_action SELECT * FROM production_action_old')
-cursor.execute('DROP TABLE production_action_old')
+    'INSERT INTO production_action_new SELECT * FROM production_action')
+cursor.execute('DROP TABLE production_action')
+cursor.execute('ALTER TABLE production_action_new RENAME TO production_action')
 
-cursor.execute('ALTER TABLE registration RENAME TO registration_old')
 cursor.execute('''
-CREATE TABLE registration (
+CREATE TABLE registration_new (
   id INTEGER PRIMARY KEY,
   teaching_period_id INTEGER NOT NULL REFERENCES teaching_period(id),
   student_id INTEGER NOT NULL REFERENCES student(id),
   CONSTRAINT registration_unique UNIQUE (teaching_period_id, student_id)
 )''')
-cursor.execute('INSERT INTO registration SELECT * FROM registration_old')
-cursor.execute('DROP TABLE registration_old')
+cursor.execute('INSERT INTO registration_new SELECT * FROM registration')
+cursor.execute('DROP TABLE registration')
+cursor.execute('ALTER TABLE registration_new RENAME TO registration')
 
-cursor.execute('ALTER TABLE tutoring RENAME TO tutoring_old')
 cursor.execute('''
-CREATE TABLE tutoring (
+CREATE TABLE tutoring_new (
   id INTEGER PRIMARY KEY,
   tutor_id INTEGER NOT NULL REFERENCES tutor(id),
   registration_id INTEGER NOT NULL REFERENCES registration(id),
   CONSTRAINT tutoring_unique UNIQUE (tutor_id, registration_id)
 )''')
-cursor.execute('INSERT INTO tutoring SELECT * FROM tutoring_old')
-cursor.execute('DROP TABLE tutoring_old')
+cursor.execute('INSERT INTO tutoring_new SELECT * FROM tutoring')
+cursor.execute('DROP TABLE tutoring')
+cursor.execute('ALTER TABLE tutoring_new RENAME TO tutoring')
 
 cursor.execute('PRAGMA foreign_keys=ON')
 
