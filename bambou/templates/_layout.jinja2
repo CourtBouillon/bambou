@@ -10,7 +10,7 @@
   <body id="page-{{ request.endpoint }}">
     <header>
       <nav>
-        <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_ipi.svg') }}"></a>
+        <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='logo_ipi.png') }}"></a>
         <ul>
           {% if g.person %}
             <li class="profile"><a href="{{ url_for('profile') }}">Mon profil</a></li>

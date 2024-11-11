@@ -19,7 +19,7 @@
         Relevé final de validation de modules<br>
         {{ student.teaching_period_name }}
       </h2>
-      <img id="ipi-logo" src="{{ url_for('static', filename='logo_ipi_printable.svg') }}">
+      <img id="ipi-logo" src="{{ url_for('static', filename='logo_ipi.png') }}">
       {% if student.training_company_logo %}
         <img id="training-logo" src="data:image/png;base64,{{ student.training_company_logo | base64 }}">
       {% endif %}
