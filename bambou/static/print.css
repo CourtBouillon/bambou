@@ -130,13 +130,6 @@ th:empty {
   height: 1.5cm;
 }
 
-#training-logo {
-  position: absolute;
-  right: 0;
-  top: -1.2cm;
-  height: 1.5cm;
-}
-
 #admission {
   height: 6.5em;
 }
