@@ -556,6 +556,7 @@ def report(registration_id=None, printable=False, admitted=True):
             JOIN teaching_period ON (
               teaching_period.id = registration.teaching_period_id)
             WHERE student.person_id = ? {archived_query}
+            ORDER BY registration.id DESC
         ''', (session['person_id'],))
         registration = cursor.fetchone()
         if registration:
