@@ -435,11 +435,12 @@ nav li.login a::before {
   width: 100%;
 }
 
-.semester-marks table td:nth-child(3),
-.semester-comment td:nth-child(2) {
+.semester-marks table tr > *:nth-child(3),
+.semester-comment tr > *:nth-child(2) {
   text-align: left;
+  white-space: pre-wrap;
 }
-.semester-marks table td:nth-child(3) {
+.semester-marks table tr > *:nth-child(3) {
   padding-left: 2em;
 }
 
